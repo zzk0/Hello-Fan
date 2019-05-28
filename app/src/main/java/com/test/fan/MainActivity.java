@@ -31,12 +31,14 @@ public class MainActivity extends AppCompatActivity
     private int prePos;
 
     // Constant
-    private static final String[] TAGS = {"home", "dict", "setting", "history"};
+    private static final String[] TAGS = {"home", "s2t", "t2s", "reading", "history", "setting"};
     private static final String PRE = "PREPOS";
     private static final int HOME = 0;
-    private static final int DICT = 1;
-    private static final int SETTING = 2;
-    private static final int HISTORY = 3;
+    private static final int S2T = 1;
+    private static final int T2S = 2;
+    private static final int READING = 3;
+    private static final int HISTORY = 4;
+    private static final int SETTING = 5;
     private static final int READ_WRITE_PERM = 2333;
 
     @Override
@@ -69,21 +71,27 @@ public class MainActivity extends AppCompatActivity
                 prePos = 0;
                 fragments = new ArrayList<>();
                 fragments.add(new HomeFragment());
-                fragments.add(new DictFragment());
-                fragments.add(new SettingFragment());
+                fragments.add(new S2TFragment());
+                fragments.add(new T2SFragment());
+                fragments.add(new ReadingFragment());
                 fragments.add(new HistoryFragment());
+                fragments.add(new SettingFragment());
             }
             else {
                 prePos = savedInstanceState.getInt(PRE);
                 fragments = new ArrayList<>();
                 HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag(TAGS[0]);
-                DictFragment dictFragment = (DictFragment) getSupportFragmentManager().findFragmentByTag(TAGS[1]);
-                SettingFragment settingFragment = (SettingFragment) getSupportFragmentManager().findFragmentByTag(TAGS[2]);
-                HistoryFragment historyFragment = (HistoryFragment) getSupportFragmentManager().findFragmentByTag(TAGS[3]);
+                S2TFragment s2TFragment = (S2TFragment) getSupportFragmentManager().findFragmentByTag(TAGS[1]);
+                T2SFragment t2SFragment = (T2SFragment) getSupportFragmentManager().findFragmentByTag(TAGS[2]);
+                ReadingFragment readingFragment = (ReadingFragment) getSupportFragmentManager().findFragmentByTag(TAGS[3]);
+                HistoryFragment historyFragment = (HistoryFragment) getSupportFragmentManager().findFragmentByTag(TAGS[4]);
+                SettingFragment settingFragment = (SettingFragment) getSupportFragmentManager().findFragmentByTag(TAGS[5]);
                 fragments.add(homeFragment);
-                fragments.add(dictFragment);
-                fragments.add(settingFragment);
+                fragments.add(s2TFragment);
+                fragments.add(t2SFragment);
+                fragments.add(readingFragment);
                 fragments.add(historyFragment);
+                fragments.add(settingFragment);
             }
             setDefaultFragment(prePos);
         }
@@ -101,11 +109,12 @@ public class MainActivity extends AppCompatActivity
             }
 
             if (granted) {
-                fragments = new ArrayList<>();
                 fragments.add(new HomeFragment());
-                fragments.add(new DictFragment());
-                fragments.add(new SettingFragment());
+                fragments.add(new S2TFragment());
+                fragments.add(new T2SFragment());
+                fragments.add(new ReadingFragment());
                 fragments.add(new HistoryFragment());
+                fragments.add(new SettingFragment());
                 setDefaultFragment(HOME);
             }
             else {
@@ -165,12 +174,21 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_home) {
             switchFragment(HOME);
-        } else if (id == R.id.nav_dict) {
-            switchFragment(DICT);
-        } else if (id == R.id.nav_setting) {
-            switchFragment(SETTING);
-        } else if (id == R.id.nav_history) {
+        }
+        else if (id == R.id.nav_s2t) {
+            switchFragment(S2T);
+        }
+        else if (id == R.id.nav_t2s) {
+            switchFragment(T2S);
+        }
+        else if (id == R.id.nav_reading) {
+            switchFragment(READING);
+        }
+        else if (id == R.id.nav_history) {
             switchFragment(HISTORY);
+        }
+        else if (id == R.id.nav_setting) {
+            switchFragment(SETTING);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
