@@ -1,3 +1,7 @@
+/*
+关于设置的内容，使用SharedPreference来保存，比如每天的单词数目。
+*/
+
 package com.test.fan;
 
 import android.os.Bundle;
