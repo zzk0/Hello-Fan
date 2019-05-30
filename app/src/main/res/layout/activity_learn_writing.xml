@@ -15,14 +15,14 @@
         android:orientation="horizontal">
 
         <com.test.view.HeightAdaptImageView
-            android:id="@+id/imageViewSimplified"
+            android:id="@+id/imageview_simplified"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingRight="8dp"/>
 
         <com.test.view.HeightAdaptImageView
-            android:id="@+id/imageViewTraditional"
+            android:id="@+id/imageview_traditional"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -31,6 +31,7 @@
     </LinearLayout>
 
     <WebView
+        android:id="@+id/webview_writing"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -42,14 +43,14 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/buttonClean"
+            android:id="@+id/button_clean"
             android:text="@string/button_clean"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content" />
 
         <Button
-            android:id="@+id/buttonNext"
+            android:id="@+id/button_next"
             android:text="@string/button_next"
             android:layout_weight="1"
             android:layout_width="0dp"
