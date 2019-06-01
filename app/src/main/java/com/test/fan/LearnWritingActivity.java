@@ -37,7 +37,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         buttonNext = findViewById(R.id.button_next);
 
         Picasso.get().load("http://img.qqzhi.com/uploads/2019-04-29/191416264.jpg").into(imageViewSimplified);
-        Picasso.get().load("http://img.qqzhi.com/uploads/2019-05-05/200800182.jpg").into(imageViewTraditional);
+//        Picasso.get().load("http://img.qqzhi.com/uploads/2019-05-05/200800182.jpg").into(imageViewTraditional);
 
         webView.setWebChromeClient(new WebChromeClient());
         WebSettings set = webView.getSettings();

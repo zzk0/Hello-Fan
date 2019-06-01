@@ -23,6 +23,7 @@
 
         <com.test.view.HeightAdaptImageView
             android:id="@+id/imageview_traditional"
+            android:src="@drawable/ic_19999"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
