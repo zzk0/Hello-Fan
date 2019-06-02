@@ -20,12 +20,12 @@ public class Hanzi {
 
     public Hanzi(Context context) {
         this.context = context;
-        this.currentStroke = 0;
-        this.strokes = new ArrayList<>();
     }
 
     public void setCharacter(String character) {
         this.character = character;
+        this.currentStroke = 0;
+        this.strokes = new ArrayList<>();
         String json = CharacterJsonReader.query(character);
         List<Path> paths = StrokeParser.parse(json);
         // 对strokes内容进行初始化
@@ -46,12 +46,32 @@ public class Hanzi {
     // 这个方法用来闪一闪这个文字，来提醒用户下一个要写的字在哪里
     // 需要View的作用，做动画特效需要调用View的invalidate方法，这个模型里面没有view，只好传一个进来了。
     public void prompt(View view) {
-        strokes.get(currentStroke).prompt(view);
+        if (currentStroke < strokes.size()) {
+            strokes.get(currentStroke).prompt(view);
+        }
     }
 
     // 这个方法用来完成这个笔画的渲染，当这个笔画写好了之后，从灰色渐变成黑色
-    public void finish(View view) {
-        strokes.get(currentStroke).finish(view);
-        currentStroke = currentStroke + 1;
+    public void finishOneStroke(View view) {
+        if (currentStroke < strokes.size()) {
+            strokes.get(currentStroke).finish(view);
+            currentStroke = currentStroke + 1;
+        }
+    }
+
+    public void reset(View view) {
+        for (int i = 0; i < strokes.size(); i++) {
+            strokes.get(i).reset(view);
+        }
+        currentStroke = 0;
+    }
+
+    // 根据HanziView的大小来设置Stroke的大小
+    public void setHanziSize(int width, int height) {
+
+    }
+
+    public boolean isFinish() {
+        return currentStroke == strokes.size();
     }
 }

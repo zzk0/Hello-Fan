@@ -9,6 +9,8 @@ import android.webkit.WebView;
 import android.widget.Button;
 
 import com.squareup.picasso.Picasso;
+import com.test.model.Hanzi;
+import com.test.view.HanziView;
 import com.test.view.HeightAdaptImageView;
 
 import java.util.ArrayList;
@@ -18,9 +20,7 @@ public class LearnWritingActivity extends AppCompatActivity {
 
     HeightAdaptImageView imageViewSimplified;
     HeightAdaptImageView imageViewTraditional;
-    WebView webView;
-    Button buttonClean;
-    Button buttonNext;
+    HanziView hanziView;
 
     List<String> words;
     int currentWord = 0;
@@ -32,39 +32,11 @@ public class LearnWritingActivity extends AppCompatActivity {
 
         imageViewSimplified = findViewById(R.id.imageview_simplified);
         imageViewTraditional = findViewById(R.id.imageview_traditional);
-        webView = findViewById(R.id.webview_writing);
-        buttonClean = findViewById(R.id.button_clean);
-        buttonNext = findViewById(R.id.button_next);
-
         Picasso.get().load("http://img.qqzhi.com/uploads/2019-04-29/191416264.jpg").into(imageViewSimplified);
-//        Picasso.get().load("http://img.qqzhi.com/uploads/2019-05-05/200800182.jpg").into(imageViewTraditional);
+        Picasso.get().load("http://img.qqzhi.com/uploads/2019-05-05/200800182.jpg").into(imageViewTraditional);
 
-        webView.setWebChromeClient(new WebChromeClient());
-        WebSettings set = webView.getSettings();
-        set.setJavaScriptEnabled(true);
-        webView.loadUrl("file:///android_asset/1.html");
-
-        // 根据words中第一个字去设置WebView中的内容
-        words = getTodayWords();
-        webView.loadUrl("javascript: newCharacter(" + words.get(currentWord) +")");
-        currentWord = currentWord + 1;
-
-        buttonClean.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                webView.loadUrl("javascript:reset()");
-            }
-        });
-
-        buttonNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentWord + 1 < words.size()) {
-                    webView.loadUrl("javascript: newCharacter(\'" + words.get(currentWord) +"\')");
-                    currentWord = currentWord + 1;
-                }
-            }
-        });
+        hanziView = findViewById(R.id.hanzi_view);
+        hanziView.setCharacter("x");
     }
 
     // 作用：获取今天的字的链表，暂且写成如此，做调试用
@@ -79,5 +51,19 @@ public class LearnWritingActivity extends AppCompatActivity {
         words.add("靈");
         words.add("醫");
         return words;
+    }
+
+    public void click(View view) {
+        switch (view.getId()) {
+            case R.id.button_clean:
+                hanziView.resetHanzi();
+                break;
+            case R.id.button_next:
+                hanziView.advance();
+                break;
+            case R.id.button_prompt:
+                hanziView.prompt();
+                break;
+        }
     }
 }
