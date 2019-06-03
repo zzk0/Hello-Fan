@@ -41,7 +41,7 @@ public class Stroke {
 
     // 闪烁当前笔画来提醒用户
     public void prompt(final View view) {
-        ObjectAnimator colorFade = ObjectAnimator.ofObject(paint, "color", new ArgbEvaluator(), Color.GRAY, Color.RED, Color.GRAY);
+        final ObjectAnimator colorFade = ObjectAnimator.ofObject(paint, "color", new ArgbEvaluator(), Color.GRAY, Color.RED, Color.GRAY);
         colorFade.setDuration(1000);
         colorFade.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
@@ -51,12 +51,17 @@ public class Stroke {
             }
 
         });
-        colorFade.start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                colorFade.start();
+            }
+        }).run();
     }
 
     // 渐变为黑色
     public void finish(final View view) {
-        ObjectAnimator colorFade = ObjectAnimator.ofObject(paint, "color", new ArgbEvaluator(), Color.GRAY, Color.BLACK);
+        final ObjectAnimator colorFade = ObjectAnimator.ofObject(paint, "color", new ArgbEvaluator(), Color.GRAY, Color.BLACK);
         colorFade.setDuration(1000);
         colorFade.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
@@ -66,7 +71,12 @@ public class Stroke {
             }
 
         });
-        colorFade.start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                colorFade.start();
+            }
+        }).run();
     }
 
     // 设置大小

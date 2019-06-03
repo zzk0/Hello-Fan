@@ -36,7 +36,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         Picasso.get().load("http://img.qqzhi.com/uploads/2019-05-05/200800182.jpg").into(imageViewTraditional);
 
         hanziView = findViewById(R.id.hanzi_view);
-        hanziView.setCharacter("x");
+        hanziView.setCharacter("龍");
     }
 
     // 作用：获取今天的字的链表，暂且写成如此，做调试用

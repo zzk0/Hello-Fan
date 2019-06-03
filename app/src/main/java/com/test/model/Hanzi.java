@@ -22,18 +22,25 @@ public class Hanzi {
         this.context = context;
     }
 
-    public void setCharacter(String character) {
+    // 这段代码开启多线程
+    // 需要注意可能遇到的一些问题
+    public void setCharacter(final String character) {
         this.character = character;
         this.currentStroke = 0;
         this.strokes = new ArrayList<>();
-        String json = CharacterJsonReader.query(character);
-        List<Path> paths = StrokeParser.parse(json);
-        // 对strokes内容进行初始化
-        for (Path path : paths) {
-            Stroke stroke = new Stroke(context);
-            stroke.setPath(path);
-            strokes.add(stroke);
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String json = CharacterJsonReader.query(context, character);
+                List<Path> paths = StrokeParser.parse(json);
+                // 对strokes内容进行初始化
+                for (Path path : paths) {
+                    Stroke stroke = new Stroke(context);
+                    stroke.setPath(path);
+                    strokes.add(stroke);
+                }
+            }
+        }).run();
     }
 
     // 调用每个笔画的draw方法
