@@ -13,14 +13,18 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.view.View;
+
+import java.util.List;
 
 public class Stroke {
 
     private Context context;
     private Path path;
+    private List<GPoint2D> median;
     private Paint paint;
 
     public Stroke(Context context) {
@@ -32,6 +36,10 @@ public class Stroke {
 
     public void setPath(Path path) {
         this.path = path;
+    }
+
+    public void setMedian(List<GPoint2D> median) {
+        this.median = median;
     }
 
     // 在canvas上，根据path，用paint，fill这个path
@@ -65,9 +73,15 @@ public class Stroke {
         colorFade.start();
     }
 
-    // 设置大小
+    // 设置大小, 不适用高度。
     public void setSize(int width, int height) {
-
+        float scale = width / 1024.0f;
+        Matrix matrix = new Matrix();
+        matrix.setScale(scale, scale);
+        path.transform(matrix);
+        for (GPoint2D point : median) {
+            point.scale(scale, scale);
+        }
     }
 
     public void reset(final View view) {

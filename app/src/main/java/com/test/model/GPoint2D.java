@@ -46,4 +46,9 @@ public class GPoint2D {
         }
         return false;
     }
+
+    public void scale(float sx, float sy) {
+        this.x = this.x * sx;
+        this.y = this.y * sy;
+    }
 }

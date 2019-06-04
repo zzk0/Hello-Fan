@@ -7,12 +7,9 @@ import android.graphics.Canvas;
 import android.graphics.Path;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 
 import com.test.model.GPoint2D;
 import com.test.model.Hanzi;
-import com.test.model.Stroke;
-import com.test.util.CharacterJsonReader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,10 +48,11 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
 
     // 使用这个方法来更新汉字
     public void setCharacter(String word) {
+        int mWidth = this.getMeasuredWidth();
         if (hanzi == null) {
             hanzi = new Hanzi(getContext());
         }
-        hanzi.setCharacter(word, this);
+        hanzi.setCharacter(this, word, mWidth);
     }
 
     // 这个方法提供给手势事件调用

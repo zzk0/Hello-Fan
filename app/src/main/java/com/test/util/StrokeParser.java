@@ -38,7 +38,28 @@ public class StrokeParser {
         return paths;
     }
 
-//    public static List<List<GPoint2D>>
+    public static List<List<GPoint2D>> getMedians(String json) {
+        List<List<GPoint2D>> medians = new ArrayList<>();
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            JSONArray jsonMedians = jsonObject.getJSONArray("medians");
+            for (int i = 0; i < jsonMedians.length(); i++) {
+                JSONArray median = jsonMedians.getJSONArray(i);
+                List<GPoint2D> oneMedian = new ArrayList<>();
+                for (int j = 0; j < median.length(); j++) {
+                    JSONArray coord = median.getJSONArray(j);
+                    int x = coord.getInt(0);
+                    int y = coord.getInt(1);
+                    oneMedian.add(new GPoint2D(x, -(y - 900)));
+                }
+                medians.add(oneMedian);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return medians;
+    }
 
     // 这里的标记参考了：https://www.jianshu.com/p/c819ae16d29b
     // 再根据类型转为代码，参考了：https://developer.android.com/reference/android/graphics/Path

@@ -24,7 +24,7 @@ public class Hanzi {
 
     // 这段代码开启多线程
     // 需要注意可能遇到的一些问题
-    public void setCharacter(final String character, final View view) {
+    public void setCharacter(final View view, final String character, final int width) {
         this.character = character;
         this.currentStroke = 0;
         this.strokes = new ArrayList<>();
@@ -33,12 +33,15 @@ public class Hanzi {
             public void run() {
                 String json = CharacterJsonReader.query(context, character);
                 List<Path> paths = StrokeParser.parse(json);
+                List<List<GPoint2D>> medians = StrokeParser.getMedians(json);
                 // 对strokes内容进行初始化
-                for (Path path : paths) {
+                for (int i = 0; i < paths.size(); i++) {
                     Stroke stroke = new Stroke(context);
-                    stroke.setPath(path);
+                    stroke.setPath(paths.get(i));
+                    stroke.setMedian(medians.get(i));
                     strokes.add(stroke);
                 }
+                setHanziSize(width, width);
                 view.invalidate();
             }
         }).start();
@@ -75,7 +78,11 @@ public class Hanzi {
     }
 
     // 根据HanziView的大小来设置Stroke的大小
-    public void setHanziSize(int width, int height) {}
+    public void setHanziSize(int width, int height) {
+        for (Stroke stroke : strokes) {
+            stroke.setSize(width, height);
+        }
+    }
 
     public boolean isFinish() {
         return currentStroke == strokes.size();
