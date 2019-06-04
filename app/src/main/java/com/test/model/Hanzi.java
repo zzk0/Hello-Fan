@@ -24,7 +24,7 @@ public class Hanzi {
 
     // 这段代码开启多线程
     // 需要注意可能遇到的一些问题
-    public void setCharacter(final String character) {
+    public void setCharacter(final String character, final View view) {
         this.character = character;
         this.currentStroke = 0;
         this.strokes = new ArrayList<>();
@@ -39,8 +39,9 @@ public class Hanzi {
                     stroke.setPath(path);
                     strokes.add(stroke);
                 }
+                view.invalidate();
             }
-        }).run();
+        }).start();
     }
 
     // 调用每个笔画的draw方法
@@ -74,9 +75,7 @@ public class Hanzi {
     }
 
     // 根据HanziView的大小来设置Stroke的大小
-    public void setHanziSize(int width, int height) {
-
-    }
+    public void setHanziSize(int width, int height) {}
 
     public boolean isFinish() {
         return currentStroke == strokes.size();

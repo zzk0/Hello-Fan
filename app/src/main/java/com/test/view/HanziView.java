@@ -1,31 +1,39 @@
 package com.test.view;
 
 import android.content.Context;
+import android.gesture.GestureOverlayView;
+import android.gesture.GesturePoint;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
+import com.test.model.GPoint2D;
 import com.test.model.Hanzi;
 import com.test.model.Stroke;
 import com.test.util.CharacterJsonReader;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class HanziView extends View {
+public class HanziView extends GestureOverlayView implements GestureOverlayView.OnGestureListener {
 
     private Hanzi hanzi;
 
     public HanziView(Context context) {
         super(context);
+        addOnGestureListener(this);
     }
 
     public HanziView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
+        addOnGestureListener(this);
     }
 
     public HanziView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        addOnGestureListener(this);
     }
 
     @Override
@@ -46,7 +54,7 @@ public class HanziView extends View {
         if (hanzi == null) {
             hanzi = new Hanzi(getContext());
         }
-        hanzi.setCharacter(word);
+        hanzi.setCharacter(word, this);
     }
 
     // 这个方法提供给手势事件调用
@@ -72,4 +80,28 @@ public class HanziView extends View {
     private List<Path> getStrokes() { return null; }
 
     private String getCharacterInfo() { return "a json object"; }
+
+    @Override
+    public void onGesture(GestureOverlayView overlay, MotionEvent event) {
+
+    }
+
+    @Override
+    public void onGestureStarted(GestureOverlayView overlay, MotionEvent event) {
+
+    }
+
+    @Override
+    public void onGestureEnded(GestureOverlayView overlay, MotionEvent event) {
+        List<GPoint2D> points = new ArrayList<>();
+        for (GesturePoint point : overlay.getCurrentStroke()) {
+            GPoint2D newPoint = new GPoint2D(point.x, point.y);
+            points.add(newPoint);
+        }
+    }
+
+    @Override
+    public void onGestureCancelled(GestureOverlayView overlay, MotionEvent event) {
+
+    }
 }

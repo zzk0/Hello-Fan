@@ -9,6 +9,8 @@ package com.test.util;
 
 import android.graphics.Path;
 
+import com.test.model.GPoint2D;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -35,6 +37,8 @@ public class StrokeParser {
         }
         return paths;
     }
+
+//    public static List<List<GPoint2D>>
 
     // 这里的标记参考了：https://www.jianshu.com/p/c819ae16d29b
     // 再根据类型转为代码，参考了：https://developer.android.com/reference/android/graphics/Path
