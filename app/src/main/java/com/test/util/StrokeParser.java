@@ -38,6 +38,33 @@ public class StrokeParser {
         return paths;
     }
 
+    public static List<Path> getMediansPath(String json) {
+        List<Path> mediansPath = new ArrayList<>();
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            JSONArray jsonMedians = jsonObject.getJSONArray("medians");
+            for (int i = 0; i < jsonMedians.length(); i++) {
+                JSONArray median = jsonMedians.getJSONArray(i);
+                Path path = new Path();
+                JSONArray coord = median.getJSONArray(0);
+                int x = coord.getInt(0);
+                int y = coord.getInt(1);
+                path.moveTo(x, y);
+                for (int j = 1; j < median.length(); j++) {
+                    coord = median.getJSONArray(j);
+                    x = coord.getInt(0);
+                    y = coord.getInt(1);
+                    path.lineTo(x, y);
+                }
+                mediansPath.add(path);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return mediansPath;
+    }
+
     public static List<List<GPoint2D>> getMedians(String json) {
         List<List<GPoint2D>> medians = new ArrayList<>();
         try {

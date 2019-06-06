@@ -67,6 +67,10 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         hanzi.finishOneStroke(this);
     }
 
+    public void animateStrokes() {
+        hanzi.animateStroke(this);
+    }
+
     public void resetHanzi() {
         hanzi.reset(this);
     }

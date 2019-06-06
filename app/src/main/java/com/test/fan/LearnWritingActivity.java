@@ -42,6 +42,8 @@ public class LearnWritingActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         hanziView.setCharacter("龍");
+        ((HanziView) findViewById(R.id.hanzi_view1)).setCharacter("黷");
+        ((HanziView) findViewById(R.id.hanzi_view2)).setCharacter("齋");
     }
 
     // 作用：获取今天的字的链表，暂且写成如此，做调试用
@@ -67,7 +69,7 @@ public class LearnWritingActivity extends AppCompatActivity {
                 hanziView.advance();
                 break;
             case R.id.button_prompt:
-                hanziView.prompt();
+                hanziView.animateStrokes();
                 break;
         }
     }

@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             if (granted) {
+                fragments = new ArrayList<>();
                 fragments.add(new HomeFragment());
                 fragments.add(new S2TFragment());
                 fragments.add(new T2SFragment());
