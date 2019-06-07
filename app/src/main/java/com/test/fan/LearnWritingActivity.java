@@ -18,7 +18,7 @@ public class LearnWritingActivity extends AppCompatActivity {
     HanziView simplifiedHanzi;
     HanziView traditionalHanzi;
 
-    List<Tuple<String, String>> words;
+    List<Tuple<String, String, Integer>> words;
     int currentWord = 0;
 
     @Override
@@ -39,12 +39,12 @@ public class LearnWritingActivity extends AppCompatActivity {
     }
 
     // 作用：获取今天的字的链表，暂且写成如此，做调试用
-    private List<Tuple<String, String>> getTodayWords() {
-        List<Tuple<String, String>> words = new ArrayList<>();
+    private List<Tuple<String, String, Integer>> getTodayWords() {
+        List<Tuple<String, String, Integer>> words = new ArrayList<>();
         SharedPreferences sharedPreferences = getSharedPreferences("fan_data", 0);
         String todayWords = sharedPreferences.getString("words", "");
-        for (int i = 0; i < todayWords.length(); i += 2) {
-            words.add(new Tuple<>("" + todayWords.charAt(i), "" + todayWords.charAt(i + 1)));
+        for (int i = 0; i < todayWords.length(); i += 3) {
+            words.add(new Tuple<>("" + todayWords.charAt(i), "" + todayWords.charAt(i + 1), Integer.valueOf(todayWords.charAt(i + 2))));
         }
         return words;
     }
