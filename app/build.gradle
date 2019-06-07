@@ -28,5 +28,10 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-//    implementation 'com.qw:soulpermission:1.1.6'
+
+    implementation 'com.github.sd6352051:NiftyDialogEffects:v1.0.3'
+    //https://github.com/arimorty/floatingsearchview 第三方搜索控件
+    implementation 'com.github.arimorty:floatingsearchview:2.1.1'
+    //https://github.com/afollestad/material-dialogs
+    //implementation 'com.afollestad.material-dialogs:core:3.0.0-rc1'
 }
