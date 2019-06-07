@@ -111,28 +111,20 @@ public class Stroke {
     // 可能的原因是并行运算的结果。
     public void animateStroke(final View view) {
         mediansPath.moveTo(resampleMedian.get(0).x, resampleMedian.get(0).y);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < resampleMedian.size(); i++) {
-                    Path tempPath = new Path();
-                    tempPath.addCircle(resampleMedian.get(i).x, resampleMedian.get(i).y, strokeWidth, Path.Direction.CW);
-                    tempPath.op(mediansPath, Path.Op.UNION);
-                    tempPath.op(path, Path.Op.INTERSECT);
-                    mediansPath = tempPath;
-                    view.invalidate();
-                    try {
-                        Thread.sleep(50);
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (nextStroke != null) {
-                    nextStroke.animateStroke(view);
-                }
+        for (int i = 0; i < resampleMedian.size(); i++) {
+            Path tempPath = new Path();
+            tempPath.addCircle(resampleMedian.get(i).x, resampleMedian.get(i).y, strokeWidth, Path.Direction.CW);
+            tempPath.op(mediansPath, Path.Op.UNION);
+            tempPath.op(path, Path.Op.INTERSECT);
+            mediansPath = tempPath;
+            view.invalidate();
+            try {
+                Thread.sleep(50);
             }
-        }).start();
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     // 设置大小, 不使用高度。
@@ -148,6 +140,11 @@ public class Stroke {
             point.scale(scale, scale);
         }
         strokeWidth = strokeWidth * scale;
+    }
+
+    // 设置颜色
+    public void setColor(int color) {
+        paint.setColor(color);
     }
 
     public void reset(final View view) {

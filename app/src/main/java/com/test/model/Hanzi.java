@@ -2,7 +2,9 @@ package com.test.model;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Path;
 import android.view.View;
 
@@ -20,10 +22,44 @@ public class Hanzi {
     private int currentStroke;
     private List<Stroke> strokes;
     private StrokesMatcher strokesMatcher;
+    private int color;
+    private boolean animateStrokesLoop;
+    private boolean animateStrokesOnce;
+    private boolean haveBackground;
+    private boolean haveScaledBackground;
+    private Path background;
+    private Paint backgroundPaint;
+    private Thread animateThread;
+
+    private static final float SVG_WIDTH = 1024.0f;
 
     public Hanzi(Context context) {
         this.context = context;
         strokesMatcher = new StrokesMatcher();
+        color = Color.GRAY;
+        animateStrokesLoop = false;
+        animateStrokesOnce = false;
+        haveBackground = false;
+        haveScaledBackground = false;
+
+        background = new Path();
+        background.moveTo(0.0f, 0.0f);
+        background.lineTo(SVG_WIDTH, 0.0f);
+        background.lineTo(0.0f, SVG_WIDTH);
+        background.lineTo(SVG_WIDTH, SVG_WIDTH);
+        background.lineTo(0.0f, 0.0f);
+        background.lineTo(0.0f, SVG_WIDTH);
+        background.moveTo(SVG_WIDTH, 0.0f);
+        background.lineTo(SVG_WIDTH, SVG_WIDTH);
+        background.moveTo(0.0f, SVG_WIDTH / 2.0f);
+        background.lineTo(SVG_WIDTH, SVG_WIDTH / 2.0f);
+        background.moveTo(SVG_WIDTH / 2.0f, 0.0f);
+        background.lineTo(SVG_WIDTH / 2.0f, SVG_WIDTH);
+
+        backgroundPaint = new Paint();
+        backgroundPaint.setStrokeWidth(5.0f);
+        backgroundPaint.setColor(0x8A8A8AFF);
+        backgroundPaint.setStyle(Paint.Style.STROKE);
     }
 
     // 这段代码开启多线程
@@ -32,6 +68,9 @@ public class Hanzi {
         this.character = character;
         this.currentStroke = 0;
         this.strokes = new ArrayList<>();
+        if (animateThread != null) {
+            this.animateThread.interrupt();
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -43,26 +82,84 @@ public class Hanzi {
                     Stroke stroke = new Stroke(context);
                     stroke.setPath(paths.get(i));
                     stroke.setMedian(medians.get(i));
+                    stroke.setColor(color);
                     strokes.add(stroke);
                 }
                 for (int i = 0; i < paths.size() - 1; i++) {
                     strokes.get(i).setNextStroke(strokes.get(i + 1));
                 }
                 setHanziSize(width, width);
+                if (!haveScaledBackground && haveBackground) {
+                    float scale = width / SVG_WIDTH;
+                    Matrix matrix = new Matrix();
+                    matrix.setScale(scale, scale);
+                    background.transform(matrix);
+                    haveScaledBackground = true;
+                }
+                if (animateStrokesLoop) {
+                    loopAnimateStroke(view);
+                }
+                else if (animateStrokesOnce) {
+                    animateStroke(view);
+                }
                 view.invalidate();
             }
         }).start();
     }
 
+    // 请在设置汉字之前设置调用
+    public void setColor(int color) {
+        this.color = color;
+    }
+
+    public void setAnimateStrokesLoop(boolean animateStrokesLoop) {
+        this.animateStrokesLoop = animateStrokesLoop;
+    }
+
+    public void setAnimateStrokesOnce(boolean animateStrokesOnce) {
+        this.animateStrokesOnce = animateStrokesOnce;
+    }
+
+    public void setHaveBackground(boolean haveBackground) {
+        this.haveBackground = haveBackground;
+    }
+
     // 调用每个笔画的draw方法
     public void draw(Canvas canvas) {
+        if (haveBackground) {
+            canvas.drawPath(background, backgroundPaint);
+        }
         for (int i = strokes.size() - 1; i >= 0; i--) {
             strokes.get(i).draw(canvas);
         }
     }
 
-    public void animateStroke(View view) {
-        strokes.get(0).animateStroke(view);
+    public void animateStroke(final View view) {
+        animateThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < strokes.size(); i++) {
+                    strokes.get(i).animateStroke(view);
+                }
+            }
+        });
+        animateThread.start();
+    }
+
+    public void loopAnimateStroke(final View view) {
+        animateThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < strokes.size(); i++) {
+                    strokes.get(i).animateStroke(view);
+                    if (i == (strokes.size() - 1)) {
+                        i = -1;
+                        reset(view);
+                    }
+                }
+            }
+        });
+        animateThread.start();
     }
 
     // 这个方法用来闪一闪这个文字，来提醒用户下一个要写的字在哪里
@@ -97,9 +194,6 @@ public class Hanzi {
         for (Stroke stroke : strokes) {
             stroke.setSize(width, height);
         }
-        float scale = width / 1024.0f;
-        Matrix matrix = new Matrix();
-        matrix.setScale(scale, scale);
     }
 
     public boolean isFinish() {

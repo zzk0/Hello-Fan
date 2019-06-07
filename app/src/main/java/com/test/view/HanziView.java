@@ -4,6 +4,7 @@ import android.content.Context;
 import android.gesture.GestureOverlayView;
 import android.gesture.GesturePoint;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
@@ -17,6 +18,10 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
 
     private Hanzi hanzi;
     private int wrongTimes;
+    private int color;
+    private boolean loopAnimateStrokes;
+    private boolean animateStrokes;
+    private boolean haveBackground;
 
     public HanziView(Context context) {
         super(context);
@@ -36,6 +41,10 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
     private void init() {
         addOnGestureListener(this);
         wrongTimes = 0;
+        color = Color.GRAY;
+        loopAnimateStrokes = false;
+        animateStrokes = false;
+        haveBackground = false;
     }
 
     @Override
@@ -57,6 +66,10 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         if (hanzi == null) {
             hanzi = new Hanzi(getContext());
         }
+        hanzi.setColor(color);
+        hanzi.setHaveBackground(haveBackground);
+        hanzi.setAnimateStrokesLoop(loopAnimateStrokes);
+        hanzi.setAnimateStrokesOnce(animateStrokes);
         hanzi.setCharacter(this, word, mWidth);
     }
 
@@ -72,8 +85,26 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         hanzi.finishOneStroke(this);
     }
 
-    public void animateStrokes() {
-        hanzi.animateStroke(this);
+    // 做测试
+    public void quiz() {
+
+    }
+
+    // 设置汉字的颜色
+    public void setCharacterColor(int color) {
+        this.color = color;
+    }
+
+    public void setLoopAnimate(boolean loopAnimateStrokes) {
+        this.loopAnimateStrokes = loopAnimateStrokes;
+    }
+
+    public void setAnimate(boolean animateStrokes) {
+        this.animateStrokes = animateStrokes;
+    }
+
+    public void setHaveBackground(boolean haveBackground) {
+        this.haveBackground = haveBackground;
     }
 
     public void resetHanzi() {
@@ -109,7 +140,6 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
             wrongTimes = wrongTimes + 1;
             if (wrongTimes > 2) {
                 hanzi.prompt(this);
-                wrongTimes = wrongTimes - 1;
             }
         }
     }
