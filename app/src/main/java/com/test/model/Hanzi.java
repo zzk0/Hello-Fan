@@ -16,7 +16,6 @@ public class Hanzi {
 
     private Context context;
     private String character;
-    private Path clipPath;
     private int currentStroke;
     private List<Stroke> strokes;
 
@@ -34,9 +33,7 @@ public class Hanzi {
             @Override
             public void run() {
                 String json = CharacterJsonReader.query(context, character);
-                clipPath = new Path();
                 List<Path> paths = StrokeParser.parse(json);
-                List<Path> mediansPath = StrokeParser.getMediansPath(json);
                 List<List<GPoint2D>> medians = StrokeParser.getMedians(json);
                 // 对strokes内容进行初始化
                 for (int i = 0; i < paths.size(); i++) {
@@ -44,8 +41,6 @@ public class Hanzi {
                     stroke.setPath(paths.get(i));
                     stroke.setMedian(medians.get(i));
                     strokes.add(stroke);
-                    // 更新clipPath
-                    clipPath.addPath(paths.get(i));
                 }
                 for (int i = 0; i < paths.size() - 1; i++) {
                     strokes.get(i).setNextStroke(strokes.get(i + 1));
@@ -58,7 +53,6 @@ public class Hanzi {
 
     // 调用每个笔画的draw方法
     public void draw(Canvas canvas) {
-        canvas.clipPath(clipPath);
         for (int i = strokes.size() - 1; i >= 0; i--) {
             strokes.get(i).draw(canvas);
         }
@@ -99,7 +93,6 @@ public class Hanzi {
         float scale = width / 1024.0f;
         Matrix matrix = new Matrix();
         matrix.setScale(scale, scale);
-        clipPath.transform(matrix);
     }
 
     public boolean isFinish() {

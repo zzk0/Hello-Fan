@@ -34,18 +34,19 @@ public class Stroke {
 
     private Stroke nextStroke; // 下一个笔画
     private int writingSpeed = 20; // 写字的速度
+    private float strokeWidth = 100.0f; // 笔画的宽度
 
     public Stroke(Context context) {
         this.context = context;
         paint = new Paint();
         paint.setColor(Color.GRAY);
         paint.setStyle(Paint.Style.FILL);
+        paint.setAntiAlias(true);
 
         strokePaint = new Paint();
         strokePaint.setColor(Color.BLACK);
-        strokePaint.setStrokeCap(Paint.Cap.ROUND);
-        strokePaint.setStyle(Paint.Style.STROKE);
-        strokePaint.setStrokeWidth(45);
+        strokePaint.setStyle(Paint.Style.FILL);
+        strokePaint.setAntiAlias(true);
 
         mediansPath = new Path();
     }
@@ -56,10 +57,6 @@ public class Stroke {
 
     public Path getPath() {
         return this.path;
-    }
-
-    public void setMediansPath(Path mediansPath) {
-        this.mediansPath = mediansPath;
     }
 
     public void setMedian(List<GPoint2D> median) {
@@ -105,15 +102,20 @@ public class Stroke {
         colorFade.start();
     }
 
-    // 这个方法中设置了Duration为1秒，这意味着，每个笔画的写完的时间开销都一样
-    // 但实际上应该根据笔画的长度来决定。后期可以计算笔画长度，然后根据长度计算时间。
+    // 实现的思路是，在重采样后的中点处，加一个Circle，和原来的Path做合并运算，再和笔画Path做交运算。
+    // 目前还潜藏着一个Bug：在龍的第十一画的地方，拐弯处会闪一下黑色的圆。
+    // 可能的原因是并行运算的结果。
     public void animateStroke(final View view) {
         mediansPath.moveTo(resampleMedian.get(0).x, resampleMedian.get(0).y);
         new Thread(new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < resampleMedian.size(); i++) {
-                    mediansPath.lineTo(resampleMedian.get(i).x, resampleMedian.get(i).y);
+                    Path tempPath = new Path();
+                    tempPath.addCircle(resampleMedian.get(i).x, resampleMedian.get(i).y, strokeWidth, Path.Direction.CW);
+                    tempPath.op(mediansPath, Path.Op.UNION);
+                    tempPath.op(path, Path.Op.INTERSECT);
+                    mediansPath = tempPath;
                     view.invalidate();
                     try {
                         Thread.sleep(50);
@@ -141,6 +143,7 @@ public class Stroke {
         for (GPoint2D point : resampleMedian) {
             point.scale(scale, scale);
         }
+        strokeWidth = strokeWidth * scale;
     }
 
     public void reset(final View view) {
