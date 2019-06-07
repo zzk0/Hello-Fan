@@ -31,18 +31,8 @@
     </LinearLayout>
 
     <com.test.view.HanziView
-        android:id="@+id/hanzi_view1"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content" />
-
-    <com.test.view.HanziView
-        android:id="@+id/hanzi_view2"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content" />
-
-    <com.test.view.HanziView
         android:id="@+id/hanzi_view"
-        android:layout_width="150dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content" />
 
     <LinearLayout

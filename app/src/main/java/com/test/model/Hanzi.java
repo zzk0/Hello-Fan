@@ -42,7 +42,6 @@ public class Hanzi {
                 for (int i = 0; i < paths.size(); i++) {
                     Stroke stroke = new Stroke(context);
                     stroke.setPath(paths.get(i));
-                    stroke.setMediansPath(mediansPath.get(i));
                     stroke.setMedian(medians.get(i));
                     strokes.add(stroke);
                     // 更新clipPath
@@ -51,7 +50,6 @@ public class Hanzi {
                 for (int i = 0; i < paths.size() - 1; i++) {
                     strokes.get(i).setNextStroke(strokes.get(i + 1));
                 }
-                strokes.get(strokes.size() - 1).setNextStroke(strokes.get(0));
                 setHanziSize(width, width);
                 view.invalidate();
             }
@@ -61,8 +59,8 @@ public class Hanzi {
     // 调用每个笔画的draw方法
     public void draw(Canvas canvas) {
         canvas.clipPath(clipPath);
-        for (Stroke stroke : strokes) {
-            stroke.draw(canvas);
+        for (int i = strokes.size() - 1; i >= 0; i--) {
+            strokes.get(i).draw(canvas);
         }
     }
 

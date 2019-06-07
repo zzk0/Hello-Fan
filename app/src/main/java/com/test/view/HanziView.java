@@ -95,11 +95,7 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
 
     @Override
     public void onGestureEnded(GestureOverlayView overlay, MotionEvent event) {
-        List<GPoint2D> points = new ArrayList<>();
-        for (GesturePoint point : overlay.getCurrentStroke()) {
-            GPoint2D newPoint = new GPoint2D(point.x, point.y);
-            points.add(newPoint);
-        }
+        hanzi.finishOneStroke(this);
     }
 
     @Override

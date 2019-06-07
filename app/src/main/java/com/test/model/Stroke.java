@@ -18,6 +18,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.view.View;
 
+import com.test.algorithm.Geometry;
+
 import java.util.List;
 
 public class Stroke {
@@ -25,13 +27,13 @@ public class Stroke {
     private Context context;
     private Path path;
     private Path mediansPath;
-    private Path testPath;
     private List<GPoint2D> median;
+    private List<GPoint2D> resampleMedian;
     private Paint paint;
     private Paint strokePaint;
 
-    // 下一个笔画
-    private Stroke nextStroke;
+    private Stroke nextStroke; // 下一个笔画
+    private int writingSpeed = 20; // 写字的速度
 
     public Stroke(Context context) {
         this.context = context;
@@ -45,7 +47,7 @@ public class Stroke {
         strokePaint.setStyle(Paint.Style.STROKE);
         strokePaint.setStrokeWidth(45);
 
-        testPath = new Path();
+        mediansPath = new Path();
     }
 
     public void setPath(Path path) {
@@ -62,6 +64,9 @@ public class Stroke {
 
     public void setMedian(List<GPoint2D> median) {
         this.median = median;
+
+        int sampleNumber = (int) Geometry.lengthOfPoints(median) / writingSpeed;
+        resampleMedian = Geometry.resample(median, sampleNumber);
     }
 
     public void setNextStroke(Stroke nextStroke) {
@@ -71,7 +76,7 @@ public class Stroke {
     // 在canvas上，根据path，用paint，fill这个path
     public void draw(Canvas canvas) {
         canvas.drawPath(path, paint);
-        canvas.drawPath(testPath, strokePaint);
+        canvas.drawPath(mediansPath, strokePaint);
     }
 
     // 闪烁当前笔画来提醒用户
@@ -103,12 +108,12 @@ public class Stroke {
     // 这个方法中设置了Duration为1秒，这意味着，每个笔画的写完的时间开销都一样
     // 但实际上应该根据笔画的长度来决定。后期可以计算笔画长度，然后根据长度计算时间。
     public void animateStroke(final View view) {
-        testPath.moveTo(median.get(0).x, median.get(0).y);
+        mediansPath.moveTo(resampleMedian.get(0).x, resampleMedian.get(0).y);
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < median.size(); i++) {
-                    testPath.lineTo(median.get(i).x, median.get(i).y);
+                for (int i = 0; i < resampleMedian.size(); i++) {
+                    mediansPath.lineTo(resampleMedian.get(i).x, resampleMedian.get(i).y);
                     view.invalidate();
                     try {
                         Thread.sleep(50);
@@ -122,29 +127,6 @@ public class Stroke {
                 }
             }
         }).start();
-//        ValueAnimator valueAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
-//        final long time = (long) (medianLength() / 55.0f) * 1000;
-//        valueAnimator.setDuration(time);
-//        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//            @Override
-//            public void onAnimationUpdate(ValueAnimator animation) {
-//                float t = (float) animation.getAnimatedValue();
-//                int lastIndex = median.size() - 1;
-//                int index = (int) t * lastIndex;
-//                if (index == (median.size() - 1)) {
-//                    testPath.lineTo(median.get(lastIndex).x, median.get(lastIndex).y);
-//                    if (nextStroke != null) {
-//                        nextStroke.animateStroke(view);
-//                    }
-//                    return;
-//                }
-//                float interpolateValue = t - 1.0f * index / median.size();
-//                GPoint2D interploatePoint = interpolate(median.get(index), median.get(index + 1), interpolateValue);
-//                testPath.lineTo(interploatePoint.x, interploatePoint.y);
-//                view.invalidate();
-//            }
-//        });
-//        valueAnimator.start();
     }
 
     // 设置大小, 不使用高度。
@@ -156,26 +138,14 @@ public class Stroke {
         for (GPoint2D point : median) {
             point.scale(scale, scale);
         }
+        for (GPoint2D point : resampleMedian) {
+            point.scale(scale, scale);
+        }
     }
 
     public void reset(final View view) {
         paint.setColor(Color.GRAY);
-        testPath = new Path();
+        mediansPath = new Path();
         view.invalidate();
-    }
-
-    // 返回Median的总长度
-    public float medianLength() {
-        float length = 0.0f;
-        for (int i = 0; i < median.size() - 1; i++) {
-            length += median.get(i).distanceTo(median.get(i + 1));
-        }
-        return length;
-    }
-
-    private GPoint2D interpolate(GPoint2D a, GPoint2D b, float t) {
-        float xx = a.x + t * (b.x - a.x);
-        float yy = a.y + t * (b.y - a.y);
-        return new GPoint2D(xx, yy);
     }
 }
