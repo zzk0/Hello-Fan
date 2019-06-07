@@ -2,6 +2,7 @@ package com.test.model;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Path;
 import android.view.View;
 
@@ -15,6 +16,7 @@ public class Hanzi {
 
     private Context context;
     private String character;
+    private Path clipPath;
     private int currentStroke;
     private List<Stroke> strokes;
 
@@ -24,7 +26,7 @@ public class Hanzi {
 
     // 这段代码开启多线程
     // 需要注意可能遇到的一些问题
-    public void setCharacter(final String character, final View view) {
+    public void setCharacter(final View view, final String character, final int width) {
         this.character = character;
         this.currentStroke = 0;
         this.strokes = new ArrayList<>();
@@ -32,13 +34,23 @@ public class Hanzi {
             @Override
             public void run() {
                 String json = CharacterJsonReader.query(context, character);
+                clipPath = new Path();
                 List<Path> paths = StrokeParser.parse(json);
+                List<Path> mediansPath = StrokeParser.getMediansPath(json);
+                List<List<GPoint2D>> medians = StrokeParser.getMedians(json);
                 // 对strokes内容进行初始化
-                for (Path path : paths) {
+                for (int i = 0; i < paths.size(); i++) {
                     Stroke stroke = new Stroke(context);
-                    stroke.setPath(path);
+                    stroke.setPath(paths.get(i));
+                    stroke.setMedian(medians.get(i));
                     strokes.add(stroke);
+                    // 更新clipPath
+                    clipPath.addPath(paths.get(i));
                 }
+                for (int i = 0; i < paths.size() - 1; i++) {
+                    strokes.get(i).setNextStroke(strokes.get(i + 1));
+                }
+                setHanziSize(width, width);
                 view.invalidate();
             }
         }).start();
@@ -46,9 +58,14 @@ public class Hanzi {
 
     // 调用每个笔画的draw方法
     public void draw(Canvas canvas) {
-        for (Stroke stroke : strokes) {
-            stroke.draw(canvas);
+        canvas.clipPath(clipPath);
+        for (int i = strokes.size() - 1; i >= 0; i--) {
+            strokes.get(i).draw(canvas);
         }
+    }
+
+    public void animateStroke(View view) {
+        strokes.get(0).animateStroke(view);
     }
 
     // 这个方法用来闪一闪这个文字，来提醒用户下一个要写的字在哪里
@@ -75,7 +92,15 @@ public class Hanzi {
     }
 
     // 根据HanziView的大小来设置Stroke的大小
-    public void setHanziSize(int width, int height) {}
+    public void setHanziSize(int width, int height) {
+        for (Stroke stroke : strokes) {
+            stroke.setSize(width, height);
+        }
+        float scale = width / 1024.0f;
+        Matrix matrix = new Matrix();
+        matrix.setScale(scale, scale);
+        clipPath.transform(matrix);
+    }
 
     public boolean isFinish() {
         return currentStroke == strokes.size();

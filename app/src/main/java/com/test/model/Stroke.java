@@ -13,30 +13,70 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.view.View;
+
+import com.test.algorithm.Geometry;
+
+import java.util.List;
 
 public class Stroke {
 
     private Context context;
     private Path path;
+    private Path mediansPath;
+    private List<GPoint2D> median;
+    private List<GPoint2D> resampleMedian;
     private Paint paint;
+    private Paint strokePaint;
+
+    private Stroke nextStroke; // 下一个笔画
+    private int writingSpeed = 20; // 写字的速度
 
     public Stroke(Context context) {
         this.context = context;
         paint = new Paint();
         paint.setColor(Color.GRAY);
         paint.setStyle(Paint.Style.FILL);
+
+        strokePaint = new Paint();
+        strokePaint.setColor(Color.BLACK);
+        strokePaint.setStrokeCap(Paint.Cap.ROUND);
+        strokePaint.setStyle(Paint.Style.STROKE);
+        strokePaint.setStrokeWidth(45);
+
+        mediansPath = new Path();
     }
 
     public void setPath(Path path) {
         this.path = path;
     }
 
+    public Path getPath() {
+        return this.path;
+    }
+
+    public void setMediansPath(Path mediansPath) {
+        this.mediansPath = mediansPath;
+    }
+
+    public void setMedian(List<GPoint2D> median) {
+        this.median = median;
+
+        int sampleNumber = (int) Geometry.lengthOfPoints(median) / writingSpeed;
+        resampleMedian = Geometry.resample(median, sampleNumber);
+    }
+
+    public void setNextStroke(Stroke nextStroke) {
+        this.nextStroke = nextStroke;
+    }
+
     // 在canvas上，根据path，用paint，fill这个path
     public void draw(Canvas canvas) {
         canvas.drawPath(path, paint);
+        canvas.drawPath(mediansPath, strokePaint);
     }
 
     // 闪烁当前笔画来提醒用户
@@ -65,13 +105,47 @@ public class Stroke {
         colorFade.start();
     }
 
-    // 设置大小
-    public void setSize(int width, int height) {
+    // 这个方法中设置了Duration为1秒，这意味着，每个笔画的写完的时间开销都一样
+    // 但实际上应该根据笔画的长度来决定。后期可以计算笔画长度，然后根据长度计算时间。
+    public void animateStroke(final View view) {
+        mediansPath.moveTo(resampleMedian.get(0).x, resampleMedian.get(0).y);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < resampleMedian.size(); i++) {
+                    mediansPath.lineTo(resampleMedian.get(i).x, resampleMedian.get(i).y);
+                    view.invalidate();
+                    try {
+                        Thread.sleep(50);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (nextStroke != null) {
+                    nextStroke.animateStroke(view);
+                }
+            }
+        }).start();
+    }
 
+    // 设置大小, 不使用高度。
+    public void setSize(int width, int height) {
+        float scale = width / 1024.0f;
+        Matrix matrix = new Matrix();
+        matrix.setScale(scale, scale);
+        path.transform(matrix);
+        for (GPoint2D point : median) {
+            point.scale(scale, scale);
+        }
+        for (GPoint2D point : resampleMedian) {
+            point.scale(scale, scale);
+        }
     }
 
     public void reset(final View view) {
         paint.setColor(Color.GRAY);
+        mediansPath = new Path();
         view.invalidate();
     }
 }

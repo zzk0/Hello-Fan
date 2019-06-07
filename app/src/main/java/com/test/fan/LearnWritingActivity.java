@@ -36,6 +36,11 @@ public class LearnWritingActivity extends AppCompatActivity {
         Picasso.get().load("http://img.qqzhi.com/uploads/2019-05-05/200800182.jpg").into(imageViewTraditional);
 
         hanziView = findViewById(R.id.hanzi_view);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
         hanziView.setCharacter("龍");
     }
 
@@ -62,7 +67,7 @@ public class LearnWritingActivity extends AppCompatActivity {
                 hanziView.advance();
                 break;
             case R.id.button_prompt:
-                hanziView.prompt();
+                hanziView.animateStrokes();
                 break;
         }
     }
