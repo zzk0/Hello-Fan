@@ -6,6 +6,7 @@ import android.graphics.Matrix;
 import android.graphics.Path;
 import android.view.View;
 
+import com.test.algorithm.StrokesMatcher;
 import com.test.util.CharacterJsonReader;
 import com.test.util.StrokeParser;
 
@@ -18,9 +19,11 @@ public class Hanzi {
     private String character;
     private int currentStroke;
     private List<Stroke> strokes;
+    private StrokesMatcher strokesMatcher;
 
     public Hanzi(Context context) {
         this.context = context;
+        strokesMatcher = new StrokesMatcher();
     }
 
     // 这段代码开启多线程
@@ -68,6 +71,10 @@ public class Hanzi {
         if (currentStroke < strokes.size()) {
             strokes.get(currentStroke).prompt(view);
         }
+    }
+
+    public boolean strokeMatch(List<GPoint2D> userStroke) {
+        return strokesMatcher.match(userStroke, strokes.get(currentStroke).getMedian());
     }
 
     // 这个方法用来完成这个笔画的渲染，当这个笔画写好了之后，从灰色渐变成黑色

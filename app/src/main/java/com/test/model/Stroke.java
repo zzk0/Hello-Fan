@@ -66,6 +66,10 @@ public class Stroke {
         resampleMedian = Geometry.resample(median, sampleNumber);
     }
 
+    public List<GPoint2D> getMedian() {
+        return this.median;
+    }
+
     public void setNextStroke(Stroke nextStroke) {
         this.nextStroke = nextStroke;
     }
@@ -92,7 +96,7 @@ public class Stroke {
     // 渐变为黑色
     public void finish(final View view) {
         final ObjectAnimator colorFade = ObjectAnimator.ofObject(paint, "color", new ArgbEvaluator(), Color.GRAY, Color.BLACK);
-        colorFade.setDuration(1000);
+        colorFade.setDuration(300);
         colorFade.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {

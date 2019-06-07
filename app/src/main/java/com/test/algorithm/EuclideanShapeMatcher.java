@@ -12,6 +12,6 @@ public class EuclideanShapeMatcher extends ShapeMatcher {
 
     @Override
     public boolean match(List<GPoint2D> a, List<GPoint2D> b) {
-        return false;
+        return true;
     }
 }

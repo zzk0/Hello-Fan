@@ -13,6 +13,7 @@
 package com.test.algorithm;
 
 import com.test.model.GPoint2D;
+import com.test.model.Vector2;
 
 import java.util.List;
 
@@ -26,9 +27,9 @@ public class StrokesMatcher {
     private ShapeMatcher shapeMatcher;
 
     public StrokesMatcher() {
-        startAndEndThreshold = 50.0f;
-        directionThreshold = 0.8f;
-        lengthThreshold = 50.0f;
+        startAndEndThreshold = 5000.0f;
+        directionThreshold = 0.5f;
+        lengthThreshold = 150.0f;
         shapeThreshold = 0.8f;
         shapeMatcher = new EuclideanShapeMatcher(shapeThreshold);
     }
@@ -53,7 +54,23 @@ public class StrokesMatcher {
 
     // 方向正确才Match，比如从左往右和从右往左就不能匹配
     private boolean directionMatch(List<GPoint2D> userStroke, List<GPoint2D> template) {
-        return false;
+        List<GPoint2D> resampleUserStroke = Geometry.resample(userStroke, template.size());
+        if (resampleUserStroke.size() != template.size()) {
+            return false;
+        }
+        float sum = 0.0f;
+        for (int i = 1; i < template.size(); i++) {
+            Vector2 a = new Vector2(template.get(i - 1), template.get(i));
+            Vector2 b = new Vector2(userStroke.get(i - 1), userStroke.get(i));
+            sum += Geometry.cosineSimilarity(a, b);
+        }
+        sum = sum / template.size();
+        if (sum < directionThreshold) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     private boolean lengthMatch(List<GPoint2D> userStroke, List<GPoint2D> template) {

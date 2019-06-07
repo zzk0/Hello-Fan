@@ -4,7 +4,6 @@ import android.content.Context;
 import android.gesture.GestureOverlayView;
 import android.gesture.GesturePoint;
 import android.graphics.Canvas;
-import android.graphics.Path;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
@@ -17,20 +16,26 @@ import java.util.List;
 public class HanziView extends GestureOverlayView implements GestureOverlayView.OnGestureListener {
 
     private Hanzi hanzi;
+    private int wrongTimes;
 
     public HanziView(Context context) {
         super(context);
-        addOnGestureListener(this);
+        init();
     }
 
     public HanziView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        addOnGestureListener(this);
+        init();
     }
 
     public HanziView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    private void init() {
         addOnGestureListener(this);
+        wrongTimes = 0;
     }
 
     @Override
@@ -79,10 +84,6 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         return hanzi.isFinish();
     }
 
-    private List<Path> getStrokes() { return null; }
-
-    private String getCharacterInfo() { return "a json object"; }
-
     @Override
     public void onGesture(GestureOverlayView overlay, MotionEvent event) {
 
@@ -95,7 +96,22 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
 
     @Override
     public void onGestureEnded(GestureOverlayView overlay, MotionEvent event) {
-        hanzi.finishOneStroke(this);
+        List<GPoint2D> userStroke = new ArrayList<>();
+        for (GesturePoint point : overlay.getCurrentStroke()) {
+            GPoint2D newPoint = new GPoint2D(point.x, point.y);
+            userStroke.add(newPoint);
+        }
+        if (hanzi.strokeMatch(userStroke)) {
+            hanzi.finishOneStroke(this);
+            wrongTimes = 0;
+        }
+        else {
+            wrongTimes = wrongTimes + 1;
+            if (wrongTimes > 2) {
+                hanzi.prompt(this);
+                wrongTimes = wrongTimes - 1;
+            }
+        }
     }
 
     @Override
