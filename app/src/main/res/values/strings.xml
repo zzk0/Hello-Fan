@@ -10,8 +10,12 @@
     <!--drawer navigation title-->
     <string name="nav_home">主页</string>
     <string name="nav_s2t">一简对多繁</string>
+
+    <string name="jump_s2t">开始学习</string>
+
     <string name="nav_t2s">一繁对多简</string>
     <string name="nav_reading">阅读</string>
     <string name="nav_history">历史</string>
     <string name="nav_setting">设置</string>
+
 </resources>
