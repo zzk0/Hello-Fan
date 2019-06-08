@@ -27,6 +27,7 @@ public class Hanzi {
     private boolean animateStrokesOnce;
     private boolean haveBackground;
     private boolean haveScaledBackground;
+    private boolean finishSetCharacter;
     private Path background;
     private Paint backgroundPaint;
     private Thread animateThread;
@@ -43,6 +44,7 @@ public class Hanzi {
         animateStrokesOnce = false;
         haveBackground = false;
         haveScaledBackground = false;
+        finishSetCharacter = true;
         wordId = 0;
 
         background = new Path();
@@ -68,10 +70,14 @@ public class Hanzi {
     // 这段代码开启多线程
     // 需要注意可能遇到的一些问题
     public void setCharacter(final View view, final String character, final int width) {
+        if (!finishSetCharacter) {
+            return;
+        }
         this.character = character;
         this.currentStroke = 0;
         this.strokes = new ArrayList<>();
         this.wordId = this.wordId + 1;
+        this.finishSetCharacter = false;
         if (animateThread != null) {
             this.animateThread.interrupt();
         }
@@ -106,6 +112,7 @@ public class Hanzi {
                 else if (animateStrokesOnce) {
                     animateStroke(view);
                 }
+                finishSetCharacter = true;
                 view.invalidate();
             }
         }).start();
@@ -189,6 +196,9 @@ public class Hanzi {
     }
 
     public void reset(View view) {
+        if (!finishSetCharacter) {
+            return;
+        }
         for (int i = 0; i < strokes.size(); i++) {
             strokes.get(i).reset(view);
         }

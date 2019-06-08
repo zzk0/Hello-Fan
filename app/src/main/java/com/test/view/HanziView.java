@@ -22,6 +22,7 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
     private boolean loopAnimateStrokes;
     private boolean animateStrokes;
     private boolean haveBackground;
+    private boolean haveAddListener;
 
     public HanziView(Context context) {
         super(context);
@@ -39,7 +40,6 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
     }
 
     private void init() {
-        addOnGestureListener(this);
         wrongTimes = 0;
         color = Color.GRAY;
         loopAnimateStrokes = false;
@@ -86,8 +86,11 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
     }
 
     // 做测试
-    public void quiz() {
-
+    public void setQuiz() {
+        if (!haveAddListener) {
+            haveAddListener = true;
+            addOnGestureListener(this);
+        }
     }
 
     // 设置汉字的颜色
@@ -127,6 +130,9 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
 
     @Override
     public void onGestureEnded(GestureOverlayView overlay, MotionEvent event) {
+        if (hanzi.isFinish()) {
+            return;
+        }
         List<GPoint2D> userStroke = new ArrayList<>();
         for (GesturePoint point : overlay.getCurrentStroke()) {
             GPoint2D newPoint = new GPoint2D(point.x, point.y);

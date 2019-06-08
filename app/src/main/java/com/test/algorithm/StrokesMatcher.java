@@ -61,7 +61,7 @@ public class StrokesMatcher {
         float sum = 0.0f;
         for (int i = 1; i < template.size(); i++) {
             Vector2 a = new Vector2(template.get(i - 1), template.get(i));
-            Vector2 b = new Vector2(userStroke.get(i - 1), userStroke.get(i));
+            Vector2 b = new Vector2(resampleUserStroke.get(i - 1), resampleUserStroke.get(i));
             sum += Geometry.cosineSimilarity(a, b);
         }
         sum = sum / template.size();

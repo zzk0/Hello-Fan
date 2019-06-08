@@ -20,6 +20,7 @@ public class LearnWritingActivity extends AppCompatActivity {
 
     List<Tuple<String, String, Integer>> words;
     int currentWord = 0;
+    private boolean firstFocusChange = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +36,10 @@ public class LearnWritingActivity extends AppCompatActivity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        setHanzi();
+        if (firstFocusChange) {
+            firstFocusChange = false;
+            setHanzi();
+        }
     }
 
     // 作用：获取今天的字的链表，暂且写成如此，做调试用
@@ -69,6 +73,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         traditionalHanzi.setLoopAnimate(true);
         traditionalHanzi.setCharacter(words.get(currentWord).first);
         hanziView.setHaveBackground(true);
+        hanziView.setQuiz();
         hanziView.setCharacter(words.get(currentWord).first);
     }
 }

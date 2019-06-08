@@ -80,7 +80,7 @@ public class Stroke {
         canvas.drawPath(mediansPath, strokePaint);
     }
 
-    // 闪烁当前笔画来提醒用户, prompt 和 finish 中的start方法，多线程有出错
+    // 闪烁当前笔画来提醒用户
     public void prompt(final View view) {
         final ObjectAnimator colorFade = ObjectAnimator.ofObject(paint, "color", new ArgbEvaluator(), Color.GRAY, Color.RED, Color.GRAY);
         colorFade.setDuration(1000);
@@ -121,8 +121,8 @@ public class Stroke {
             float bottom = center.y - strokeWidth;
             float top = center.y + strokeWidth;
             tempPath.addRect(left, top, right, bottom, Path.Direction.CW);
-            mediansPath.op(tempPath, Path.Op.UNION);
-            mediansPath.op(path, Path.Op.INTERSECT);
+            boolean unionSuccess = mediansPath.op(tempPath, Path.Op.UNION);
+            boolean intersectSuccess = mediansPath.op(path, Path.Op.INTERSECT);
             view.invalidate();
             try {
                 Thread.sleep(50);
