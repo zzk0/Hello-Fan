@@ -80,7 +80,7 @@ public class Stroke {
         canvas.drawPath(mediansPath, strokePaint);
     }
 
-    // 闪烁当前笔画来提醒用户
+    // 闪烁当前笔画来提醒用户, prompt 和 finish 中的start方法，多线程有出错
     public void prompt(final View view) {
         final ObjectAnimator colorFade = ObjectAnimator.ofObject(paint, "color", new ArgbEvaluator(), Color.GRAY, Color.RED, Color.GRAY);
         colorFade.setDuration(1000);
@@ -108,15 +108,21 @@ public class Stroke {
 
     // 实现的思路是，在重采样后的中点处，加一个Circle，和原来的Path做合并运算，再和笔画Path做交运算。
     // 目前还潜藏着一个Bug：在龍的第十一画的地方，拐弯处会闪一下黑色的圆。
-    // 可能的原因是并行运算的结果。
+    // 这些错误都是稳定的出现的，每一次的行为都一样。
+    // 目前认为是判交算法的问题。不能要求太高的精度，所以每一次添加的Rect大一些就没问题了。
+    // 解决办法是自己做判交，自己处理。
     public void animateStroke(final View view) {
         mediansPath.moveTo(resampleMedian.get(0).x, resampleMedian.get(0).y);
         for (int i = 0; i < resampleMedian.size(); i++) {
             Path tempPath = new Path();
-            tempPath.addCircle(resampleMedian.get(i).x, resampleMedian.get(i).y, strokeWidth, Path.Direction.CW);
-            tempPath.op(mediansPath, Path.Op.UNION);
-            tempPath.op(path, Path.Op.INTERSECT);
-            mediansPath = tempPath;
+            GPoint2D center = resampleMedian.get(i);
+            float left = center.x - strokeWidth;
+            float right = center.x + strokeWidth;
+            float bottom = center.y - strokeWidth;
+            float top = center.y + strokeWidth;
+            tempPath.addRect(left, top, right, bottom, Path.Direction.CW);
+            mediansPath.op(tempPath, Path.Op.UNION);
+            mediansPath.op(path, Path.Op.INTERSECT);
             view.invalidate();
             try {
                 Thread.sleep(50);

@@ -31,6 +31,8 @@ public class Hanzi {
     private Paint backgroundPaint;
     private Thread animateThread;
 
+    private int wordId;
+
     private static final float SVG_WIDTH = 1024.0f;
 
     public Hanzi(Context context) {
@@ -41,6 +43,7 @@ public class Hanzi {
         animateStrokesOnce = false;
         haveBackground = false;
         haveScaledBackground = false;
+        wordId = 0;
 
         background = new Path();
         background.moveTo(0.0f, 0.0f);
@@ -68,6 +71,7 @@ public class Hanzi {
         this.character = character;
         this.currentStroke = 0;
         this.strokes = new ArrayList<>();
+        this.wordId = this.wordId + 1;
         if (animateThread != null) {
             this.animateThread.interrupt();
         }
@@ -150,7 +154,9 @@ public class Hanzi {
         animateThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                int currentId = wordId;
                 for (int i = 0; i < strokes.size(); i++) {
+                    if (wordId != currentId) break;
                     strokes.get(i).animateStroke(view);
                     if (i == (strokes.size() - 1)) {
                         i = -1;
