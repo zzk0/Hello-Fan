@@ -17,6 +17,7 @@
         <activity android:name=".LearnS2TActivity" />
         <activity android:name=".ArticleActivity" />
         <activity android:name=".SearchActivity" />
+        <activity android:name=".ReadingsDisplayActivity"/>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
