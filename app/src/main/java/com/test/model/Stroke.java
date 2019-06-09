@@ -34,7 +34,7 @@ public class Stroke {
 
     private Stroke nextStroke; // 下一个笔画
     private int writingSpeed = 20; // 写字的速度
-    private float strokeWidth = 100.0f; // 笔画的宽度
+    private float strokeWidth = 50.0f; // 笔画的宽度
 
     public Stroke(Context context) {
         this.context = context;
@@ -77,7 +77,15 @@ public class Stroke {
     // 在canvas上，根据path，用paint，fill这个path
     public void draw(Canvas canvas) {
         canvas.drawPath(path, paint);
-        canvas.drawPath(mediansPath, strokePaint);
+        if (mediansPath != path) {
+            canvas.save();
+            canvas.clipPath(path);
+            canvas.drawPath(mediansPath, strokePaint);
+            canvas.restore();
+        }
+        else {
+            canvas.drawPath(mediansPath, strokePaint);
+        }
     }
 
     // 闪烁当前笔画来提醒用户
@@ -106,23 +114,12 @@ public class Stroke {
         colorFade.start();
     }
 
-    // 实现的思路是，在重采样后的中点处，加一个Circle，和原来的Path做合并运算，再和笔画Path做交运算。
-    // 目前还潜藏着一个Bug：在龍的第十一画的地方，拐弯处会闪一下黑色的圆。
-    // 这些错误都是稳定的出现的，每一次的行为都一样。
-    // 目前认为是判交算法的问题。不能要求太高的精度，所以每一次添加的Rect大一些就没问题了。
-    // 解决办法是自己做判交，自己处理。
+    // 不断地在笔画中心添加圆来实现
     public void animateStroke(final View view) {
         mediansPath.moveTo(resampleMedian.get(0).x, resampleMedian.get(0).y);
         for (int i = 0; i < resampleMedian.size(); i++) {
-            Path tempPath = new Path();
             GPoint2D center = resampleMedian.get(i);
-            float left = center.x - strokeWidth;
-            float right = center.x + strokeWidth;
-            float bottom = center.y - strokeWidth;
-            float top = center.y + strokeWidth;
-            tempPath.addRect(left, top, right, bottom, Path.Direction.CW);
-            boolean unionSuccess = mediansPath.op(tempPath, Path.Op.UNION);
-            boolean intersectSuccess = mediansPath.op(path, Path.Op.INTERSECT);
+            mediansPath.addCircle(center.x, center.y, strokeWidth, Path.Direction.CCW);
             view.invalidate();
             try {
                 Thread.sleep(50);
@@ -131,6 +128,8 @@ public class Stroke {
                 e.printStackTrace();
             }
         }
+        mediansPath = path;
+        view.invalidate();
     }
 
     // 设置大小, 不使用高度。
