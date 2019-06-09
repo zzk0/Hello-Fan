@@ -26,7 +26,7 @@
         <activity android:name=".LearnS2TActivity" />
         <activity android:name=".ArticleActivity" />
         <activity android:name=".SearchActivity"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/translucent"
             />
         <activity
             android:name=".MainActivity"

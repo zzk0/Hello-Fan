@@ -7,18 +7,15 @@ package com.test.fan;
 
 import android.Manifest;
 
+import android.app.Activity;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
@@ -33,7 +30,6 @@ import com.arlib.floatingsearchview.suggestions.SearchSuggestionsAdapter;
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
 import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
-import com.test.fan.Adapter.SearchItemAdapter;
 import com.test.fan.Bean.DictBean;
 
 import java.util.ArrayList;
@@ -41,7 +37,7 @@ import java.util.List;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends Activity {
 
     //控件：搜索栏、搜索结果
     FloatingSearchView searchView;
@@ -75,6 +71,9 @@ public class SearchActivity extends AppCompatActivity {
 
     }
 
+    /*
+    *将查询结果显示的回调事件
+     */
     private void setOnBindSuggestionCallback() {
         searchView.setOnBindSuggestionCallback(new SearchSuggestionsAdapter.OnBindSuggestionCallback() {
             @Override
@@ -113,13 +112,6 @@ public class SearchActivity extends AppCompatActivity {
                         public void onClick(View v) {
                             DictBean now=list.get(itemPosition);
                             insertHistory(now);
-                            View view = View.inflate(SearchActivity.this, R.layout.item_search,null);
-                            TextView textView1=(TextView) view.findViewById(R.id.item_word);
-                            TextView textView2=(TextView) view.findViewById(R.id.item_spell);
-                            TextView textView3=(TextView) view.findViewById(R.id.item_express);
-                            //textView1.setText();
-                            textView2.setText(now.getSpell());
-                            textView3.setText(now.getExpress());
                             String text = "<font size=\"18\"   color=\"#000000\">" + now.getWords() + "</font><br />"+
                                     "<i><font size=\"12\" color=\"#F08080\">" + now.getSpell() + "</font></i><br />"+
                                     "<i><font size=\"18\" color=\"#000000\">"+now.getExpress()+"</font></i><br />";
@@ -148,28 +140,6 @@ public class SearchActivity extends AppCompatActivity {
                                     })
                                     .show();
 
-                           // MaterialDialog materialDialog=new MaterialDialog(SearchActivity.this,);
-//                            AlertDialog.Builder normalDialog =
-//                                    new AlertDialog.Builder(SearchActivity.this);
-//                            SearchItemAdapter adapter=new SearchItemAdapter(SearchActivity.this,now);
-//                            //normalDialog.setAdapter(adapter);
-////                            normalDialog.setTitle(now.getWords()).setMessage(now.getExpress());
-//                            normalDialog.setPositiveButton("收藏",
-//                                    new DialogInterface.OnClickListener() {
-//                                        @Override
-//                                        public void onClick(DialogInterface dialog, int which) {
-//                                            // ...To-do
-//                                        }
-//                                    });
-//                            normalDialog.setNeutralButton("返回",
-//                                    new DialogInterface.OnClickListener() {
-//                                        @Override
-//                                        public void onClick(DialogInterface dialog, int which) {
-//                                            // ...To-do
-//                                        }
-//                                    });
-//                            // 创建实例并显示
-//                            normalDialog.show();
                         }
                     });
                 }
@@ -179,6 +149,9 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
+    /*
+    *点击左侧返回按钮回到主界面事件
+     */
     private void setOnHomeActionClickListener() {
         searchView.setOnHomeActionClickListener(
                 new FloatingSearchView.OnHomeActionClickListener() {
@@ -190,6 +163,9 @@ public class SearchActivity extends AppCompatActivity {
                 });
     }
 
+    /*
+    *查询结果
+     */
     private void setOnQueryChangeListener() {
         searchView.setOnQueryChangeListener(new FloatingSearchView.OnQueryChangeListener() {
             @Override
@@ -253,7 +229,7 @@ public class SearchActivity extends AppCompatActivity {
         }
     }
     /*
-    *
+    *第一次点击搜索框的，显示搜索历史
      */
     public void setOnFocusChangeListener() {
         searchView.setOnFocusChangeListener(new FloatingSearchView.OnFocusChangeListener(){
@@ -267,6 +243,9 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
+    /*
+    *下面两个都是申请文件读写权限的，应该用不上了
+     */
     public void requestPower() {
         //判断是否已经赋予权限
         if (ContextCompat.checkSelfPermission(this,
