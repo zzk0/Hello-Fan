@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -28,7 +29,6 @@ import com.test.util.S2T;
 import java.util.ArrayList;
 
 public class LearnS2TActivity extends AppCompatActivity {
-
 
     private DBHelper dbHelper;
 
@@ -56,6 +56,8 @@ public class LearnS2TActivity extends AppCompatActivity {
         setContentView(R.layout.activity_learn_s2t);
 
         findAllView();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         dbHelper=new DBHelper(this);
 
         setShare();
@@ -321,4 +323,9 @@ public class LearnS2TActivity extends AppCompatActivity {
         super.onRestart();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return super.onOptionsItemSelected(item);
+    }
 }

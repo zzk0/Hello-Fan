@@ -4,6 +4,8 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.test.model.Tuple;
@@ -31,6 +33,9 @@ public class LearnWritingActivity extends AppCompatActivity {
         hanziView = findViewById(R.id.hanzi_view);
         simplifiedHanzi = findViewById(R.id.simplified_word);
         traditionalHanzi = findViewById(R.id.traditional_word);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -40,6 +45,12 @@ public class LearnWritingActivity extends AppCompatActivity {
             firstFocusChange = false;
             setHanzi();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return super.onOptionsItemSelected(item);
     }
 
     // 作用：获取今天的字的链表，暂且写成如此，做调试用

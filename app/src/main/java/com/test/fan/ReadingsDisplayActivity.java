@@ -11,12 +11,14 @@ import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -50,7 +52,8 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
         group_tv=(TextView)findViewById(R.id.group);
         date_tv=(TextView)findViewById(R.id.date);
         readings =(Readings) getIntent().getSerializableExtra("readings");
-        System.out.println(readings.getUrl());
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        System.out.println(readings.getUrl());
         initDisplay();
 
     }
@@ -188,4 +191,9 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
         window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);//设置横向全屏
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return super.onOptionsItemSelected(item);
+    }
 }
