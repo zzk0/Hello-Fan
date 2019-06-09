@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+        <title>Hanzi Writer</title>
+        <script src="./hanzi-writer.min.js"></script>
+	</head>
+	<body>
+        <p id="target" align="center"></p>
+        <script>
+            var writer = HanziWriter.create('target', '龍', {
+                width: 250,
+                height: 250,
+                showCharacter: false,
+                padding: 5
+            });
+            writer.quiz();
+            function reset() {
+                writer.quiz();
+            }
+            function newCharacter(x) {
+                writer.setCharacter(x);
+                writer.quiz();
+            }
+        </script>
+        
+	</body>
+</html>
