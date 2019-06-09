@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -22,6 +23,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.test.util.DBHelper;
+import com.test.util.S2T;
 
 import java.util.ArrayList;
 
@@ -32,9 +34,8 @@ public class LearnS2TActivity extends AppCompatActivity {
 
     SQLiteDatabase sqLiteDatabase = null;
 
-    private ArrayList List ;
     private ArrayList S_List;
-    private ArrayList R_List;
+    private ArrayList<S2T> s2t_list;
 
     private String Right_text;
 
@@ -73,22 +74,17 @@ public class LearnS2TActivity extends AppCompatActivity {
         S_textview=(TextView)this.findViewById(R.id.show_s);
         E_textview=(TextView)this.findViewById(R.id.show_exp);
         E_textview.setMovementMethod(ScrollingMovementMethod.getInstance());//添加滚动
-
         W_textview=(TextView)this.findViewById(R.id.show_words);
-
         S_text_lin=(LinearLayout)findViewById(R.id.Show_SLin);
         E_text_lin=(LinearLayout)findViewById(R.id.Show_expLin);
         W_text_lin=(LinearLayout)findViewById(R.id.show_wordsLin);
-
         mBtnListLayout=(LinearLayout)findViewById(R.id.btnlist);
     }
 
     private ArrayList<String> getBtnContentList()
     {   //这里根据数据库创建一个Arraylist
-
-        List=new ArrayList<String>();
         S_List=new ArrayList<String>();
-        R_List=new ArrayList<String>();
+        s2t_list=new ArrayList<S2T>();
 
         ArrayList<String> btnContentList=new ArrayList<String>();
 
@@ -100,18 +96,20 @@ public class LearnS2TActivity extends AppCompatActivity {
             String tr = cursor.getString(cursor.getColumnIndex("ts"));
             String s=cursor.getString(cursor.getColumnIndex("simple"));
             String rt=cursor.getString(cursor.getColumnIndex("t"));
+            int i=cursor.getInt(cursor.getColumnIndex("ID"));
 
-            R_List.add(rt);
+            S2T a=new S2T(i,s,tr,rt);
+            s2t_list.add(a);
+
             S_List.add(s+"→"+tr.replace(';',','));
-            List.add(tr);
 
         }
 
-        Right_text=R_List.get(flag1).toString();
+        Right_text=s2t_list.get(flag1).getRt().toString();
 
-        for (int index=0;index<List.get(flag1).toString().length();index++)
+        for (int index=0;index<s2t_list.get(flag1).getTs().toString().length();index++)
         {
-            String temp=List.get(flag1).toString();
+            String temp= s2t_list.get(flag1).getTs().toString();
             // System.out.println(temp);
             //System.out.println(temp.charAt(index));
             btnContentList.add(String.valueOf(temp.charAt(index)));
@@ -129,6 +127,7 @@ public class LearnS2TActivity extends AppCompatActivity {
         {
             String temp=S_List.get(flag2).toString();
             setS_textview(temp);
+
         }
         flag2++;
 
@@ -145,12 +144,10 @@ public class LearnS2TActivity extends AppCompatActivity {
         int index=0;
         for(String btnContent : btnContentList)
         {
-
             Button codeBtn=new Button(this);
             setBtnAttribute( codeBtn, btnContent, index, Color.TRANSPARENT, Color.BLACK, 24 );
             mBtnListLayout.addView( codeBtn );
             index++;
-
         }
 
 
@@ -171,7 +168,19 @@ public class LearnS2TActivity extends AppCompatActivity {
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         codeBtn.setWidth(dm.widthPixels);
+       // System.out.println(dm.widthPixels);
+        //System.out.println(dm.heightPixels);
 
+//        float density = dm.density;         // 屏幕密度（0.75 / 1.0 / 1.5）
+//        int densityDpi = dm.densityDpi;     // 屏幕密度dpi（120 / 160 / 240）
+//        // 屏幕宽度算法:屏幕宽度（像素）/屏幕密度
+//        int screenWidth = (int) (dm.widthPixels / density);  // 屏幕宽度(dp)
+//        int screenHeight = (int) (dm.heightPixels / density);// 屏幕高度(dp)
+//
+//        System.out.println(screenWidth);
+//        System.out.println(screenHeight);
+
+        codeBtn.setHeight(mBtnListLayout.getLayoutParams().height/5);
 
         codeBtn.setText( String.valueOf(id+1)+"."+btnContent );
 
@@ -232,14 +241,9 @@ public class LearnS2TActivity extends AppCompatActivity {
                         editor.commit();
 
                         ArrayList<String> T_List=getBtnContentList();
-
                         generateBtnList(T_List);
-
                         generateS_TextList(S_List);
-
                         search_words(T_List);
-
-
                     }
                 });
         AlertDialog dialog=builder.create();
@@ -287,20 +291,14 @@ public class LearnS2TActivity extends AppCompatActivity {
 
         }
         else{
-
             while (cursor.moveToNext()) {
                 tr = cursor.getString(cursor.getColumnIndex("words"));
-
                 s=cursor.getString(cursor.getColumnIndex("express"));
-
             }
             tr=tr.replaceFirst(Right_text,"__");
             setW_textview(tr);
             setE_textview(s);
         }
-
-
-
 
     }
     private void setShare()
@@ -317,9 +315,7 @@ public class LearnS2TActivity extends AppCompatActivity {
         else
         {
             flag1=flag2=result;
-
         }
-
     }
     protected void onRestart() {
         super.onRestart();
