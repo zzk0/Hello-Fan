@@ -5,7 +5,6 @@
 package com.test.fan;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,21 +16,19 @@ import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.test.fan.DBHelper.DBHelper;
-import com.test.fan.DBHelper.S2T;
+import com.test.util.DBHelper;
+import com.test.util.S2T;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class LearnS2TActivity extends AppCompatActivity {
-
 
     private DBHelper dbHelper;
 
@@ -59,6 +56,8 @@ public class LearnS2TActivity extends AppCompatActivity {
         setContentView(R.layout.activity_learn_s2t);
 
         findAllView();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         dbHelper=new DBHelper(this);
 
         setShare();
@@ -324,4 +323,9 @@ public class LearnS2TActivity extends AppCompatActivity {
         super.onRestart();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return super.onOptionsItemSelected(item);
+    }
 }
