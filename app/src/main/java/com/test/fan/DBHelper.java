@@ -23,6 +23,13 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+
+        db.execSQL("create table if not exists DictHistory(" +
+                "ID integer primary key autoincrement" +
+                ",words  VARCHAR"+
+                ",spell TEXT"+
+                ",express VARCHAR"+
+                ")");
         executeAssetsSQL(db);
     }
 
@@ -64,5 +71,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }
 
     }
+
+
 
 }
