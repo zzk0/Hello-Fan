@@ -113,7 +113,11 @@ public class Hanzi {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String json = CharacterJsonReader.query(context, character);
+                String json;
+                json = CharacterJsonReader.query(context, character, true);
+                if (json == "") {
+                    json = CharacterJsonReader.query(context, character, false);
+                }
                 List<Path> paths = StrokeParser.parse(json);
                 List<List<GPoint2D>> medians = StrokeParser.getMedians(json);
                 // 对strokes内容进行初始化
