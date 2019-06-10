@@ -8,36 +8,74 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:paddingTop="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <com.test.view.HeightAdaptImageView
-            android:id="@+id/imageview_simplified"
-            android:layout_weight="1"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/pinyin_textview"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingRight="8dp"/>
+            android:text="拼音：zheng"
+            android:textSize="23dp"/>
 
-        <com.test.view.HeightAdaptImageView
-            android:id="@+id/imageview_traditional"
-            android:layout_weight="1"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/phrase_textview"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="8dp"/>
+            android:text="词组：郑重"
+            android:textSize="23dp"/>
+
+        <TextView
+            android:id="@+id/jianfan_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="简繁："
+            android:textSize="23dp"/>
 
     </LinearLayout>
-
-    <com.test.view.HanziView
-        android:id="@+id/hanzi_view"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:orientation="horizontal">
+
+        <com.test.view.HanziView
+            android:id="@+id/simplified_word"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"/>
+
+        <FrameLayout
+            android:layout_width="16dp"
+            android:layout_height="match_parent" />
+
+        <com.test.view.HanziView
+            android:id="@+id/traditional_word"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="16dp" />
+
+    <com.test.view.HanziView
+        android:id="@+id/hanzi_view"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
         android:orientation="horizontal">
 
         <Button
@@ -51,14 +89,6 @@
         <Button
             android:id="@+id/button_next"
             android:text="@string/button_next"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:onClick="click"/>
-
-        <Button
-            android:id="@+id/button_prompt"
-            android:text="提示"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

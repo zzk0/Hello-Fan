@@ -5,4 +5,5 @@
     <color name="colorAccent">#03A9F4</color>
     <color name="text_white">#ffffff</color>
     <color name="whitesmoke">#F5F5F5</color>
+    <color name="translucent">#01000000</color>
 </resources>

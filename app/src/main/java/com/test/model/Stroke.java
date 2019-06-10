@@ -24,20 +24,17 @@ import java.util.List;
 
 public class Stroke {
 
-    private Context context;
+    private Paint paint;
+    private Paint strokePaint;
     private Path path;
     private Path mediansPath;
     private List<GPoint2D> median;
     private List<GPoint2D> resampleMedian;
-    private Paint paint;
-    private Paint strokePaint;
-
-    private Stroke nextStroke; // 下一个笔画
     private int writingSpeed = 20; // 写字的速度
-    private float strokeWidth = 100.0f; // 笔画的宽度
+    private float strokeWidth = 50.0f; // 笔画的宽度
+    private GPoint2D lastPoint;
 
-    public Stroke(Context context) {
-        this.context = context;
+    public Stroke() {
         paint = new Paint();
         paint.setColor(Color.GRAY);
         paint.setStyle(Paint.Style.FILL);
@@ -49,6 +46,7 @@ public class Stroke {
         strokePaint.setAntiAlias(true);
 
         mediansPath = new Path();
+        lastPoint = new GPoint2D(0.0f, 0.0f);
     }
 
     public void setPath(Path path) {
@@ -61,19 +59,48 @@ public class Stroke {
 
     public void setMedian(List<GPoint2D> median) {
         this.median = median;
-
         int sampleNumber = (int) Geometry.lengthOfPoints(median) / writingSpeed;
         resampleMedian = Geometry.resample(median, sampleNumber);
+        lastPoint = resampleMedian.get(0);
     }
 
-    public void setNextStroke(Stroke nextStroke) {
-        this.nextStroke = nextStroke;
+    public List<GPoint2D> getMedian() {
+        return this.median;
+    }
+
+    // 设置大小, 不使用高度。
+    public void setSize(int width, int height) {
+        float scale = width / 1024.0f;
+        Matrix matrix = new Matrix();
+        matrix.setScale(scale, scale);
+        path.transform(matrix);
+        mediansPath.transform(matrix);
+        strokeWidth = strokeWidth * scale;
+        for (GPoint2D point : median) {
+            point.scale(scale, scale);
+        }
+        for (GPoint2D point : resampleMedian) {
+            point.scale(scale, scale);
+        }
+    }
+
+    // 设置颜色
+    public void setColor(int color) {
+        paint.setColor(color);
     }
 
     // 在canvas上，根据path，用paint，fill这个path
     public void draw(Canvas canvas) {
         canvas.drawPath(path, paint);
-        canvas.drawPath(mediansPath, strokePaint);
+        if (mediansPath != path) {
+            canvas.save();
+            canvas.clipPath(path);
+            canvas.drawPath(mediansPath, strokePaint);
+            canvas.restore();
+        }
+        else {
+            canvas.drawPath(mediansPath, strokePaint);
+        }
     }
 
     // 闪烁当前笔画来提醒用户
@@ -92,7 +119,7 @@ public class Stroke {
     // 渐变为黑色
     public void finish(final View view) {
         final ObjectAnimator colorFade = ObjectAnimator.ofObject(paint, "color", new ArgbEvaluator(), Color.GRAY, Color.BLACK);
-        colorFade.setDuration(1000);
+        colorFade.setDuration(300);
         colorFade.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -102,53 +129,46 @@ public class Stroke {
         colorFade.start();
     }
 
-    // 实现的思路是，在重采样后的中点处，加一个Circle，和原来的Path做合并运算，再和笔画Path做交运算。
-    // 目前还潜藏着一个Bug：在龍的第十一画的地方，拐弯处会闪一下黑色的圆。
-    // 可能的原因是并行运算的结果。
+    // 不断地在笔画中心添加圆来实现
     public void animateStroke(final View view) {
         mediansPath.moveTo(resampleMedian.get(0).x, resampleMedian.get(0).y);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < resampleMedian.size(); i++) {
-                    Path tempPath = new Path();
-                    tempPath.addCircle(resampleMedian.get(i).x, resampleMedian.get(i).y, strokeWidth, Path.Direction.CW);
-                    tempPath.op(mediansPath, Path.Op.UNION);
-                    tempPath.op(path, Path.Op.INTERSECT);
-                    mediansPath = tempPath;
-                    view.invalidate();
-                    try {
-                        Thread.sleep(50);
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (nextStroke != null) {
-                    nextStroke.animateStroke(view);
-                }
+        for (int i = 0; i < resampleMedian.size(); i++) {
+            GPoint2D center = resampleMedian.get(i);
+            mediansPath.addCircle(center.x, center.y, strokeWidth, Path.Direction.CCW);
+            view.invalidate();
+            try {
+                Thread.sleep(50);
             }
-        }).start();
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        mediansPath = path;
+        view.invalidate();
     }
 
-    // 设置大小, 不使用高度。
-    public void setSize(int width, int height) {
-        float scale = width / 1024.0f;
-        Matrix matrix = new Matrix();
-        matrix.setScale(scale, scale);
-        path.transform(matrix);
-        for (GPoint2D point : median) {
-            point.scale(scale, scale);
+    public void doWriting(float x, float y) {
+        GPoint2D current = new GPoint2D(x, y);
+        float dis = lastPoint.distanceTo(current);
+        if (dis < 50.0f) {
+            lastPoint = current;
+            mediansPath.addCircle(x, y, strokeWidth, Path.Direction.CCW);
         }
-        for (GPoint2D point : resampleMedian) {
-            point.scale(scale, scale);
+    }
+
+    public boolean finishWritingThisStroke() {
+        float dis = lastPoint.distanceTo(median.get(median.size() - 1));
+        if (dis < 50) {
+            mediansPath = path;
+            return true;
         }
-        strokeWidth = strokeWidth * scale;
+        return false;
     }
 
     public void reset(final View view) {
         paint.setColor(Color.GRAY);
         mediansPath = new Path();
+        lastPoint = resampleMedian.get(0);
         view.invalidate();
     }
 }

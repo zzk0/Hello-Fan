@@ -5,6 +5,7 @@
 package com.test.algorithm;
 
 import com.test.model.GPoint2D;
+import com.test.model.Vector2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,5 +55,9 @@ public class Geometry {
         }
 
         return newPoints;
+    }
+
+    public static float cosineSimilarity(Vector2 a, Vector2 b) {
+        return 0.0f;
     }
 }
