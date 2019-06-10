@@ -5,11 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#01000000"
-    tools:context=".SearchActivity"
-    >
+    tools:context=".SearchActivity">
 
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent">-->
 
     <com.arlib.floatingsearchview.FloatingSearchView
         android:id="@+id/floating_search_view"

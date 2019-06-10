@@ -21,6 +21,7 @@ public class DBHelper extends SQLiteOpenHelper {
         myContext=context;
     }
 
+    // 备注：这个函数要在没有db的情况才会被调用。
     @Override
     public void onCreate(SQLiteDatabase db) {
 

@@ -44,11 +44,13 @@ public class LearnS2TActivity extends AppCompatActivity {
     private TextView E_textview;
     private TextView W_textview;
 
-
     private LinearLayout mBtnListLayout=null;
     private LinearLayout S_text_lin=null;
     private LinearLayout E_text_lin=null;
     private LinearLayout W_text_lin=null;
+
+    // 字号大小
+    private static final int FONT_SIZE = 24;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -258,7 +260,7 @@ public class LearnS2TActivity extends AppCompatActivity {
 
         S_text_lin.removeAllViews();
         S_textview.setText(text);
-        S_textview.setTextSize(24);
+        S_textview.setTextSize(FONT_SIZE);
         S_text_lin.addView(S_textview);
     }
 
@@ -266,7 +268,7 @@ public class LearnS2TActivity extends AppCompatActivity {
     {
         E_text_lin.removeAllViews();
         E_textview.setText(text);
-        E_textview.setTextSize(24);
+        E_textview.setTextSize(FONT_SIZE);
         E_text_lin.addView(E_textview);
     }
 
@@ -274,7 +276,7 @@ public class LearnS2TActivity extends AppCompatActivity {
     {
         W_text_lin.removeAllViews();
         W_textview.setText(text);
-        W_textview.setTextSize(24);
+        W_textview.setTextSize(FONT_SIZE);
         W_text_lin.addView(W_textview);
     }
 
