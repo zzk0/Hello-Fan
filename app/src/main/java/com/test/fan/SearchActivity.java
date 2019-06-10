@@ -6,50 +6,247 @@
 package com.test.fan;
 
 import android.Manifest;
+
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.content.res.ResourcesCompat;
 import android.os.Bundle;
+import android.text.Html;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+
+import com.arlib.floatingsearchview.FloatingSearchView;
+import com.arlib.floatingsearchview.suggestions.SearchSuggestionsAdapter;
+import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
+import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
+import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
+import com.test.fan.Bean.DictBean;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends Activity {
 
-    //创建数据库
+    //控件：搜索栏、搜索结果
+    FloatingSearchView searchView;
+    boolean isHistory=true;
+
+    //数据库
     private DBHelper dbHelper;
+    private SQLiteDatabase db;
+    //存放查询结果的list
+    List<DictBean> list;
 
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        //申请文件读权限
-        requestPower();
 
+        searchView=(FloatingSearchView)findViewById(R.id.floating_search_view);
+        searchView.setSearchFocusable(true);
+        dbHelper=new DBHelper(this);
 
-            dbHelper=new DBHelper(this);
-            SQLiteDatabase sqliteDatabase = dbHelper.getReadableDatabase();
-//        //2. 查询数据
-////            String id,express;
-////            // 调用SQLiteDatabase对象的query方法进行查询
-////            // 返回一个Cursor对象：由数据库查询返回的结果集对象
-////            Cursor cursor = sqliteDatabase.query("dict", new String[] { "id","express"}, "id=?", new String[] { "2" }, null, null, null);
-////            while (cursor.moveToNext()) {
-////                id = cursor.getString(cursor.getColumnIndex("id"));
-////                express = cursor.getString(cursor.getColumnIndex("name"));
-////                Toast.makeText(getApplicationContext(), "读sql内容："+id+","+express,Toast.LENGTH_SHORT).show();
-////            }
-            sqliteDatabase.close();
+        //第一次聚焦到搜索框的时候，显示搜索历史
+        setOnFocusChangeListener();
 
-//        }catch(Exception e){
-//            Toast.makeText(this, "" + "读取sql文件" +  "失败", Toast.LENGTH_SHORT).show();
-//        }
+        //设置查询查询监听器，每次输入框有变化则查询
+        setOnQueryChangeListener();
+
+        //左侧返回按钮点击跳转主界面
+        setOnHomeActionClickListener();
+
+        //搜索结果
+        setOnBindSuggestionCallback();
 
     }
 
+    /*
+    *将查询结果显示的回调事件
+     */
+    private void setOnBindSuggestionCallback() {
+        searchView.setOnBindSuggestionCallback(new SearchSuggestionsAdapter.OnBindSuggestionCallback() {
+            @Override
+            public void onBindSuggestion(View suggestionView, ImageView leftIcon,
+                                         TextView textView, final SearchSuggestion item,final int itemPosition) {
+                //展示查询结果的样式
+                textView.setTextColor(Color.parseColor("#000000"));
+                String text = item.getBody()
+                        .replaceFirst(searchView.getQuery(),
+                                "<font color=\"#787878\">" + searchView.getQuery() + "</font>");
+                textView.setText(Html.fromHtml(text));
 
+                //如果是展示搜索历史的话，左边添加一个人图标
+                if( itemPosition!=0 && isHistory ){
+                    leftIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+                            R.drawable.ic_history_black_24dp, null));
+                    leftIcon.setAlpha(.36f);
+                }
+                if(isHistory && itemPosition==0) {
+                    //为清除历史纪录按钮单独绑定事件
+                    textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    suggestionView.setOnClickListener(new View.OnClickListener(){
+                        @Override
+                        public void onClick(View v) {
+                            db=dbHelper.getWritableDatabase();
+                            db.execSQL("delete from DictHistory");
+                            db.close();
+                            searchView.swapSuggestions(new ArrayList());
+                        }
+                    });
+                }
+                else {
+                    //为每个搜索结果绑定点击事件，点击查看详情
+                    suggestionView.setOnClickListener(new View.OnClickListener(){
+                        @Override
+                        public void onClick(View v) {
+                            DictBean now=list.get(itemPosition);
+                            insertHistory(now);
+                            String text = "<font size=\"18\"   color=\"#000000\">" + now.getWords() + "</font><br />"+
+                                    "<i><font size=\"12\" color=\"#F08080\">" + now.getSpell() + "</font></i><br />"+
+                                    "<i><font size=\"18\" color=\"#000000\">"+now.getExpress()+"</font></i><br />";
+                            final NiftyDialogBuilder dialogBuilder=NiftyDialogBuilder.getInstance(SearchActivity.this);
+
+                            dialogBuilder
+                                    .withTitleColor("#000000")                                   //def
+                                    .withMessage(Html.fromHtml(text))                                 //def  | withMessageColor(int resid)
+                                    .withDialogColor("#FFFFFF")
+                                    .withEffect(Effectstype.RotateBottom)
+                                    .withButton1Text("OK")
+                                    .withButton2Text("Cancel")
+                                    .setButton1Click(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            dialogBuilder.dismiss();
+                                            Toast.makeText(v.getContext(), "i'm btn1", Toast.LENGTH_SHORT).show();
+                                        }
+                                    })
+                                    .setButton2Click(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            dialogBuilder.dismiss();
+                                            Toast.makeText(v.getContext(),"i'm btn2",Toast.LENGTH_SHORT).show();
+                                        }
+                                    })
+                                    .show();
+
+                        }
+                    });
+                }
+
+            }
+
+        });
+    }
+
+    /*
+    *点击左侧返回按钮回到主界面事件
+     */
+    private void setOnHomeActionClickListener() {
+        searchView.setOnHomeActionClickListener(
+                new FloatingSearchView.OnHomeActionClickListener() {
+                    @Override
+                    public void onHomeClicked() {
+                        finish();
+//                        Intent intent = new Intent(SearchActivity.this,MainActivity.class);
+//                        startActivity(intent);
+                    }
+                });
+    }
+
+    /*
+    *查询结果
+     */
+    private void setOnQueryChangeListener() {
+        searchView.setOnQueryChangeListener(new FloatingSearchView.OnQueryChangeListener() {
+            @Override
+            public void onSearchTextChanged(String oldQuery, final String newQuery) {
+                if(newQuery.length()==0) {
+                    isHistory=true;
+                    showSearchResult(newQuery,"DictHistory","ID desc");
+                }
+                else {
+                    isHistory=false;
+                    showSearchResult("where words like '"+newQuery+"%' ","dict","length(words)");
+                }
+            }
+        });
+    }
+
+    /*
+    *展示查询结果
+    * @Param query 查询条件
+     */
+    public void showSearchResult(String query,String dbname,String sort){
+        list=new ArrayList<>();
+        db=dbHelper.getReadableDatabase();
+
+        Cursor cursor=db.rawQuery(
+                "select * from "+dbname+" "+query+" order by "+sort, null);
+        //搜索结果对象化为DictBean，存入list
+        while (cursor.moveToNext()) {
+            DictBean dictBean=new DictBean(
+                    cursor.getString(cursor.getColumnIndex("words")),
+                    cursor.getString(cursor.getColumnIndex("spell")),
+                    cursor.getString(cursor.getColumnIndex("express")));
+            list.add(dictBean);
+        }
+        //如果是show查询历史的话，添加一个清除历史的按钮
+        if(query.length()==0 && list.size()!=0)
+        list.add(new DictBean("点击清除历史",null,null));
+        //关闭查询
+        cursor.close();
+        db.close();
+        searchView.swapSuggestions(list);
+    }
+
+    /*
+    *添加一条历史纪录
+     */
+    public void insertHistory(DictBean dictBean) {
+        db=dbHelper.getWritableDatabase();
+               try{
+            db.execSQL("delete from DictHistory where words='"+dictBean.getWords()+"'");
+        }
+        catch(Exception e){
+
+        }finally {
+            ContentValues contentValues=new ContentValues();
+            contentValues.put("words",dictBean.getWords());
+            contentValues.put("spell",dictBean.getSpell());
+            contentValues.put("express",dictBean.getExpress());
+            long id=db.insert("DictHistory",null,contentValues);
+            db.close();
+        }
+    }
+    /*
+    *第一次点击搜索框的，显示搜索历史
+     */
+    public void setOnFocusChangeListener() {
+        searchView.setOnFocusChangeListener(new FloatingSearchView.OnFocusChangeListener(){
+            @Override
+            public void onFocus() {
+                if(searchView.getQuery().length()==0)
+                    showSearchResult(searchView.getQuery(),"DictHistory","ID desc");
+            }
+            @Override
+            public void onFocusCleared() { }
+        });
+    }
+
+    /*
+    *下面两个都是申请文件读写权限的，应该用不上了
+     */
     public void requestPower() {
         //判断是否已经赋予权限
         if (ContextCompat.checkSelfPermission(this,
@@ -81,4 +278,5 @@ public class SearchActivity extends AppCompatActivity {
             }
         }
     }
+
 }

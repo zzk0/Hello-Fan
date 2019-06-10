@@ -37,4 +37,9 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.71828'
     // implementation 'com.qw:soulpermission:1.1.6'
     implementation 'me.dreamheart.autoscalinglayout:lib:1.6.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    //https://github.com/arimorty/floatingsearchview 第三方搜索控件
+    implementation 'com.github.sd6352051:NiftyDialogEffects:v1.0.3'
+    implementation 'com.github.arimorty:floatingsearchview:2.1.1'
 }
