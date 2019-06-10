@@ -19,21 +19,25 @@ public class Hanzi {
 
     private Context context;
     private String character;
-    private int currentStroke;
+
+    // 绘图
     private List<Stroke> strokes;
     private StrokesMatcher strokesMatcher;
+    private Path background;
+    private Paint backgroundPaint;
+    private Thread animateThread;
+
+    // 状态
+    private int wordId;
     private int color;
+    private int currentStroke;
     private boolean animateStrokesLoop;
     private boolean animateStrokesOnce;
     private boolean haveBackground;
     private boolean haveScaledBackground;
     private boolean finishSetCharacter;
-    private Path background;
-    private Paint backgroundPaint;
-    private Thread animateThread;
 
-    private int wordId;
-
+    // 常量
     private static final float SVG_WIDTH = 1024.0f;
 
     public Hanzi(Context context) {
@@ -47,6 +51,10 @@ public class Hanzi {
         finishSetCharacter = true;
         wordId = 0;
 
+        initBackground();
+    }
+
+    private void initBackground() {
         background = new Path();
         background.moveTo(0.0f, 0.0f);
         background.lineTo(SVG_WIDTH, 0.0f);
@@ -67,8 +75,7 @@ public class Hanzi {
         backgroundPaint.setStyle(Paint.Style.STROKE);
     }
 
-    // 这段代码开启多线程
-    // 需要注意可能遇到的一些问题
+    // 这段代码开启多线程，需要注意可能遇到的一些问题
     public void setCharacter(final View view, final String character, final int width) {
         if (!finishSetCharacter) {
             return;
@@ -89,14 +96,11 @@ public class Hanzi {
                 List<List<GPoint2D>> medians = StrokeParser.getMedians(json);
                 // 对strokes内容进行初始化
                 for (int i = 0; i < paths.size(); i++) {
-                    Stroke stroke = new Stroke(context);
+                    Stroke stroke = new Stroke();
                     stroke.setPath(paths.get(i));
                     stroke.setMedian(medians.get(i));
                     stroke.setColor(color);
                     strokes.add(stroke);
-                }
-                for (int i = 0; i < paths.size() - 1; i++) {
-                    strokes.get(i).setNextStroke(strokes.get(i + 1));
                 }
                 setHanziSize(width, width);
                 if (!haveScaledBackground && haveBackground) {
@@ -133,6 +137,13 @@ public class Hanzi {
 
     public void setHaveBackground(boolean haveBackground) {
         this.haveBackground = haveBackground;
+    }
+
+    // 根据HanziView的大小来设置Stroke的大小
+    public void setHanziSize(int width, int height) {
+        for (Stroke stroke : strokes) {
+            stroke.setSize(width, height);
+        }
     }
 
     // 调用每个笔画的draw方法
@@ -175,6 +186,21 @@ public class Hanzi {
         animateThread.start();
     }
 
+    public void doWriting(float x, float y) {
+        if (currentStroke >= strokes.size()) {
+            return;
+        }
+        if (!strokes.get(currentStroke).finishWritingThisStroke()) {
+            strokes.get(currentStroke).doWriting(x, y);
+        }
+    }
+
+    public void doWritingUpdateCurrentStroke() {
+        if (strokes.get(currentStroke).finishWritingThisStroke()) {
+            currentStroke = currentStroke + 1;
+        }
+    }
+
     // 这个方法用来闪一闪这个文字，来提醒用户下一个要写的字在哪里
     // 需要View的作用，做动画特效需要调用View的invalidate方法，这个模型里面没有view，只好传一个进来了。
     public void prompt(View view) {
@@ -203,13 +229,6 @@ public class Hanzi {
             strokes.get(i).reset(view);
         }
         currentStroke = 0;
-    }
-
-    // 根据HanziView的大小来设置Stroke的大小
-    public void setHanziSize(int width, int height) {
-        for (Stroke stroke : strokes) {
-            stroke.setSize(width, height);
-        }
     }
 
     public boolean isFinish() {

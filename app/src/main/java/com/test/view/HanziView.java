@@ -23,6 +23,7 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
     private boolean animateStrokes;
     private boolean haveBackground;
     private boolean haveAddListener;
+    private boolean quizAnimate;
 
     public HanziView(Context context) {
         super(context);
@@ -45,6 +46,40 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         loopAnimateStrokes = false;
         animateStrokes = false;
         haveBackground = false;
+    }
+
+    // 做测试
+    public void setQuiz() {
+        if (!haveAddListener) {
+            haveAddListener = true;
+            addOnGestureListener(this);
+        }
+    }
+
+    // 允许写下笔顺
+    public void setQuizAnimate() {
+        if (!haveAddListener) {
+            haveAddListener = true;
+            addOnGestureListener(this);
+        }
+        quizAnimate = true;
+    }
+
+    // 设置汉字的颜色
+    public void setCharacterColor(int color) {
+        this.color = color;
+    }
+
+    public void setLoopAnimate(boolean loopAnimateStrokes) {
+        this.loopAnimateStrokes = loopAnimateStrokes;
+    }
+
+    public void setAnimate(boolean animateStrokes) {
+        this.animateStrokes = animateStrokes;
+    }
+
+    public void setHaveBackground(boolean haveBackground) {
+        this.haveBackground = haveBackground;
     }
 
     @Override
@@ -85,31 +120,6 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         hanzi.finishOneStroke(this);
     }
 
-    // 做测试
-    public void setQuiz() {
-        if (!haveAddListener) {
-            haveAddListener = true;
-            addOnGestureListener(this);
-        }
-    }
-
-    // 设置汉字的颜色
-    public void setCharacterColor(int color) {
-        this.color = color;
-    }
-
-    public void setLoopAnimate(boolean loopAnimateStrokes) {
-        this.loopAnimateStrokes = loopAnimateStrokes;
-    }
-
-    public void setAnimate(boolean animateStrokes) {
-        this.animateStrokes = animateStrokes;
-    }
-
-    public void setHaveBackground(boolean haveBackground) {
-        this.haveBackground = haveBackground;
-    }
-
     public void resetHanzi() {
         hanzi.reset(this);
     }
@@ -119,13 +129,24 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
     }
 
     @Override
-    public void onGesture(GestureOverlayView overlay, MotionEvent event) {
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            hanzi.doWritingUpdateCurrentStroke();
+        }
+        else {
+            float x = event.getX();
+            float y = event.getY();
+            hanzi.doWriting(x, y);
+        }
+        return super.onTouchEvent(event);
+    }
 
+    @Override
+    public void onGesture(GestureOverlayView overlay, MotionEvent event) {
     }
 
     @Override
     public void onGestureStarted(GestureOverlayView overlay, MotionEvent event) {
-
     }
 
     @Override
@@ -152,6 +173,5 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
 
     @Override
     public void onGestureCancelled(GestureOverlayView overlay, MotionEvent event) {
-
     }
 }

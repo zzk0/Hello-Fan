@@ -84,7 +84,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         traditionalHanzi.setLoopAnimate(true);
         traditionalHanzi.setCharacter(words.get(currentWord).first);
         hanziView.setHaveBackground(true);
-        hanziView.setQuiz();
+//        hanziView.setQuiz();
         hanziView.setCharacter(words.get(currentWord).first);
     }
 }

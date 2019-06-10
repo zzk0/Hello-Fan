@@ -24,20 +24,17 @@ import java.util.List;
 
 public class Stroke {
 
-    private Context context;
+    private Paint paint;
+    private Paint strokePaint;
     private Path path;
     private Path mediansPath;
     private List<GPoint2D> median;
     private List<GPoint2D> resampleMedian;
-    private Paint paint;
-    private Paint strokePaint;
-
-    private Stroke nextStroke; // 下一个笔画
     private int writingSpeed = 20; // 写字的速度
     private float strokeWidth = 50.0f; // 笔画的宽度
+    private GPoint2D lastPoint;
 
-    public Stroke(Context context) {
-        this.context = context;
+    public Stroke() {
         paint = new Paint();
         paint.setColor(Color.GRAY);
         paint.setStyle(Paint.Style.FILL);
@@ -49,6 +46,7 @@ public class Stroke {
         strokePaint.setAntiAlias(true);
 
         mediansPath = new Path();
+        lastPoint = new GPoint2D(0.0f, 0.0f);
     }
 
     public void setPath(Path path) {
@@ -61,17 +59,34 @@ public class Stroke {
 
     public void setMedian(List<GPoint2D> median) {
         this.median = median;
-
         int sampleNumber = (int) Geometry.lengthOfPoints(median) / writingSpeed;
         resampleMedian = Geometry.resample(median, sampleNumber);
+        lastPoint = resampleMedian.get(0);
     }
 
     public List<GPoint2D> getMedian() {
         return this.median;
     }
 
-    public void setNextStroke(Stroke nextStroke) {
-        this.nextStroke = nextStroke;
+    // 设置大小, 不使用高度。
+    public void setSize(int width, int height) {
+        float scale = width / 1024.0f;
+        Matrix matrix = new Matrix();
+        matrix.setScale(scale, scale);
+        path.transform(matrix);
+        mediansPath.transform(matrix);
+        strokeWidth = strokeWidth * scale;
+        for (GPoint2D point : median) {
+            point.scale(scale, scale);
+        }
+        for (GPoint2D point : resampleMedian) {
+            point.scale(scale, scale);
+        }
+    }
+
+    // 设置颜色
+    public void setColor(int color) {
+        paint.setColor(color);
     }
 
     // 在canvas上，根据path，用paint，fill这个path
@@ -132,29 +147,28 @@ public class Stroke {
         view.invalidate();
     }
 
-    // 设置大小, 不使用高度。
-    public void setSize(int width, int height) {
-        float scale = width / 1024.0f;
-        Matrix matrix = new Matrix();
-        matrix.setScale(scale, scale);
-        path.transform(matrix);
-        for (GPoint2D point : median) {
-            point.scale(scale, scale);
+    public void doWriting(float x, float y) {
+        GPoint2D current = new GPoint2D(x, y);
+        float dis = lastPoint.distanceTo(current);
+        if (dis < 50.0f) {
+            lastPoint = current;
+            mediansPath.addCircle(x, y, strokeWidth, Path.Direction.CCW);
         }
-        for (GPoint2D point : resampleMedian) {
-            point.scale(scale, scale);
-        }
-        strokeWidth = strokeWidth * scale;
     }
 
-    // 设置颜色
-    public void setColor(int color) {
-        paint.setColor(color);
+    public boolean finishWritingThisStroke() {
+        float dis = lastPoint.distanceTo(median.get(median.size() - 1));
+        if (dis < 50) {
+            mediansPath = path;
+            return true;
+        }
+        return false;
     }
 
     public void reset(final View view) {
         paint.setColor(Color.GRAY);
         mediansPath = new Path();
+        lastPoint = resampleMedian.get(0);
         view.invalidate();
     }
 }
