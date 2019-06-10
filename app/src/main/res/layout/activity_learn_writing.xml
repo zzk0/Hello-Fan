@@ -8,6 +8,37 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:paddingTop="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/pinyin_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="拼音：zheng"
+            android:textSize="23dp"/>
+
+        <TextView
+            android:id="@+id/phrase_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="词组：郑重"
+            android:textSize="23dp"/>
+
+        <TextView
+            android:id="@+id/jianfan_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="简繁："
+            android:textSize="23dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
@@ -17,18 +48,16 @@
 
         <com.test.view.HanziView
             android:id="@+id/simplified_word"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
+            android:layout_width="50dp"
+            android:layout_height="match_parent"/>
 
         <FrameLayout
             android:layout_width="16dp"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent" />
 
         <com.test.view.HanziView
             android:id="@+id/traditional_word"
-            android:layout_weight="1"
-            android:layout_width="0dp"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"/>
 
     </LinearLayout>
@@ -46,6 +75,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="16dp"
         android:orientation="horizontal">
 
         <Button

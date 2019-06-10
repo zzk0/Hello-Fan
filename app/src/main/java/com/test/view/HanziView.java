@@ -21,9 +21,12 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
     private int color;
     private boolean loopAnimateStrokes;
     private boolean animateStrokes;
-    private boolean haveBackground;
+    private boolean haveOutterBackground;
+    private boolean haveInnerBackground;
     private boolean haveAddListener;
     private boolean quizAnimate;
+    private int outterBackgroundColor;
+    private int innerBackgroundColor;
 
     public HanziView(Context context) {
         super(context);
@@ -45,7 +48,12 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         color = Color.GRAY;
         loopAnimateStrokes = false;
         animateStrokes = false;
-        haveBackground = false;
+        haveOutterBackground = false;
+        haveInnerBackground = false;
+        setUncertainGestureColor(Color.TRANSPARENT);
+        setGestureColor(Color.TRANSPARENT);
+        outterBackgroundColor = 0x8A8A8AFF;
+        innerBackgroundColor = 0x8A8A8AFF;
     }
 
     // 做测试
@@ -78,8 +86,20 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         this.animateStrokes = animateStrokes;
     }
 
-    public void setHaveBackground(boolean haveBackground) {
-        this.haveBackground = haveBackground;
+    public void setHaveInnerBackground(boolean haveInnerBackground) {
+        this.haveInnerBackground = haveInnerBackground;
+    }
+
+    public void setHaveOutterBackground(boolean haveOutterBackground) {
+        this.haveOutterBackground = haveOutterBackground;
+    }
+
+    public void setInnerBackgroundColor(int innerBackgroundColor) {
+        this.innerBackgroundColor = innerBackgroundColor;
+    }
+
+    public void setOutterBackgroundColor(int outterBackgroundColor) {
+        this.outterBackgroundColor = outterBackgroundColor;
     }
 
     @Override
@@ -102,7 +122,10 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
             hanzi = new Hanzi(getContext());
         }
         hanzi.setColor(color);
-        hanzi.setHaveBackground(haveBackground);
+        hanzi.setHaveOutterBackground(haveOutterBackground);
+        hanzi.setHaveInnerBackground(haveInnerBackground);
+        hanzi.setInnerBackgroundColor(innerBackgroundColor);
+        hanzi.setOutterBackgroundColor(outterBackgroundColor);
         hanzi.setAnimateStrokesLoop(loopAnimateStrokes);
         hanzi.setAnimateStrokesOnce(animateStrokes);
         hanzi.setCharacter(this, word, mWidth);
@@ -130,6 +153,7 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!quizAnimate) return super.onTouchEvent(event);
         if (event.getAction() == MotionEvent.ACTION_UP) {
             hanzi.doWritingUpdateCurrentStroke();
         }

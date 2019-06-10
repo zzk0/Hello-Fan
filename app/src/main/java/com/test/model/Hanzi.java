@@ -23,9 +23,13 @@ public class Hanzi {
     // 绘图
     private List<Stroke> strokes;
     private StrokesMatcher strokesMatcher;
-    private Path background;
-    private Paint backgroundPaint;
+    private Path outterBackground;
+    private Path innerBackground;
+    private Paint outterBackgroundPaint;
+    private Paint innerBackgroundPaint;
     private Thread animateThread;
+    private int outterBackgroundColor;
+    private int innerBackgroundColor;
 
     // 状态
     private int wordId;
@@ -33,7 +37,8 @@ public class Hanzi {
     private int currentStroke;
     private boolean animateStrokesLoop;
     private boolean animateStrokesOnce;
-    private boolean haveBackground;
+    private boolean haveOutterBackground;
+    private boolean haveInnerBackground;
     private boolean haveScaledBackground;
     private boolean finishSetCharacter;
 
@@ -46,7 +51,8 @@ public class Hanzi {
         color = Color.GRAY;
         animateStrokesLoop = false;
         animateStrokesOnce = false;
-        haveBackground = false;
+        haveOutterBackground = false;
+        haveInnerBackground = false;
         haveScaledBackground = false;
         finishSetCharacter = true;
         wordId = 0;
@@ -55,24 +61,37 @@ public class Hanzi {
     }
 
     private void initBackground() {
-        background = new Path();
-        background.moveTo(0.0f, 0.0f);
-        background.lineTo(SVG_WIDTH, 0.0f);
-        background.lineTo(0.0f, SVG_WIDTH);
-        background.lineTo(SVG_WIDTH, SVG_WIDTH);
-        background.lineTo(0.0f, 0.0f);
-        background.lineTo(0.0f, SVG_WIDTH);
-        background.moveTo(SVG_WIDTH, 0.0f);
-        background.lineTo(SVG_WIDTH, SVG_WIDTH);
-        background.moveTo(0.0f, SVG_WIDTH / 2.0f);
-        background.lineTo(SVG_WIDTH, SVG_WIDTH / 2.0f);
-        background.moveTo(SVG_WIDTH / 2.0f, 0.0f);
-        background.lineTo(SVG_WIDTH / 2.0f, SVG_WIDTH);
+        innerBackground = new Path();
 
-        backgroundPaint = new Paint();
-        backgroundPaint.setStrokeWidth(5.0f);
-        backgroundPaint.setColor(0x8A8A8AFF);
-        backgroundPaint.setStyle(Paint.Style.STROKE);
+        float length = SVG_WIDTH / 40.0f;
+
+        innerBackground.moveTo(length / 2.0f, SVG_WIDTH / 2.0f);
+        for (int i = 1; i < 40; i += 2) {
+            innerBackground.lineTo( length / 2.0f + length * i, SVG_WIDTH / 2.0f);
+            innerBackground.moveTo(length / 2.0f + length * (i + 1), SVG_WIDTH / 2.0f);
+        }
+
+        innerBackground.moveTo(SVG_WIDTH / 2.0f, 0.0f);
+        for (int i = 1; i < 40; i += 2) {
+            innerBackground.lineTo(SVG_WIDTH / 2.0f, length / 2.0f + length * i);
+            innerBackground.moveTo(SVG_WIDTH / 2.0f, length / 2.0f + length * (i + 1));
+        }
+
+        innerBackgroundPaint = new Paint();
+        innerBackgroundPaint.setStrokeWidth(5.0f);
+        innerBackgroundPaint.setStyle(Paint.Style.STROKE);
+
+        outterBackground = new Path();
+
+        outterBackground.moveTo(0.0f, 0.0f);
+        outterBackground.lineTo(0.0f, SVG_WIDTH);
+        outterBackground.lineTo(SVG_WIDTH, SVG_WIDTH);
+        outterBackground.lineTo(SVG_WIDTH, 0.0f);
+        outterBackground.lineTo(0.0f, 0.0f);
+
+        outterBackgroundPaint = new Paint();
+        outterBackgroundPaint.setStrokeWidth(15.0f);
+        outterBackgroundPaint.setStyle(Paint.Style.STROKE);
     }
 
     // 这段代码开启多线程，需要注意可能遇到的一些问题
@@ -103,11 +122,12 @@ public class Hanzi {
                     strokes.add(stroke);
                 }
                 setHanziSize(width, width);
-                if (!haveScaledBackground && haveBackground) {
+                if (!haveScaledBackground) {
                     float scale = width / SVG_WIDTH;
                     Matrix matrix = new Matrix();
                     matrix.setScale(scale, scale);
-                    background.transform(matrix);
+                    outterBackground.transform(matrix);
+                    innerBackground.transform(matrix);
                     haveScaledBackground = true;
                 }
                 if (animateStrokesLoop) {
@@ -135,8 +155,22 @@ public class Hanzi {
         this.animateStrokesOnce = animateStrokesOnce;
     }
 
-    public void setHaveBackground(boolean haveBackground) {
-        this.haveBackground = haveBackground;
+    public void setHaveOutterBackground(boolean haveOutterBackground) {
+        this.haveOutterBackground = haveOutterBackground;
+    }
+
+    public void setHaveInnerBackground(boolean haveInnerBackground) {
+        this.haveInnerBackground = haveInnerBackground;
+    }
+
+    public void setInnerBackgroundColor(int innerBackgroundColor) {
+        this.innerBackgroundColor = innerBackgroundColor;
+        innerBackgroundPaint.setColor(innerBackgroundColor);
+    }
+
+    public void setOutterBackgroundColor(int outterBackgroundColor) {
+        this.outterBackgroundColor = outterBackgroundColor;
+        outterBackgroundPaint.setColor(outterBackgroundColor);
     }
 
     // 根据HanziView的大小来设置Stroke的大小
@@ -148,8 +182,11 @@ public class Hanzi {
 
     // 调用每个笔画的draw方法
     public void draw(Canvas canvas) {
-        if (haveBackground) {
-            canvas.drawPath(background, backgroundPaint);
+        if (haveOutterBackground) {
+            canvas.drawPath(outterBackground, outterBackgroundPaint);
+        }
+        if (haveInnerBackground) {
+            canvas.drawPath(innerBackground, innerBackgroundPaint);
         }
         for (int i = strokes.size() - 1; i >= 0; i--) {
             strokes.get(i).draw(canvas);

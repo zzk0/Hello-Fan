@@ -77,14 +77,15 @@ public class LearnWritingActivity extends AppCompatActivity {
     }
 
     private void setHanzi() {
-        simplifiedHanzi.setHaveBackground(true);
+        simplifiedHanzi.setHaveOutterBackground(true);
         simplifiedHanzi.setCharacterColor(Color.BLACK);
         simplifiedHanzi.setCharacter(words.get(currentWord).second);
-        traditionalHanzi.setHaveBackground(true);
+        traditionalHanzi.setHaveOutterBackground(true);
         traditionalHanzi.setLoopAnimate(true);
         traditionalHanzi.setCharacter(words.get(currentWord).first);
-        hanziView.setHaveBackground(true);
-//        hanziView.setQuiz();
+        hanziView.setHaveOutterBackground(true);
+        hanziView.setHaveInnerBackground(true);
+        hanziView.setQuiz();
         hanziView.setCharacter(words.get(currentWord).first);
     }
 }
