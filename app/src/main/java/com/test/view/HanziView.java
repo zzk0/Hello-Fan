@@ -25,6 +25,7 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
     private boolean haveInnerBackground;
     private boolean haveAddListener;
     private boolean quizAnimate;
+    private boolean clickToAnimate;
     private int outterBackgroundColor;
     private int innerBackgroundColor;
 
@@ -102,6 +103,10 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         this.outterBackgroundColor = outterBackgroundColor;
     }
 
+    public void setClickToAnimate(boolean clickToAnimate) {
+        this.clickToAnimate = clickToAnimate;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -131,6 +136,11 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         hanzi.setCharacter(this, word, mWidth);
     }
 
+    public void cleanCharacter() {
+        hanzi.clean();
+        this.invalidate();
+    }
+
     // 这个方法提供给手势事件调用
     // 当用户写错了笔画的时候，给出一些提示（prompt）
     public void prompt() {
@@ -153,15 +163,18 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!quizAnimate) return super.onTouchEvent(event);
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            hanzi.doWritingUpdateCurrentStroke();
+        if (clickToAnimate && event.getAction() == MotionEvent.ACTION_UP) {
+            hanzi.animateStroke(this);
         }
-        else {
-            float x = event.getX();
-            float y = event.getY();
-            hanzi.doWriting(x, y);
-        }
+//        if (!quizAnimate) return super.onTouchEvent(event);
+//        if (event.getAction() == MotionEvent.ACTION_UP) {
+//            hanzi.doWritingUpdateCurrentStroke();
+//        }
+//        else {
+//            float x = event.getX();
+//            float y = event.getY();
+//            hanzi.doWriting(x, y);
+//        }
         return super.onTouchEvent(event);
     }
 

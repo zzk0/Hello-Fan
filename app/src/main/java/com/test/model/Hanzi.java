@@ -41,6 +41,7 @@ public class Hanzi {
     private boolean haveInnerBackground;
     private boolean haveScaledBackground;
     private boolean finishSetCharacter;
+    private boolean strokeAnimating;
 
     // 常量
     private static final float SVG_WIDTH = 1024.0f;
@@ -55,6 +56,7 @@ public class Hanzi {
         haveInnerBackground = false;
         haveScaledBackground = false;
         finishSetCharacter = true;
+        strokeAnimating = true;
         wordId = 0;
 
         initBackground();
@@ -105,7 +107,8 @@ public class Hanzi {
         this.wordId = this.wordId + 1;
         this.finishSetCharacter = false;
         if (animateThread != null) {
-            this.animateThread.interrupt();
+            strokeAnimating = false;
+            animateThread.interrupt();
         }
         new Thread(new Runnable() {
             @Override
@@ -180,6 +183,20 @@ public class Hanzi {
         }
     }
 
+    public void clean() {
+        strokes.clear();
+        color = Color.GRAY;
+        animateStrokesLoop = false;
+        animateStrokesOnce = false;
+        haveOutterBackground = false;
+        haveInnerBackground = false;
+        haveScaledBackground = false;
+        finishSetCharacter = true;
+        wordId = 0;
+
+        initBackground();
+    }
+
     // 调用每个笔画的draw方法
     public void draw(Canvas canvas) {
         if (haveOutterBackground) {
@@ -197,18 +214,24 @@ public class Hanzi {
         animateThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                reset(view);
+                strokeAnimating = true;
                 for (int i = 0; i < strokes.size(); i++) {
                     strokes.get(i).animateStroke(view);
                 }
+                strokeAnimating = false;
             }
         });
-        animateThread.start();
+        if (!strokeAnimating) {
+            animateThread.start();
+        }
     }
 
     public void loopAnimateStroke(final View view) {
         animateThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                strokeAnimating = true;
                 int currentId = wordId;
                 for (int i = 0; i < strokes.size(); i++) {
                     if (wordId != currentId) break;
@@ -218,6 +241,7 @@ public class Hanzi {
                         reset(view);
                     }
                 }
+                strokeAnimating = false;
             }
         });
         animateThread.start();

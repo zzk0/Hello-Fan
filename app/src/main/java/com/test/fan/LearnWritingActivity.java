@@ -34,8 +34,8 @@ public class LearnWritingActivity extends AppCompatActivity {
         simplifiedHanzi = findViewById(R.id.simplified_word);
         traditionalHanzi = findViewById(R.id.traditional_word);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
     }
 
     @Override
@@ -59,7 +59,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("fan_data", 0);
         String todayWords = sharedPreferences.getString("words", "");
         for (int i = 0; i < todayWords.length(); i += 3) {
-            words.add(new Tuple<>("" + todayWords.charAt(i), "" + todayWords.charAt(i + 1), Integer.valueOf(todayWords.charAt(i + 2))));
+            words.add(new Tuple<>("" + todayWords.charAt(i), "" + todayWords.charAt(i + 1), Integer.valueOf("" + todayWords.charAt(i + 2))));
         }
         return words;
     }
@@ -77,15 +77,66 @@ public class LearnWritingActivity extends AppCompatActivity {
     }
 
     private void setHanzi() {
+        Tuple<String, String, Integer> word = words.get(currentWord);
+        traditionalHanzi.setOnClickListener(null);
+
+        switch (word.third) {
+            case 0:
+                getSupportActionBar().setTitle("学习模式");
+                studyMode(word);
+                break;
+            case 1:
+                getSupportActionBar().setTitle("再认模式");
+                recognizeMode(word);
+                break;
+            case 2:
+                getSupportActionBar().setTitle("测试模式");
+                testMode(word);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void studyMode(Tuple<String, String, Integer> word) {
         simplifiedHanzi.setHaveOutterBackground(true);
         simplifiedHanzi.setCharacterColor(Color.BLACK);
-        simplifiedHanzi.setCharacter(words.get(currentWord).second);
+        simplifiedHanzi.setCharacter(word.second);
         traditionalHanzi.setHaveOutterBackground(true);
         traditionalHanzi.setLoopAnimate(true);
-        traditionalHanzi.setCharacter(words.get(currentWord).first);
+        traditionalHanzi.setCharacter(word.first);
         hanziView.setHaveOutterBackground(true);
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
-        hanziView.setCharacter(words.get(currentWord).first);
+        hanziView.setCharacter(word.first);
+    }
+
+    private void recognizeMode(Tuple<String, String, Integer> word) {
+        simplifiedHanzi.setHaveOutterBackground(true);
+        simplifiedHanzi.setCharacterColor(Color.BLACK);
+        simplifiedHanzi.setCharacter(word.second);
+        traditionalHanzi.setHaveOutterBackground(true);
+        traditionalHanzi.setLoopAnimate(false);
+        traditionalHanzi.setClickToAnimate(true);
+        traditionalHanzi.setCharacter(word.first);
+        hanziView.setHaveOutterBackground(true);
+        hanziView.setHaveInnerBackground(true);
+        hanziView.setQuiz();
+        hanziView.setCharacter(word.first);
+    }
+
+    private void testMode(Tuple<String, String, Integer> word) {
+        simplifiedHanzi.setHaveOutterBackground(true);
+        simplifiedHanzi.setCharacterColor(Color.BLACK);
+        simplifiedHanzi.setCharacter(word.second);
+        traditionalHanzi.setHaveOutterBackground(false);
+        traditionalHanzi.cleanCharacter();
+//        traditionalHanzi.setOnClickListener(listener);
+//        traditionalHanzi.setCharacter(word.first);
+        hanziView.setHaveOutterBackground(true);
+        hanziView.setHaveInnerBackground(true);
+        hanziView.setQuiz();
+        hanziView.setCharacterColor(Color.TRANSPARENT);
+        hanziView.setCharacter(word.first);
     }
 }
