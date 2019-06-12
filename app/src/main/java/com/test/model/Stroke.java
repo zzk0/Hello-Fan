@@ -110,7 +110,7 @@ public class Stroke {
         colorFade.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                view.invalidate();
+                view.postInvalidate();
             }
         });
         colorFade.start();
@@ -123,7 +123,7 @@ public class Stroke {
         colorFade.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                view.invalidate();
+                view.postInvalidate();
             }
         });
         colorFade.start();
@@ -135,16 +135,17 @@ public class Stroke {
         for (int i = 0; i < resampleMedian.size(); i++) {
             GPoint2D center = resampleMedian.get(i);
             mediansPath.addCircle(center.x, center.y, strokeWidth, Path.Direction.CCW);
-            view.invalidate();
+            view.postInvalidate();
             try {
                 Thread.sleep(50);
             }
             catch (Exception e) {
                 e.printStackTrace();
+                return;
             }
         }
         mediansPath = path;
-        view.invalidate();
+        view.postInvalidate();
     }
 
     public void doWriting(float x, float y) {
@@ -169,6 +170,6 @@ public class Stroke {
         paint.setColor(Color.GRAY);
         mediansPath = new Path();
         lastPoint = resampleMedian.get(0);
-        view.invalidate();
+        view.postInvalidate();
     }
 }

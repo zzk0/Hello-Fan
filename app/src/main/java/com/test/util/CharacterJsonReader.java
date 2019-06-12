@@ -47,7 +47,7 @@ public class CharacterJsonReader {
                 break;
             }
         }
-
+        sqLiteDatabase.close();
         return fileContent.toString();
     }
 

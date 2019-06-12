@@ -144,7 +144,7 @@ public class Hanzi {
                     animateStroke(view);
                 }
                 finishSetCharacter = true;
-                view.invalidate();
+                view.postInvalidate();
             }
         }).start();
     }
@@ -215,6 +215,7 @@ public class Hanzi {
     }
 
     public void animateStroke(final View view) {
+
         animateThread = new Thread(new Runnable() {
             @Override
             public void run() {
