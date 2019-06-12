@@ -99,41 +99,39 @@ public class LearnWritingActivity extends AppCompatActivity {
     }
 
     private void studyMode(Tuple<String, String, Integer> word) {
-        simplifiedHanzi.setHaveOutterBackground(true);
+        simplifiedHanzi.setHaveOuterBackground(true);
         simplifiedHanzi.setCharacterColor(Color.BLACK);
         simplifiedHanzi.setCharacter(word.second);
-        traditionalHanzi.setHaveOutterBackground(true);
+        traditionalHanzi.setHaveOuterBackground(true);
         traditionalHanzi.setLoopAnimate(true);
         traditionalHanzi.setCharacter(word.first);
-        hanziView.setHaveOutterBackground(true);
+        hanziView.setHaveOuterBackground(true);
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
         hanziView.setCharacter(word.first);
     }
 
     private void recognizeMode(Tuple<String, String, Integer> word) {
-        simplifiedHanzi.setHaveOutterBackground(true);
+        simplifiedHanzi.setHaveOuterBackground(true);
         simplifiedHanzi.setCharacterColor(Color.BLACK);
         simplifiedHanzi.setCharacter(word.second);
-        traditionalHanzi.setHaveOutterBackground(true);
+        traditionalHanzi.setHaveOuterBackground(true);
         traditionalHanzi.setLoopAnimate(false);
         traditionalHanzi.setClickToAnimate(true);
         traditionalHanzi.setCharacter(word.first);
-        hanziView.setHaveOutterBackground(true);
+        hanziView.setHaveOuterBackground(true);
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
         hanziView.setCharacter(word.first);
     }
 
     private void testMode(Tuple<String, String, Integer> word) {
-        simplifiedHanzi.setHaveOutterBackground(true);
+        simplifiedHanzi.setHaveOuterBackground(true);
         simplifiedHanzi.setCharacterColor(Color.BLACK);
         simplifiedHanzi.setCharacter(word.second);
-        traditionalHanzi.setHaveOutterBackground(false);
+        traditionalHanzi.setHaveOuterBackground(false);
         traditionalHanzi.cleanCharacter();
-//        traditionalHanzi.setOnClickListener(listener);
-//        traditionalHanzi.setCharacter(word.first);
-        hanziView.setHaveOutterBackground(true);
+        hanziView.setHaveOuterBackground(true);
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
         hanziView.setCharacterColor(Color.TRANSPARENT);
