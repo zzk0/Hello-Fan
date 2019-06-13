@@ -29,7 +29,6 @@ public class Hanzi {
     private Thread animateThread;
 
     // 状态
-    private int wordId;
     private int currentStroke;
     private boolean haveScaledBackground;
 
@@ -43,8 +42,9 @@ public class Hanzi {
     public boolean haveInnerBackground;
 
     // 控制多线程的状态
-    public boolean finishSetCharacter;
-    public boolean strokeAnimating;
+    private int wordId;
+    private boolean finishSetCharacter;
+    private boolean strokeAnimating;
 
     // 常量
     private static final float SVG_WIDTH = 1024.0f;
@@ -158,14 +158,9 @@ public class Hanzi {
                     innerBackground.transform(matrix);
                     haveScaledBackground = true;
                 }
+                animateStroke(view);
 
-                // 根据状态设置动画
-                if (animateStrokesLoop) {
-                    loopAnimateStroke(view);
-                }
-                else if (animateStrokesOnce) {
-                    animateStroke(view);
-                }
+                // 更新状态
                 finishSetCharacter = true;
                 view.postInvalidate();
             }
@@ -207,34 +202,22 @@ public class Hanzi {
     }
 
     public void animateStroke(final View view) {
+        if (!animateStrokesOnce && !animateStrokesLoop) {
+            return;
+        }
+
         animateThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 reset(view);
-                strokeAnimating = true;
-                for (int i = 0; i < strokes.size(); i++) {
-                    strokes.get(i).animateStroke(view);
-                }
-                strokeAnimating = false;
-            }
-        });
-        if (!strokeAnimating) {
-            animateThread.start();
-        }
-    }
-
-    public void loopAnimateStroke(final View view) {
-        animateThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                strokeAnimating = true;
                 int currentId = wordId;
+                strokeAnimating = true;
                 for (int i = 0; i < strokes.size(); i++) {
                     if (wordId != currentId) {
                         break;
                     }
                     strokes.get(i).animateStroke(view);
-                    if (i == (strokes.size() - 1)) {
+                    if (animateStrokesLoop && i == (strokes.size() - 1)) {
                         i = -1;
                         reset(view);
                     }
@@ -242,19 +225,21 @@ public class Hanzi {
                 strokeAnimating = false;
             }
         });
-        animateThread.start();
-    }
 
-    // 这个方法用来闪一闪这个文字，来提醒用户下一个要写的字在哪里
-    // 需要View的作用，做动画特效需要调用View的invalidate方法，这个模型里面没有view，只好传一个进来了。
-    public void prompt(View view) {
-        if (currentStroke < strokes.size()) {
-            strokes.get(currentStroke).prompt(view);
+        if (!strokeAnimating) {
+            animateThread.start();
         }
     }
 
     public boolean strokeMatch(List<GPoint2D> userStroke) {
         return strokesMatcher.match(userStroke, strokes.get(currentStroke).getMedian());
+    }
+
+    // 这个方法用来闪一闪这个文字，来提醒用户下一个要写的字在哪里
+    public void prompt(View view) {
+        if (currentStroke < strokes.size()) {
+            strokes.get(currentStroke).prompt(view);
+        }
     }
 
     // 这个方法用来完成这个笔画的渲染，当这个笔画写好了之后，从灰色渐变成黑色

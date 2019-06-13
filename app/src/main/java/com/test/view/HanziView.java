@@ -68,11 +68,13 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
     // 设置动画一次
     public void setAnimate(boolean animateStrokes) {
         hanzi.animateStrokesOnce = animateStrokes;
+        hanzi.animateStroke(this);
     }
 
     // 设置是否循环动画
     public void setLoopAnimate(boolean loopAnimateStrokes) {
         hanzi.animateStrokesLoop = loopAnimateStrokes;
+        hanzi.animateStroke(this);
     }
 
     // 设置田字格外框是否存在
