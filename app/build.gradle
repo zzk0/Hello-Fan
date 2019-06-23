@@ -42,4 +42,7 @@ dependencies {
     //https://github.com/arimorty/floatingsearchview 第三方搜索控件
     implementation 'com.github.sd6352051:NiftyDialogEffects:v1.0.3'
     implementation 'com.github.arimorty:floatingsearchview:2.1.1'
+
+    // 日期
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.1'
 }

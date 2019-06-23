@@ -18,7 +18,11 @@
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
 
-    <!-- button -->
+    <!--按钮文字-->
     <string name="button_clean">重写</string>
     <string name="button_next">下一个</string>
+
+    <string name="sign_1">连续签到</string>
+    <string name="sign_2">个</string>
+    <string name="sign_3">今天需要学习的汉字</string>
 </resources>

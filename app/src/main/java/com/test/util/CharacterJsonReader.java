@@ -18,7 +18,7 @@ import java.io.InputStream;
 
 public class CharacterJsonReader {
     private CharacterJsonReader() { }
-    public static String[] columns={"流水序","教育部字號","Unicode","常用字","简体字","简体JSON","繁体JSON","学习次数"};
+    public static String[] columns={"rowid","Unicode","常用字","简体字","简体JSON","繁体JSON","学习次数", "学习日期"};
     private static String DB_NAME = "test.db";
     public static String query(Context context, String word, boolean isTraditional)
     {
