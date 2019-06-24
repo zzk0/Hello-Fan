@@ -53,27 +53,28 @@ public class CharacterJsonReader {
 
     public static SQLiteDatabase DBManage(Context mContext,String packname)
     {
-        String dbPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/databases/" + DB_NAME;
-        if (!new File(dbPath).exists()) {
-            try {
-                boolean flag = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/databases/").mkdirs();
-                boolean newFile = new File(dbPath).createNewFile();
-                try {
-                    FileOutputStream out = new FileOutputStream(dbPath);
-                    InputStream in = mContext.getAssets().open("test.db");
-                    byte[] buffer = new byte[1024];
-                    int readBytes = 0;
-                    while ((readBytes = in.read(buffer)) != -1)
-                        out.write(buffer, 0, readBytes);
-                    in.close();
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return SQLiteDatabase.openOrCreateDatabase(dbPath, null);
+        return new SQLdm().openDataBase(mContext);
+//        String dbPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/databases/" + DB_NAME;
+//        if (!new File(dbPath).exists()) {
+//            try {
+//                boolean flag = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/databases/").mkdirs();
+//                boolean newFile = new File(dbPath).createNewFile();
+//                try {
+//                    FileOutputStream out = new FileOutputStream(dbPath);
+//                    InputStream in = mContext.getAssets().open("test.db");
+//                    byte[] buffer = new byte[1024];
+//                    int readBytes = 0;
+//                    while ((readBytes = in.read(buffer)) != -1)
+//                        out.write(buffer, 0, readBytes);
+//                    in.close();
+//                    out.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        return SQLiteDatabase.openOrCreateDatabase(dbPath, null);
     }
 }

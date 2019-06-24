@@ -32,7 +32,7 @@ import com.arlib.floatingsearchview.suggestions.SearchSuggestionsAdapter;
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
 import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
-import com.test.Bean.DictBean;
+import com.test.fan.Bean.DictBean;
 import com.test.util.DBHelper;
 import com.test.util.SQLdm;
 
