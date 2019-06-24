@@ -23,7 +23,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        executeAssetsSQL(db);
+
+        executeAssetsSQL(db,"Hello_Fan.sql");
+        executeAssetsSQL(db,"s2taW.sql");
+        executeAssetsSQL(db,"bank.sql");
     }
 
     @Override
@@ -32,12 +35,12 @@ public class DBHelper extends SQLiteOpenHelper {
     /*
      *读取数据库文件,执行数据库中的sql语句
      */
-    public void executeAssetsSQL(SQLiteDatabase db){
+    public void executeAssetsSQL(SQLiteDatabase db ,String sqlname){
         BufferedReader in=null;
         try{
             //打开文件
             in=new BufferedReader(
-                    new InputStreamReader(myContext.getResources().getAssets().open("word.sql"))
+                    new InputStreamReader(myContext.getResources().getAssets().open(sqlname))
             );
             String expression;
             String buffer="";

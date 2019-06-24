@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.test.model.Tuple;
+import com.test.util.DBHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,14 +45,16 @@ public class MainActivity extends AppCompatActivity
 
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         // 设置ToolBar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //以下代码用于去除阴影
+        toolbar.setElevation(0);
         setSupportActionBar(toolbar);
 
         fragments = new ArrayList<>();
@@ -82,7 +85,7 @@ public class MainActivity extends AppCompatActivity
                 fragments.add(new S2TFragment());
                 fragments.add(new T2SFragment());
                 fragments.add(new ReadingFragment());
-                fragments.add(new HistoryFragment());
+                fragments.add(new HistoryFragment(this));
                 fragments.add(new SettingFragment());
             }
             else {
@@ -122,7 +125,7 @@ public class MainActivity extends AppCompatActivity
                 fragments.add(new S2TFragment());
                 fragments.add(new T2SFragment());
                 fragments.add(new ReadingFragment());
-                fragments.add(new HistoryFragment());
+                fragments.add(new HistoryFragment(this));
                 fragments.add(new SettingFragment());
                 setDefaultFragment(HOME);
             }
