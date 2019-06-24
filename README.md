@@ -27,7 +27,7 @@ words的更新版，目前还没替换words
 
 ## dict表
 
-![](img/db_bank.png)
+![](img/db_dict.png)
 
 ## DictHistory表
 
