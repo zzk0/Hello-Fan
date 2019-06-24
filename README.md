@@ -19,12 +19,6 @@ https://github.com/zhouzekai/Hello-Fan/blob/master/app/src/main/java/com/test/ut
 
 ![](img/db_words.png)
 
-## bank表
-
-words的更新版，目前还没替换words
-
-![](img/db_bank.png)
-
 ## dict表
 
 ![](img/db_dict.png)

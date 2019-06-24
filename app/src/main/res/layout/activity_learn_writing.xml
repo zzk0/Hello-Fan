@@ -19,21 +19,19 @@
             android:id="@+id/pinyin_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="拼音：zheng"
             android:textSize="23dp"/>
 
         <TextView
             android:id="@+id/phrase_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="词组：郑重"
             android:textSize="23dp"/>
 
         <TextView
             android:id="@+id/jianfan_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="简繁："
+            android:text="@string/jianfan"
             android:textSize="23dp"/>
 
     </LinearLayout>

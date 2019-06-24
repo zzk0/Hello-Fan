@@ -9,72 +9,38 @@ package com.test.util;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Environment;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class CharacterJsonReader {
     private CharacterJsonReader() { }
-    public static String[] columns={"rowid","Unicode","常用字","简体字","简体JSON","繁体JSON","学习次数", "学习日期"};
-    private static String DB_NAME = "test.db";
+
     public static String query(Context context, String word, boolean isTraditional)
     {
-        StringBuilder fileContent = new StringBuilder("");
-        SQLiteDatabase sqLiteDatabase = DBManage(context,"com.test");
-        String table = "bank";
+        SQLiteDatabase sqLiteDatabase = DBManage(context);
+        String table = "words";
         Cursor cursor;
         if (isTraditional) {
-            cursor = sqLiteDatabase.query(table,columns,"常用字 like '"+word+"'",null,null,null,null);
+            cursor = sqLiteDatabase.rawQuery("select * from " + table + " where traditional = '" + word + "'", null);
         }
         else {
-            cursor = sqLiteDatabase.query(table,columns,"简体字 like '"+word+"'",null,null,null,null);
+            cursor = sqLiteDatabase.rawQuery("select * from " + table + " where simplified = '" + word + "'", null);
         }
 
-        while(cursor.moveToNext()) {
-            String result;
+        String result = "";
+        if (cursor.moveToFirst()) {
             if (isTraditional) {
-                result = cursor.getString(cursor.getColumnIndex("繁体JSON"));
+                result = cursor.getString(cursor.getColumnIndex("tradJson"));
             }
             else {
-                result = cursor.getString(cursor.getColumnIndex("简体JSON"));
-            }
-            if(result.indexOf(word)!=-1)
-            {
-                fileContent.append(result);
-                break;
+                result = cursor.getString(cursor.getColumnIndex("simpJson"));
             }
         }
+        cursor.close();
         sqLiteDatabase.close();
-        return fileContent.toString();
+        return result;
     }
 
-    public static SQLiteDatabase DBManage(Context mContext,String packname)
+    public static SQLiteDatabase DBManage(Context mContext)
     {
         return new SQLdm().openDataBase(mContext);
-//        String dbPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/databases/" + DB_NAME;
-//        if (!new File(dbPath).exists()) {
-//            try {
-//                boolean flag = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/databases/").mkdirs();
-//                boolean newFile = new File(dbPath).createNewFile();
-//                try {
-//                    FileOutputStream out = new FileOutputStream(dbPath);
-//                    InputStream in = mContext.getAssets().open("test.db");
-//                    byte[] buffer = new byte[1024];
-//                    int readBytes = 0;
-//                    while ((readBytes = in.read(buffer)) != -1)
-//                        out.write(buffer, 0, readBytes);
-//                    in.close();
-//                    out.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        return SQLiteDatabase.openOrCreateDatabase(dbPath, null);
     }
 }

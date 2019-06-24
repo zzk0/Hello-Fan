@@ -45,9 +45,9 @@ public class HomeFragment extends Fragment {
         mSignLinesView=(SignLinesView)view.findViewById(R.id.signLineView);
 
         //根据数据库中日期进行签到标签的修改
-        SQLiteDatabase sqLiteDatabase = CharacterJsonReader.DBManage(getContext(),"com.test");
-        String table = "bank";
-        Cursor cursor=sqLiteDatabase.query(true,table,new String[]{"学习日期"},"学习日期 is not null",null,null,null,null,null);
+        SQLiteDatabase sqLiteDatabase = CharacterJsonReader.DBManage(getContext());
+        String table = "words";
+        Cursor cursor=sqLiteDatabase.query(true,table,new String[]{"learnDate"},"learnDate is not null",null,null,null,null,null);
         mSignLinesView.setSignDays(cursor.getCount());
         //Toast.makeText(getContext(),"提示:"+cursor.getCount(),Toast.LENGTH_LONG).show();
 
@@ -69,28 +69,25 @@ public class HomeFragment extends Fragment {
     }
 
     private String getWords() {
-        // 这里是返回的数据的样子。仅作为例子。
+        // 这里是返回的数据的样子
+        // return "鄭郑0飛飞1電电2雞鸡2醫医2鄧邓1貓猫1親亲2蘭兰0藥药2華华2腳脚2聲声1聖圣0羅罗2竊窃1稱称2盡尽1癢痒2";
         //添加了读取数据时一并将学习日期更改的功能
-        StringBuilder fileContent = new StringBuilder("");
-        SQLiteDatabase sqLiteDatabase = CharacterJsonReader.DBManage(getContext(),"com.test");
-        String table = "bank";
-        Cursor cursor=sqLiteDatabase.query(table,new String[]{"Unicode","常用字","简体字","简体JSON","繁体JSON","学习次数","学习日期"},"学习次数 < ? ",new String[]{"3"},null,null,null,"20");
+        StringBuilder fileContent = new StringBuilder();
+        SQLiteDatabase sqLiteDatabase = CharacterJsonReader.DBManage(getContext());
+        String table = "words";
+        Cursor cursor=sqLiteDatabase.query(table,new String[]{"ID","learnTimes","traditional","simplified","tradJson","simpJson","learnDate"},"learnTimes < ? ",new String[]{"3"},null,null,null,"20");
         ContentValues values=new ContentValues();
         LocalDate localDate=LocalDate.now();
-        String year=Integer.toString(localDate.getYear());
-        String month=Integer.toString(localDate.getMonthValue());
-        String day=Integer.toString(localDate.getDayOfMonth());
-        values.put("学习日期",year+"年"+month+"月"+day+"日");
+        values.put("learnDate", localDate.toString());
         while(cursor.moveToNext()) {
-            String content = cursor.getString(cursor.getColumnIndex("常用字")) + cursor.getString(cursor.getColumnIndex("简体字")) + cursor.getString(cursor.getColumnIndex("学习次数"));
-            if(cursor.getString(cursor.getColumnIndex("学习日期"))==null) {
-                int flag = sqLiteDatabase.update(table, values, "常用字=?", new String[]{cursor.getString(cursor.getColumnIndex("常用字"))});
+            String content = cursor.getString(cursor.getColumnIndex("traditional")) + cursor.getString(cursor.getColumnIndex("simplified")) + cursor.getString(cursor.getColumnIndex("learnTimes"));
+            if(cursor.getString(cursor.getColumnIndex("learnDate"))==null) {
+                int flag = sqLiteDatabase.update(table, values, "traditional=?", new String[]{cursor.getString(cursor.getColumnIndex("traditional"))});
             }
             fileContent.append(content);
         }
         cursor.close();
         sqLiteDatabase.close();
         return fileContent.toString();
-        //return "鄭郑0飛飞1電电2雞鸡2醫医2鄧邓1貓猫1親亲2蘭兰0藥药2華华2腳脚2聲声1聖圣0羅罗2竊窃1稱称2盡尽1癢痒2";
     }
 }

@@ -1,14 +1,18 @@
 package com.test.fan;
 
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.test.model.Tuple;
+import com.test.util.SQLdm;
 import com.test.view.HanziView;
 
 import java.util.ArrayList;
@@ -24,6 +28,9 @@ public class LearnWritingActivity extends AppCompatActivity {
     int currentWord = 0;
     private boolean firstFocusChange = true;
 
+    TextView pinyinTextView;
+    TextView phraseTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +43,8 @@ public class LearnWritingActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        pinyinTextView = findViewById(R.id.pinyin_textview);
+        phraseTextView = findViewById(R.id.phrase_textview);
     }
 
     @Override
@@ -80,6 +89,31 @@ public class LearnWritingActivity extends AppCompatActivity {
         Tuple<String, String, Integer> word = words.get(currentWord);
         traditionalHanzi.setOnClickListener(null);
 
+        SQLiteDatabase database = new SQLdm().openDataBase(this);
+
+        // 查询拼音
+        Cursor cursor = database.rawQuery("select * from dict where words = '" + word.first + "'", null);
+        StringBuilder pinyin = new StringBuilder();
+        cursor.moveToFirst();
+        do {
+            pinyin.append(cursor.getString(cursor.getColumnIndex("spell")) + "  ");
+        } while (cursor.moveToNext());
+        pinyinTextView.setText(getResources().getString(R.string.pinyin) +  ": " + pinyin.toString());
+        cursor.close();
+
+        // 查询2~3个词组
+        String sql = "select * from dict where words like '" + word.first + "%' order by length(words)";
+        cursor = database.rawQuery(sql, null);
+        int count = 0;
+        StringBuilder phrase = new StringBuilder();
+        cursor.moveToNext();
+        while (cursor.moveToNext() && count < 3) {
+            count = count + 1;
+            phrase.append(cursor.getString(cursor.getColumnIndex("words")) + "  ");
+        }
+        phraseTextView.setText(getResources().getString(R.string.phrase) + ": " + phrase.toString());
+        cursor.close();
+
         switch (word.third) {
             case 0:
                 getSupportActionBar().setTitle("学习模式");
@@ -96,6 +130,10 @@ public class LearnWritingActivity extends AppCompatActivity {
             default:
                 break;
         }
+    }
+
+    private void updateDB() {
+
     }
 
     private void studyMode(Tuple<String, String, Integer> word) {

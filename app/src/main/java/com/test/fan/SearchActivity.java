@@ -214,6 +214,8 @@ public class SearchActivity extends Activity {
         db= sqLdm.openDataBase(SearchActivity.this);
         //db=dbHelper.getReadableDatabase();
 
+        String sql = "select * from "+dbname+" "+query+" order by "+sort;
+
         Cursor cursor=db.rawQuery(
                 "select * from "+dbname+" "+query+" order by "+sort, null);
         //搜索结果对象化为DictBean，存入list
