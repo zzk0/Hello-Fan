@@ -1,11 +1,38 @@
-# 说明
+# Todo List
 
-在侧边栏选择不同的条目，进入的是Fragment，具体参见MainActivity。比如要添加一个按钮到首页，可以进入fragment_home编辑xml，添加按钮即可。编辑HomeFragment，定义事件等。如果要获取到Activity，可以使用getActivity()这个方法。其他使用方法，多查查文档。
+- [ ] 安排学习的字
+- [ ] 代码整理
+- [ ] 项目文档
+- [ ] 历史Fragment
+- [ ] 设置Fragment
+- [ ] 一繁对多简UI的修改
+- [ ] 拉开的抽屉，看上去很奇怪
+- [ ] 性能优化
+- [ ] 界面的加载有待优化
 
-ArticleActivity是查看文章的Activity。
+# 数据库说明
 
-LearnS2TActivity是学习一简对多繁的Activity。
+获取一个SQLiteDatabase的对象，具体看这个文件
+https://github.com/zhouzekai/Hello-Fan/blob/master/app/src/main/java/com/test/util/SQLdm.java
 
-SearchActivity是搜索的Activity，点击顶部栏的SEARCH，弹出这个事件。
+## words表
 
-图标需要做替换。
+![](img/db_words.png)
+
+## bank表
+
+words的更新版，目前还没替换words
+
+![](img/db_bank.png)
+
+## dict表
+
+![](img/db_bank.png)
+
+## DictHistory表
+
+和dict的表项一直
+
+## s2taW表
+
+![](img/db_s2aw.png)
