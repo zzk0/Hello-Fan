@@ -17,7 +17,7 @@ https://github.com/zhouzekai/Hello-Fan/blob/master/app/src/main/java/com/test/ut
 
 ## words表
 
-![](img/db_words.png)
+![](img/db_wordsInfo.png)
 
 ## dict表
 
