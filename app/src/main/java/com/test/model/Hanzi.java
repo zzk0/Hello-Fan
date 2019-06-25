@@ -132,10 +132,7 @@ public class Hanzi {
             @Override
             public void run() {
                 // 读取笔画信息
-                String json = CharacterJsonReader.query(context, character, true);
-                if (json.equals("")) {
-                    json = CharacterJsonReader.query(context, character, false);
-                }
+                String json = CharacterJsonReader.query(context, character);
                 List<Path> paths = StrokeParser.parse(json);
                 List<List<GPoint2D>> medians = StrokeParser.getMedians(json);
 

@@ -92,6 +92,10 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         this.clickToAnimate = clickToAnimate;
     }
 
+    public int getWrongTimes() {
+        return wrongTimes;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);

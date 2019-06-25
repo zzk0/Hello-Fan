@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.test.algorithm.Schedule;
 import com.test.model.Tuple;
 import com.test.util.SQLdm;
 import com.test.view.HanziView;
@@ -25,7 +26,7 @@ public class LearnWritingActivity extends AppCompatActivity {
     HanziView traditionalHanzi;
 
     List<Tuple<String, String, Integer>> words;
-    int currentWord = 0;
+    int currentWord;
     private boolean firstFocusChange = true;
 
     TextView pinyinTextView;
@@ -45,6 +46,22 @@ public class LearnWritingActivity extends AppCompatActivity {
 
         pinyinTextView = findViewById(R.id.pinyin_textview);
         phraseTextView = findViewById(R.id.phrase_textview);
+
+        // 根据是否有效时间内容去判断currentWord为0，还是继续上一次
+        SharedPreferences sharedPreferences = getSharedPreferences("fan_data", 0);
+        currentWord = sharedPreferences.getInt("current_word", 0);
+    }
+
+    @Override
+    protected void onDestroy() {
+        Schedule schedule = new Schedule(this);
+        schedule.updateSharedPreference(words);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("fan_data", 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("current_word", currentWord);
+        editor.commit();
+        super.onDestroy();
     }
 
     @Override
@@ -64,13 +81,7 @@ public class LearnWritingActivity extends AppCompatActivity {
 
     // 作用：获取今天的字的链表，暂且写成如此，做调试用
     private List<Tuple<String, String, Integer>> getTodayWords() {
-        List<Tuple<String, String, Integer>> words = new ArrayList<>();
-        SharedPreferences sharedPreferences = getSharedPreferences("fan_data", 0);
-        String todayWords = sharedPreferences.getString("words", "");
-        for (int i = 0; i < todayWords.length(); i += 3) {
-            words.add(new Tuple<>("" + todayWords.charAt(i), "" + todayWords.charAt(i + 1), Integer.valueOf("" + todayWords.charAt(i + 2))));
-        }
-        return words;
+        return new Schedule(this).getWords();
     }
 
     public void click(View view) {
@@ -79,6 +90,9 @@ public class LearnWritingActivity extends AppCompatActivity {
                 hanziView.resetHanzi();
                 break;
             case R.id.button_next:
+                if (hanziView.getWrongTimes() < 5) {
+                    words.get(currentWord).third = words.get(currentWord).third + 1;
+                }
                 currentWord = currentWord + 1;
                 setHanzi();
                 break;
@@ -130,10 +144,6 @@ public class LearnWritingActivity extends AppCompatActivity {
             default:
                 break;
         }
-    }
-
-    private void updateDB() {
-
     }
 
     private void studyMode(Tuple<String, String, Integer> word) {

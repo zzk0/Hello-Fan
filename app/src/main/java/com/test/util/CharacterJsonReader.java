@@ -7,40 +7,16 @@
 package com.test.util;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 public class CharacterJsonReader {
     private CharacterJsonReader() { }
 
-    public static String query(Context context, String word, boolean isTraditional)
+    public static String query(Context context, String word)
     {
-        SQLiteDatabase sqLiteDatabase = DBManage(context);
-        String table = "words";
-        Cursor cursor;
-        if (isTraditional) {
-            cursor = sqLiteDatabase.rawQuery("select * from " + table + " where traditional = '" + word + "'", null);
-        }
-        else {
-            cursor = sqLiteDatabase.rawQuery("select * from " + table + " where simplified = '" + word + "'", null);
-        }
-
-        String result = "";
-        if (cursor.moveToFirst()) {
-            if (isTraditional) {
-                result = cursor.getString(cursor.getColumnIndex("tradJson"));
-            }
-            else {
-                result = cursor.getString(cursor.getColumnIndex("simpJson"));
-            }
-        }
-        cursor.close();
-        sqLiteDatabase.close();
-        return result;
-    }
-
-    public static SQLiteDatabase DBManage(Context mContext)
-    {
-        return new SQLdm().openDataBase(mContext);
+        SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
+        return sharedPreferences.getString(word, "");
     }
 }
