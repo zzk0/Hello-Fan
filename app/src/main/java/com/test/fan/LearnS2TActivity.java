@@ -12,7 +12,6 @@ import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -23,7 +22,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.test.util.DBHelper;
 import com.test.util.S2T;
 import com.test.util.SQLdm;
 
@@ -96,7 +94,7 @@ public class LearnS2TActivity extends AppCompatActivity {
         ArrayList<String> btnContentList=new ArrayList<String>();
 
         //sqLiteDatabase=dbHelper.getReadableDatabase();
-        sqLiteDatabase=sqLdm.openDataBase(getApplicationContext());
+        sqLiteDatabase=sqLdm.openDataBase(this);
 
         Cursor cursor = sqLiteDatabase.rawQuery("select * from s2taW", null);
 
@@ -289,7 +287,7 @@ public class LearnS2TActivity extends AppCompatActivity {
 
         String tr="",s="";
         //sqLiteDatabase = dbHelper.getReadableDatabase();
-        sqLiteDatabase=sqLdm.openDataBase(getApplicationContext());
+        sqLiteDatabase=sqLdm.openDataBase(this);
 
         Cursor cursor = sqLiteDatabase.rawQuery("select * from dict where words like '%" + Right_text + "%'", null);
         if (cursor.getCount()==0)

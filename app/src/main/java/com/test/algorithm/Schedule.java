@@ -96,7 +96,7 @@ public class Schedule {
             int i = 0;
             do {
                 i = i + 1;
-                int learnTimes = 0;
+                int learnTimes = 1;
                 String traditional = cursor.getString(cursor.getColumnIndex("traditional"));
                 String simplified = cursor.getString(cursor.getColumnIndex("simplified"));
                 String tradJson = cursor.getString(cursor.getColumnIndex("tradJson"));
