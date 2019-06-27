@@ -9,6 +9,13 @@ sharedPreference中，保留一个学习的序列，格式为：{繁体字 简�
 当学习次数大过三次的时候，就去掉这个字。
 
 初始情况，words为空。去查到n个字，读取每个json
+
+后期的改进:https://www.supermemo.com/en/archives1990-2015/english/ol/sm2
+使用SM-2算法来加强记忆。
+
+学习流程：
+前期安排字的时候，按照老流程进行。
+当经过了测试模式之后，开始使用SM-2算法来安排记忆。
 */
 
 package com.test.algorithm;

@@ -58,7 +58,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         String lastDay = sharedPreferences.getString("last_learn_date", "");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String today = sdf.format(new Date());
-        if (lastDay.equals(today)) {
+        if (!lastDay.equals(today)) {
             currentWord = sharedPreferences.getInt("current_word", 0);
         }
         else {
@@ -67,7 +67,6 @@ public class LearnWritingActivity extends AppCompatActivity {
             editor.putString("last_learn_date", today);
             editor.commit();
         }
-
     }
 
     @Override
@@ -232,6 +231,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         hanziView.setHaveOuterBackground(true);
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
+        hanziView.setCharacterColor(Color.GRAY);
         hanziView.setCharacter(word.first);
     }
 
@@ -246,6 +246,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         hanziView.setHaveOuterBackground(true);
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
+        hanziView.setCharacterColor(Color.GRAY);
         hanziView.setCharacter(word.first);
     }
 
