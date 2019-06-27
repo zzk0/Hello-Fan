@@ -1,6 +1,7 @@
 package com.test.fan;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -55,7 +56,6 @@ public class HomeFragment extends Fragment {
                 startActivity(intent);
             }
         });
-
         return view;
     }
 }

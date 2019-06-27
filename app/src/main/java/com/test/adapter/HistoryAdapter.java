@@ -61,7 +61,7 @@ public class HistoryAdapter extends BaseAdapter {
         sqLdm=new SQLdm();
         sqLiteDatabase=sqLdm.openDataBase(context);
 
-        Cursor cursor=sqLiteDatabase.rawQuery("select * from bank where 学习日期= ?",new String[]{date.get(position)});
+        Cursor cursor=sqLiteDatabase.rawQuery("select * from words where traditional= ?",new String[]{date.get(position)});
         List<WordBean> list=new ArrayList<>();
         //搜索结果对象化为WordBean，存入list
         while (cursor.moveToNext()) {

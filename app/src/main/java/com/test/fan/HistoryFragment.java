@@ -44,13 +44,15 @@ public class HistoryFragment extends Fragment {
 
         sqldm=new SQLdm();
         sqLiteDatabase=sqldm.openDataBase(getActivity());
-        Cursor cursor=sqLiteDatabase.rawQuery("SELECT learnDate FROM words",null);
+        Cursor cursor=sqLiteDatabase.rawQuery("SELECT traditional, learnDate FROM words",null);
         List<String> date=new ArrayList<>();
         //搜索所有日期存入list中
         while (cursor.moveToNext()) {
             String temp=cursor.getString(cursor.getColumnIndex("learnDate"));
-            if(temp!=null &&temp.length()!=0 && !temp.equals("") && !temp.equals("null"))
-            date.add(temp);
+            String traditional = cursor.getString(cursor.getColumnIndex("traditional"));
+            if(temp!=null &&temp.length()!=0 && !temp.equals("") && !temp.equals("null")) {
+                date.add(traditional);
+            }
         }
         cursor.close();
         sqLiteDatabase.close();

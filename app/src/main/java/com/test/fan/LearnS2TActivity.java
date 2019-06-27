@@ -94,7 +94,7 @@ public class LearnS2TActivity extends AppCompatActivity {
         ArrayList<String> btnContentList=new ArrayList<String>();
 
         //sqLiteDatabase=dbHelper.getReadableDatabase();
-        sqLiteDatabase=sqLdm.openDataBase(this);
+        sqLiteDatabase=sqLdm.openDataBase(getApplicationContext());
 
         Cursor cursor = sqLiteDatabase.rawQuery("select * from s2taW", null);
 
@@ -287,7 +287,7 @@ public class LearnS2TActivity extends AppCompatActivity {
 
         String tr="",s="";
         //sqLiteDatabase = dbHelper.getReadableDatabase();
-        sqLiteDatabase=sqLdm.openDataBase(this);
+        sqLiteDatabase=sqLdm.openDataBase(getApplicationContext());
 
         Cursor cursor = sqLiteDatabase.rawQuery("select * from dict where words like '%" + Right_text + "%'", null);
         if (cursor.getCount()==0)

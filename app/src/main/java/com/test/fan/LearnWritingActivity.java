@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -19,7 +18,9 @@ import com.test.model.Tuple;
 import com.test.util.SQLdm;
 import com.test.view.HanziView;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class LearnWritingActivity extends AppCompatActivity {
@@ -52,9 +53,21 @@ public class LearnWritingActivity extends AppCompatActivity {
         phraseTextView = findViewById(R.id.phrase_textview);
         textViewHandler = new Handler();
 
-        // 根据是否有效时间内容去判断currentWord为0，还是继续上一次
+        // 根据是否有效时间内去判断currentWord为0，还是继续上一次
         SharedPreferences sharedPreferences = getSharedPreferences("fan_data", 0);
-        currentWord = sharedPreferences.getInt("current_word", 0);
+        String lastDay = sharedPreferences.getString("last_learn_date", "");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String today = sdf.format(new Date());
+        if (lastDay.equals(today)) {
+            currentWord = sharedPreferences.getInt("current_word", 0);
+        }
+        else {
+            currentWord = 0;
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("last_learn_date", today);
+            editor.commit();
+        }
+
     }
 
     @Override
@@ -95,11 +108,25 @@ public class LearnWritingActivity extends AppCompatActivity {
                 hanziView.resetHanzi();
                 break;
             case R.id.button_next:
-                currentWord = currentWord + 1;
-                if (currentWord < 20 && hanziView.getWrongTimes() < 5) {
-                    words.get(currentWord).third = words.get(currentWord).third + 1;
+                if (!hanziView.hanziFinish()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("提示");
+                    builder.setMessage("请您写好这个字");
+                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
                 }
-                setHanzi();
+                else {
+                    currentWord = currentWord + 1;
+                    if (currentWord < 20 && hanziView.getWrongTimes() < 5) {
+                        words.get(currentWord - 1).third = words.get(currentWord - 1).third + 1;
+                    }
+                    setHanzi();
+                }
                 break;
         }
     }
@@ -119,7 +146,6 @@ public class LearnWritingActivity extends AppCompatActivity {
             alertDialog.show();
             return;
         }
-
         final Tuple<String, String, Integer> word = words.get(currentWord);
         traditionalHanzi.setOnClickListener(null);
 

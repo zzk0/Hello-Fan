@@ -21,7 +21,9 @@ import android.database.sqlite.SQLiteDatabase;
 import com.test.model.Tuple;
 import com.test.util.SQLdm;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Schedule {
@@ -111,6 +113,10 @@ public class Schedule {
                 editor.commit();
 
                 // 更新这个字的学习日期
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                String today = sdf.format(new Date());
+                String sql = "update words set learnTimes = 1, learnDate = \"" + today + "\" where traditional = \"" + traditional + "\"";
+                database.execSQL(sql);
             } while (i < wordsNeedToQuery && cursor.moveToNext());
         }
         return newWords.toString();
