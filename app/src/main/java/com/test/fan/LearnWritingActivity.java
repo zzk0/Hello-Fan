@@ -233,6 +233,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
         hanziView.setCharacterColor(Color.GRAY);
+        hanziView.setTestMode(false);
         hanziView.setCharacter(word.first);
     }
 
@@ -248,6 +249,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
         hanziView.setCharacterColor(Color.GRAY);
+        hanziView.setTestMode(false);
         hanziView.setCharacter(word.first);
     }
 
@@ -261,6 +263,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
         hanziView.setCharacterColor(Color.TRANSPARENT);
+        hanziView.setTestMode(true);
         hanziView.setCharacter(word.first);
     }
 }

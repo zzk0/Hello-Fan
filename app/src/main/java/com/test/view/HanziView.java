@@ -55,6 +55,11 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         hanzi.color = color;
     }
 
+    // 设置为测试模式
+    public void setTestMode(boolean testMode) {
+        hanzi.testMode = testMode;
+    }
+
     // 设置田字格外框颜色
     public void setInnerBackgroundColor(int innerBackgroundColor) {
         hanzi.innerBackgroundColor = innerBackgroundColor;

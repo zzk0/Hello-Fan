@@ -40,6 +40,7 @@ public class Hanzi {
     public boolean animateStrokesOnce;
     public boolean haveOuterBackground;
     public boolean haveInnerBackground;
+    public boolean testMode;
 
     // 控制多线程的状态
     private int wordId;
@@ -70,6 +71,7 @@ public class Hanzi {
         haveScaledBackground = false;
         finishSetCharacter = true;
         strokeAnimating = false;
+        testMode = false;
     }
 
     private void initBackground() {
@@ -123,6 +125,7 @@ public class Hanzi {
             strokeAnimating = false;
             animateThread.interrupt();
         }
+        strokesMatcher.setThreshold(width, testMode);
 
         // 设置绘图相关状态
         innerBackgroundPaint.setColor(innerBackgroundColor);
@@ -198,6 +201,7 @@ public class Hanzi {
         }
     }
 
+    // 此处应该是有内存泄漏的。当用户在学习界面的时候，点击返回。这时候线程仍在继续运行直到所有笔画写完。
     public void animateStroke(final View view) {
         if (!animateStrokesOnce && !animateStrokesLoop) {
             return;
