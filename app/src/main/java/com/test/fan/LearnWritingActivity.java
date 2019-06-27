@@ -19,6 +19,7 @@ import com.test.util.SQLdm;
 import com.test.view.HanziView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -208,7 +209,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         SQLiteDatabase database = new SQLdm().openDataBase(this);
 
         // 查询2~3个词组
-        String sql = "select * from dict where words like '" + word.first + "%' order by length(words)";
+        String sql = "select * from dict where words like '%" + word.first + "%' order by length(words)";
         Cursor cursor = database.rawQuery(sql, null);
         int count = 0;
         StringBuilder phrase = new StringBuilder();
