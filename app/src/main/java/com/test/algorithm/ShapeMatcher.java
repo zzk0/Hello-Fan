@@ -12,5 +12,9 @@ public abstract class ShapeMatcher {
         this.threshold = threshold;
     }
 
+    public void setThreshold(float threshold) {
+        this.threshold = threshold;
+    }
+
     public abstract boolean match(List<GPoint2D> a, List<GPoint2D> b);
 }

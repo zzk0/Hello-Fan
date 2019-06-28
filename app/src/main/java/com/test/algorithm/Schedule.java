@@ -9,6 +9,13 @@ sharedPreference中，保留一个学习的序列，格式为：{繁体字 简�
 当学习次数大过三次的时候，就去掉这个字。
 
 初始情况，words为空。去查到n个字，读取每个json
+
+后期的改进:https://www.supermemo.com/en/archives1990-2015/english/ol/sm2
+使用SM-2算法来加强记忆。
+
+学习流程：
+前期安排字的时候，按照老流程进行。
+当经过了测试模式之后，开始使用SM-2算法来安排记忆。
 */
 
 package com.test.algorithm;
@@ -21,7 +28,9 @@ import android.database.sqlite.SQLiteDatabase;
 import com.test.model.Tuple;
 import com.test.util.SQLdm;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Schedule {
@@ -96,7 +105,7 @@ public class Schedule {
             int i = 0;
             do {
                 i = i + 1;
-                int learnTimes = 0;
+                int learnTimes = 1;
                 String traditional = cursor.getString(cursor.getColumnIndex("traditional"));
                 String simplified = cursor.getString(cursor.getColumnIndex("simplified"));
                 String tradJson = cursor.getString(cursor.getColumnIndex("tradJson"));
@@ -111,6 +120,10 @@ public class Schedule {
                 editor.commit();
 
                 // 更新这个字的学习日期
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                String today = sdf.format(new Date());
+                String sql = "update words set learnTimes = 1, learnDate = \"" + today + "\" where traditional = \"" + traditional + "\"";
+                database.execSQL(sql);
             } while (i < wordsNeedToQuery && cursor.moveToNext());
         }
         return newWords.toString();

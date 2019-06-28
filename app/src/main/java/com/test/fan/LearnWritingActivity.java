@@ -1,12 +1,14 @@
 package com.test.fan;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -16,7 +18,10 @@ import com.test.model.Tuple;
 import com.test.util.SQLdm;
 import com.test.view.HanziView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class LearnWritingActivity extends AppCompatActivity {
@@ -31,6 +36,7 @@ public class LearnWritingActivity extends AppCompatActivity {
 
     TextView pinyinTextView;
     TextView phraseTextView;
+    Handler textViewHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +52,22 @@ public class LearnWritingActivity extends AppCompatActivity {
 
         pinyinTextView = findViewById(R.id.pinyin_textview);
         phraseTextView = findViewById(R.id.phrase_textview);
+        textViewHandler = new Handler();
 
-        // 根据是否有效时间内容去判断currentWord为0，还是继续上一次
+        // 根据是否有效时间内去判断currentWord为0，还是继续上一次
         SharedPreferences sharedPreferences = getSharedPreferences("fan_data", 0);
-        currentWord = sharedPreferences.getInt("current_word", 0);
+        String lastDay = sharedPreferences.getString("last_learn_date", "");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String today = sdf.format(new Date());
+        if (!lastDay.equals(today)) {
+            currentWord = sharedPreferences.getInt("current_word", 0);
+        }
+        else {
+            currentWord = 0;
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("last_learn_date", today);
+            editor.commit();
+        }
     }
 
     @Override
@@ -90,19 +108,90 @@ public class LearnWritingActivity extends AppCompatActivity {
                 hanziView.resetHanzi();
                 break;
             case R.id.button_next:
-                if (hanziView.getWrongTimes() < 5) {
-                    words.get(currentWord).third = words.get(currentWord).third + 1;
+                if (!hanziView.hanziFinish()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("提示");
+                    builder.setMessage("请您写好这个字");
+                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
                 }
-                currentWord = currentWord + 1;
-                setHanzi();
+                else {
+                    currentWord = currentWord + 1;
+                    if (currentWord < 20 && hanziView.getWrongTimes() < 5) {
+                        words.get(currentWord - 1).third = words.get(currentWord - 1).third + 1;
+                    }
+                    setHanzi();
+                }
                 break;
         }
     }
 
     private void setHanzi() {
-        Tuple<String, String, Integer> word = words.get(currentWord);
+        if (currentWord >= 20) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("提示");
+            builder.setMessage("您已经学完今天的任务了！");
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    LearnWritingActivity.this.finish();
+                }
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+            return;
+        }
+        final Tuple<String, String, Integer> word = words.get(currentWord);
         traditionalHanzi.setOnClickListener(null);
 
+        // 更新拼音，词组信息
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // 更新拼音
+                final String pinyinText = updatePinyin(word);
+                textViewHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        pinyinTextView.setText(pinyinText);
+                    }
+                });
+
+                // 更新词组
+                final String phraseText = updatePhrase(word);
+                textViewHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        phraseTextView.setText(phraseText);
+                    }
+                });
+            }
+        }).start();
+
+        switch (word.third) {
+            case 1:
+                getSupportActionBar().setTitle("学习模式");
+                studyMode(word);
+                break;
+            case 2:
+                getSupportActionBar().setTitle("再认模式");
+                recognizeMode(word);
+                break;
+            case 3:
+                getSupportActionBar().setTitle("测试模式");
+                testMode(word);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private String updatePinyin(Tuple<String, String, Integer> word) {
         SQLiteDatabase database = new SQLdm().openDataBase(this);
 
         // 查询拼音
@@ -112,12 +201,16 @@ public class LearnWritingActivity extends AppCompatActivity {
         do {
             pinyin.append(cursor.getString(cursor.getColumnIndex("spell")) + "  ");
         } while (cursor.moveToNext());
-        pinyinTextView.setText(getResources().getString(R.string.pinyin) +  ": " + pinyin.toString());
         cursor.close();
+        return getResources().getString(R.string.pinyin) +  ": " + pinyin.toString();
+    }
+
+    private String updatePhrase(Tuple<String, String, Integer> word) {
+        SQLiteDatabase database = new SQLdm().openDataBase(this);
 
         // 查询2~3个词组
-        String sql = "select * from dict where words like '" + word.first + "%' order by length(words)";
-        cursor = database.rawQuery(sql, null);
+        String sql = "select * from dict where words like '%" + word.first + "%' order by length(words)";
+        Cursor cursor = database.rawQuery(sql, null);
         int count = 0;
         StringBuilder phrase = new StringBuilder();
         cursor.moveToNext();
@@ -125,25 +218,8 @@ public class LearnWritingActivity extends AppCompatActivity {
             count = count + 1;
             phrase.append(cursor.getString(cursor.getColumnIndex("words")) + "  ");
         }
-        phraseTextView.setText(getResources().getString(R.string.phrase) + ": " + phrase.toString());
         cursor.close();
-
-        switch (word.third) {
-            case 0:
-                getSupportActionBar().setTitle("学习模式");
-                studyMode(word);
-                break;
-            case 1:
-                getSupportActionBar().setTitle("再认模式");
-                recognizeMode(word);
-                break;
-            case 2:
-                getSupportActionBar().setTitle("测试模式");
-                testMode(word);
-                break;
-            default:
-                break;
-        }
+        return getResources().getString(R.string.phrase) + ": " + phrase.toString();
     }
 
     private void studyMode(Tuple<String, String, Integer> word) {
@@ -156,6 +232,8 @@ public class LearnWritingActivity extends AppCompatActivity {
         hanziView.setHaveOuterBackground(true);
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
+        hanziView.setCharacterColor(Color.GRAY);
+        hanziView.setTestMode(false);
         hanziView.setCharacter(word.first);
     }
 
@@ -170,6 +248,8 @@ public class LearnWritingActivity extends AppCompatActivity {
         hanziView.setHaveOuterBackground(true);
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
+        hanziView.setCharacterColor(Color.GRAY);
+        hanziView.setTestMode(false);
         hanziView.setCharacter(word.first);
     }
 
@@ -183,6 +263,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
         hanziView.setCharacterColor(Color.TRANSPARENT);
+        hanziView.setTestMode(true);
         hanziView.setCharacter(word.first);
     }
 }

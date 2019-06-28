@@ -25,13 +25,35 @@ public class StrokesMatcher {
     private float shapeThreshold;
 
     private ShapeMatcher shapeMatcher;
+    private static final int WIDTH = 1024;
+
+    private static final float START_AND_END_THRESHOLD = 6849.0f;
+    private static final float DIRECTION_THRESHOLD = 0.68f;
+    private static final float LENGTH_THRESHOLD = 205.0f;
+    private static final float SHAPE_THRESHOLD = 1.09f;
 
     public StrokesMatcher() {
-        startAndEndThreshold = 5000.0f;
-        directionThreshold = 0.5f;
-        lengthThreshold = 150.0f;
-        shapeThreshold = 0.8f;
+        startAndEndThreshold = START_AND_END_THRESHOLD;
+        directionThreshold = DIRECTION_THRESHOLD;
+        lengthThreshold = LENGTH_THRESHOLD;
+        shapeThreshold = SHAPE_THRESHOLD;
         shapeMatcher = new EuclideanShapeMatcher(shapeThreshold);
+    }
+
+    public void setThreshold(int width, boolean isQuiz) {
+        float factor = (float) width / WIDTH;
+        startAndEndThreshold = factor * START_AND_END_THRESHOLD;
+        directionThreshold = factor * DIRECTION_THRESHOLD;
+        lengthThreshold = factor * LENGTH_THRESHOLD;
+        shapeThreshold = factor * SHAPE_THRESHOLD;
+
+        if (isQuiz) {
+            startAndEndThreshold = startAndEndThreshold * 1.5f;
+            directionThreshold = directionThreshold * 1.5f;
+            lengthThreshold = lengthThreshold * 1.5f;
+            shapeThreshold = shapeThreshold * 1.5f;
+        }
+        shapeMatcher.setThreshold(shapeThreshold);
     }
 
     public boolean match(List<GPoint2D> userStroke, List<GPoint2D> template) {
