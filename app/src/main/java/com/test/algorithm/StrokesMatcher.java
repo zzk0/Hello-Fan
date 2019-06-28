@@ -28,9 +28,9 @@ public class StrokesMatcher {
     private static final int WIDTH = 1024;
 
     private static final float START_AND_END_THRESHOLD = 6849.0f;
-    private static final float DIRECTION_THRESHOLD = 0.68f;
+    private static final float DIRECTION_THRESHOLD = 1.25f;
     private static final float LENGTH_THRESHOLD = 205.0f;
-    private static final float SHAPE_THRESHOLD = 1.09f;
+    private static final float SHAPE_THRESHOLD = 50.0f;
 
     public StrokesMatcher() {
         startAndEndThreshold = START_AND_END_THRESHOLD;
@@ -60,8 +60,8 @@ public class StrokesMatcher {
         boolean startAndEnd = startAndEndMatch(userStroke.get(0), userStroke.get(userStroke.size() - 1), template.get(0), template.get(template.size() - 1));
         boolean direction = directionMatch(userStroke, template);
         boolean length = lengthMatch(userStroke, template);
-        boolean shape = shapeMatch(userStroke, template);
-        return startAndEnd && direction && length && shape;
+//        boolean shape = shapeMatch(userStroke, template);
+        return (startAndEnd && direction && length);
     }
 
     // 两个笔画的起点、终点之间的平方距离小于一定范围就Match
@@ -87,7 +87,7 @@ public class StrokesMatcher {
             sum += Geometry.cosineSimilarity(a, b);
         }
         sum = sum / template.size();
-        if (sum < directionThreshold) {
+        if (sum < directionThreshold && sum > 0) {
             return true;
         }
         else {

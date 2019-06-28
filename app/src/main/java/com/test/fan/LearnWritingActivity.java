@@ -59,15 +59,15 @@ public class LearnWritingActivity extends AppCompatActivity {
         String lastDay = sharedPreferences.getString("last_learn_date", "");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String today = sdf.format(new Date());
-        if (!lastDay.equals(today)) {
-            currentWord = sharedPreferences.getInt("current_word", 0);
-        }
-        else {
+//        if (!lastDay.equals(today)) {
+//            currentWord = sharedPreferences.getInt("current_word", 0);
+//        }
+//        else {
             currentWord = 0;
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("last_learn_date", today);
             editor.commit();
-        }
+//        }
     }
 
     @Override
@@ -197,10 +197,9 @@ public class LearnWritingActivity extends AppCompatActivity {
         // 查询拼音
         Cursor cursor = database.rawQuery("select * from dict where words = '" + word.first + "'", null);
         StringBuilder pinyin = new StringBuilder();
-        cursor.moveToFirst();
-        do {
-            pinyin.append(cursor.getString(cursor.getColumnIndex("spell")) + "  ");
-        } while (cursor.moveToNext());
+        while (cursor.moveToNext()) {
+            pinyin.append(cursor.getString(cursor.getColumnIndex("spell"))).append("  ");
+        }
         cursor.close();
         return getResources().getString(R.string.pinyin) +  ": " + pinyin.toString();
     }
@@ -213,10 +212,9 @@ public class LearnWritingActivity extends AppCompatActivity {
         Cursor cursor = database.rawQuery(sql, null);
         int count = 0;
         StringBuilder phrase = new StringBuilder();
-        cursor.moveToNext();
         while (cursor.moveToNext() && count < 3) {
             count = count + 1;
-            phrase.append(cursor.getString(cursor.getColumnIndex("words")) + "  ");
+            phrase.append(cursor.getString(cursor.getColumnIndex("words"))).append("  ");
         }
         cursor.close();
         return getResources().getString(R.string.phrase) + ": " + phrase.toString();

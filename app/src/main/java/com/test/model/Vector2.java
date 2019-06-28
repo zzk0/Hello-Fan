@@ -14,4 +14,8 @@ public class Vector2 {
         this.x = b.x - a.x;
         this.y = b.y - a.y;
     }
+
+    public float length() {
+        return (float) Math.sqrt(x * x + y * y);
+    }
 }
