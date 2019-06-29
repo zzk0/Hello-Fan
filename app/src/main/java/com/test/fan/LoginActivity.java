@@ -1,0 +1,154 @@
+package com.test.fan;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.alibaba.fastjson.JSON;
+import com.test.model.User;
+import com.test.util.OkHttpRequest;
+import com.test.util.StringUtil;
+
+import java.io.IOException;
+
+import static com.test.util.Constant.PORT;
+import static com.test.util.Constant.SERVER_URL;
+
+public class LoginActivity extends AppCompatActivity {
+    private Handler handler;
+    private String userName, password;//获取的用户名，密码
+    private EditText et_user_name,et_psw;
+    @Override
+    protected void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+        //设置此界面为竖屏
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        init();
+    }
+    private void init() {
+        TextView tv_register = (TextView) findViewById(R.id.tv_register);
+        TextView tv_find_psw = (TextView) findViewById(R.id.tv_find_psw);
+        Button btn_login = (Button) findViewById(R.id.btn_login);
+        et_user_name= (EditText) findViewById(R.id.et_user_name);
+        et_psw= (EditText) findViewById(R.id.et_psw);
+        tv_register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(LoginActivity.this,RegisterActivity.class);
+                startActivityForResult(intent, 1);
+            }
+        });
+        tv_find_psw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(LoginActivity.this,LostFindActivity.class));
+            }
+        });
+        btn_login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                userName = et_user_name.getText().toString().trim();
+                password = et_psw.getText().toString().trim();
+//              对当前用户输入的密码进行MD5加密再进行比对判断, MD5Utils.md5( ); password 进行加密判断是否一致
+//              String md5Psw = MD5Utils.md5(password);
+//              md5Psw ; spPsw 为 根据从SharedPreferences中用户名读取密码
+//              定义方法 readPsw为了读取用户名，得到密码
+//              spPsw = readPsw(userName);
+                if (TextUtils.isEmpty(userName)) {
+                    Toast.makeText(LoginActivity.this, "请输入用户名", Toast.LENGTH_SHORT).show();
+                } else if (TextUtils.isEmpty(password)) {
+                    Toast.makeText(LoginActivity.this, "请输入密码", Toast.LENGTH_SHORT).show();
+                }else{
+                    verifyUser(userName,password);
+                    handler=new Handler()
+                    {
+                        @Override
+                        public void handleMessage(Message msg) {
+                            if(msg.obj.equals("true"))
+                            {
+                                Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+                                saveLoginStatus(userName);
+                                //登录成功后关闭此页面进入主页
+                                Intent data = new Intent(LoginActivity.this, MainActivity.class);
+                                data.putExtra("isLogin", true);
+                                setResult(RESULT_OK, data);
+                                LoginActivity.this.finish();
+                                startActivity(data);
+                            }
+                            else
+                            {
+                                Toast.makeText(LoginActivity.this, "用户名或者密码有误", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    };
+
+                }
+            }
+        });
+    }
+    private void verifyUser(final String userName,final String password)
+    {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Message message=new Message();
+                User user=new User();
+                user.setUserName(userName);
+                user.setPassword(password);
+                String json= JSON.toJSONString(user);
+                String requestUrl=SERVER_URL+":"+PORT+"/login";
+                try {
+                    message.obj= OkHttpRequest.post(requestUrl,json);
+                    System.out.println(message.obj);
+                } catch (IOException e) {
+                    message.obj="false";
+                }
+                handler.sendMessage(message);
+            }
+        }).start();
+
+    }
+    private void saveLoginStatus(String userName){
+        SharedPreferences sp=getSharedPreferences("loginInfo", MODE_PRIVATE);
+        SharedPreferences.Editor editor=sp.edit();
+        editor.putString("userName", userName);
+        editor.apply();
+    }
+    /**
+     * 注册成功的数据返回至此
+     * @param requestCode 请求码
+     * @param resultCode 结果码
+     * @param data 数据
+     */
+    @Override
+    //显示数据， onActivityResult
+    //startActivityForResult(intent, 1); 从注册界面中获取数据
+    //int requestCode , int resultCode , Intent data
+    // LoginActivity -> startActivityForResult -> onActivityResult();
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
+        if(data!=null){
+            //是获取注册界面回传过来的用户名
+            // getExtra().getString("***");
+            String userName=data.getStringExtra("userName");
+            if(!TextUtils.isEmpty(userName)){
+                //设置用户名到 et_user_name 控件
+                et_user_name.setText(userName);
+                //et_user_name控件的setSelection()方法来设置光标位置
+                et_user_name.setSelection(userName.length());
+            }
+        }
+    }
+}

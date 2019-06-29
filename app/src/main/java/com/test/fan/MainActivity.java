@@ -112,7 +112,6 @@ public class MainActivity extends AppCompatActivity
                     break;
                 }
             }
-
             if (granted) {
                 fragments = new ArrayList<>();
                 fragments.add(new HomeFragment());
