@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -29,7 +31,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
     private List<Fragment> fragments;
     private int prePos;
 
@@ -45,7 +46,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        //判断是否已经登录过
+        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
+        boolean isSignedIn = sp.getBoolean("isSignedIn", false);
+        if(!isSignedIn)
+        {
+            goToLoginActivity();
+            return;
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -100,6 +108,11 @@ public class MainActivity extends AppCompatActivity
             }
             setDefaultFragment(prePos);
         }
+    }
+
+    private void goToLoginActivity() {
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
     }
 
     @Override

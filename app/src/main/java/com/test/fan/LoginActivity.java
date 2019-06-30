@@ -31,17 +31,10 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
-        boolean isSignedIn = sp.getBoolean("isSignedIn", false);
-        if (isSignedIn) {
-            goToMainActivity();
-
-        } else {
-            setContentView(R.layout.activity_login);
-            //设置此界面为竖屏
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            init();
-        }
+        setContentView(R.layout.activity_login);
+        //设置此界面为竖屏
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        init();
     }
 
     private void init() {
@@ -85,14 +78,14 @@ public class LoginActivity extends AppCompatActivity {
                             if(msg.obj==null)return;
                             if (msg.obj.equals("true")) {
                                 Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
-                                //在本地保存用户名
+                                //在本地保存登录信息
                                 SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sp.edit();
                                 editor.putBoolean("isSignedIn", true);
                                 editor.putString("localUserName", userName);
                                 editor.apply();
                                 //登录成功后关闭此页面进入主页
-                                goToMainActivity();
+                                LoginActivity.this.finish();
                             } else {
                                 Toast.makeText(LoginActivity.this, "用户名或者密码有误", Toast.LENGTH_SHORT).show();
                             }
@@ -102,13 +95,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private void goToMainActivity() {
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        setResult(RESULT_OK, intent);
-        LoginActivity.this.finish();
-        startActivity(intent);
     }
 
     /**
