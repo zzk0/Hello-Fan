@@ -79,6 +79,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("current_word", currentWord);
         editor.commit();
+
         super.onDestroy();
     }
 

@@ -134,6 +134,9 @@ public class Hanzi {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                if (context == null) {
+                    return;
+                }
                 // 读取笔画信息
                 String json = CharacterJsonReader.query(context, character);
                 List<Path> paths = StrokeParser.parse(json);

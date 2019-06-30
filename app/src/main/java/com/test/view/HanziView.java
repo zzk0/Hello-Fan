@@ -36,7 +36,7 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
     }
 
     private void init(Context context) {
-        hanzi = new Hanzi(context);
+        hanzi = new Hanzi(context.getApplicationContext());
         wrongTimes = 0;
         haveAddListener = false;
         clickToAnimate = false;

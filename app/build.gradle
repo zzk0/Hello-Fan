@@ -45,5 +45,5 @@ dependencies {
 
     // 日期
     implementation 'com.jakewharton.threetenabp:threetenabp:1.2.1'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-alpha-1'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-alpha-2'
 }
