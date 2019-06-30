@@ -46,7 +46,13 @@ https://github.com/zhouzekai/Hello-Fan/blob/master/app/src/main/java/com/test/ut
 
 ## words表
 
-![](img/db_wordsInfo.png)
+说明：这里将原来表里的Json独立出来，方便使用，现在分成了两个表，一个words，一个wordsJson。
+
+![](img/db_words.png)
+
+## wordsJson表
+
+![](img/db_wordsJson.png)
 
 ## dict表
 

@@ -14,6 +14,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.test.algorithm.Schedule;
+import com.test.algorithm.SuperMemo;
+import com.test.model.ReviewItem;
 import com.test.model.Tuple;
 import com.test.util.SQLdm;
 import com.test.view.HanziView;
@@ -99,7 +101,15 @@ public class LearnWritingActivity extends AppCompatActivity {
 
     // 作用：获取今天的字的链表，暂且写成如此，做调试用
     private List<Tuple<String, String, Integer>> getTodayWords() {
-        return new Schedule(this).getWords();
+        final List<Tuple<String, String, Integer>> todayWords = new Schedule(this).getWords();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+//                SuperMemo superMemo = new SuperMemo(getApplicationContext());
+//                List<ReviewItem> items = superMemo.getReviewItems();
+            }
+        }).start();
+        return todayWords;
     }
 
     public void click(View view) {
@@ -122,8 +132,10 @@ public class LearnWritingActivity extends AppCompatActivity {
                 }
                 else {
                     currentWord = currentWord + 1;
-                    if (currentWord < 20 && hanziView.getWrongTimes() < 5) {
-                        words.get(currentWord - 1).third = words.get(currentWord - 1).third + 1;
+                    synchronized (words) {
+                        if (currentWord < words.size() && hanziView.getWrongTimes() < 5) {
+                            words.get(currentWord - 1).third = words.get(currentWord - 1).third + 1;
+                        }
                     }
                     setHanzi();
                 }
@@ -132,7 +144,7 @@ public class LearnWritingActivity extends AppCompatActivity {
     }
 
     private void setHanzi() {
-        if (currentWord >= 20) {
+        if (currentWord >= words.size()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("提示");
             builder.setMessage("您已经学完今天的任务了！");
@@ -175,17 +187,16 @@ public class LearnWritingActivity extends AppCompatActivity {
 
         switch (word.third) {
             case 1:
-                getSupportActionBar().setTitle("学习模式");
                 studyMode(word);
                 break;
             case 2:
-                getSupportActionBar().setTitle("再认模式");
                 recognizeMode(word);
                 break;
             case 3:
-                getSupportActionBar().setTitle("测试模式");
                 testMode(word);
                 break;
+            case 4:
+                reviewMode(word);
             default:
                 break;
         }
@@ -221,6 +232,7 @@ public class LearnWritingActivity extends AppCompatActivity {
     }
 
     private void studyMode(Tuple<String, String, Integer> word) {
+        getSupportActionBar().setTitle("学习模式");
         simplifiedHanzi.setHaveOuterBackground(true);
         simplifiedHanzi.setCharacterColor(Color.BLACK);
         simplifiedHanzi.setCharacter(word.second);
@@ -236,6 +248,7 @@ public class LearnWritingActivity extends AppCompatActivity {
     }
 
     private void recognizeMode(Tuple<String, String, Integer> word) {
+        getSupportActionBar().setTitle("再认模式");
         simplifiedHanzi.setHaveOuterBackground(true);
         simplifiedHanzi.setCharacterColor(Color.BLACK);
         simplifiedHanzi.setCharacter(word.second);
@@ -252,6 +265,22 @@ public class LearnWritingActivity extends AppCompatActivity {
     }
 
     private void testMode(Tuple<String, String, Integer> word) {
+        getSupportActionBar().setTitle("测试模式");
+        simplifiedHanzi.setHaveOuterBackground(true);
+        simplifiedHanzi.setCharacterColor(Color.BLACK);
+        simplifiedHanzi.setCharacter(word.second);
+        traditionalHanzi.setHaveOuterBackground(false);
+        traditionalHanzi.cleanCharacter();
+        hanziView.setHaveOuterBackground(true);
+        hanziView.setHaveInnerBackground(true);
+        hanziView.setQuiz();
+        hanziView.setCharacterColor(Color.TRANSPARENT);
+        hanziView.setTestMode(true);
+        hanziView.setCharacter(word.first);
+    }
+
+    private void reviewMode(Tuple<String, String, Integer> word) {
+        getSupportActionBar().setTitle("复习模式");
         simplifiedHanzi.setHaveOuterBackground(true);
         simplifiedHanzi.setCharacterColor(Color.BLACK);
         simplifiedHanzi.setCharacter(word.second);

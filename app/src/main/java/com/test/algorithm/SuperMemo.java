@@ -32,13 +32,13 @@ public class SuperMemo {
     }
 
     /**
-     * 查数据库获取要复习的条目
+     * 查数据库获取要复习的条目，在返回之前，确保已经将Json读取到SharePreferences
      * sql语句：select * from review where nextDate <= date('now');
      * @return 要复习的条目
      */
-    public List<ReviewItem> getReviewItem() {
+    public List<ReviewItem> getReviewItems() {
         SQLiteDatabase database = new SQLdm().openDataBase(context);
-        String sql = "select * from review where nextDate >= date('now')";
+        String sql = "select * from review where nextDate <= date('now')";
         Cursor cursor = database.rawQuery(sql, null);
         List<ReviewItem> items = new ArrayList<>();
         while (cursor.moveToNext()) {
@@ -50,5 +50,13 @@ public class SuperMemo {
         cursor.close();
         database.close();
         return items;
+    }
+
+    /**
+     * 将item的简体，繁体Json写到SharedPreferences
+     * @param item
+     */
+    private void writeOneJson(ReviewItem item) {
+
     }
 }
