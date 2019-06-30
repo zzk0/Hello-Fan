@@ -25,16 +25,16 @@ import android.database.sqlite.SQLiteDatabase;
 import com.test.util.SQLdm;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
-public class ReviewItem {
+public class ReviewItem extends LearnItem {
 
-    private String traditional;
     private int repeatTimes;
     private float eFactor;
 
-    public ReviewItem(String traditional, int repeatTimes, float eFactor) {
-        this.traditional = traditional;
+    public ReviewItem(String traditional, String simplified, int learnTimes, int repeatTimes, float eFactor) {
+        super(traditional, simplified, learnTimes);
         this.repeatTimes = repeatTimes;
         this.eFactor = eFactor;
     }
@@ -58,9 +58,28 @@ public class ReviewItem {
         SQLiteDatabase database = new SQLdm().openDataBase(context);
         // 更新下一次学习日期或者回炉重做
         if (quality > 2) {
+            int nextDay = 1;
+            if (repeatTimes == 1) {
+                nextDay = 1;
+            }
+            else if (repeatTimes == 2) {
+                nextDay = 6;
+            }
+            else {
+                nextDay = Math.round(repeatTimes * eFactor + 1);
+            }
+
             SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
-            String today = sdf.format(new Date());
-            String sql = "update review set nextDate = \"" + today + "\" where traditonal = \"" + traditional + "\"";
+            Date date = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            calendar.add(Calendar.DATE, nextDay);
+            String nextLearnDate = sdf.format(calendar.getTime());
+            String sql = "update review set " +
+                    "nextDate = \"" + nextLearnDate + "\", " +
+                    "repeatTimes = " + (repeatTimes + 1) + ", " +
+                    "eFactor = " + eFactor + " " +
+                    "where traditional = \"" + traditional + "\"";
             database.execSQL(sql);
         }
         else {

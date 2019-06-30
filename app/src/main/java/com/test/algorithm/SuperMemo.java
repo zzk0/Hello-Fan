@@ -16,7 +16,9 @@ import android.database.sqlite.SQLiteDatabase;
 import com.test.model.ReviewItem;
 import com.test.util.SQLdm;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class SuperMemo {
@@ -45,7 +47,14 @@ public class SuperMemo {
             String traditional = cursor.getString(cursor.getColumnIndex("traditional"));
             int repeatTimes = cursor.getInt(cursor.getColumnIndex("repeatTimes"));
             float eFactor = cursor.getFloat(cursor.getColumnIndex("eFactor"));
-            items.add(new ReviewItem(traditional, repeatTimes, eFactor));
+
+            sql = "select * from words where traditional = \"" + traditional + "\"";
+            Cursor wordCursor = database.rawQuery(sql, null);
+            wordCursor.moveToFirst();
+            String simplified = wordCursor.getString(wordCursor.getColumnIndex("simplified"));
+            wordCursor.close();
+
+            items.add(new ReviewItem(traditional, simplified, 4, repeatTimes, eFactor));
         }
         cursor.close();
         database.close();
@@ -53,10 +62,15 @@ public class SuperMemo {
     }
 
     /**
-     * 将item的简体，繁体Json写到SharedPreferences
-     * @param item
+     *  插入一条复习的记录
+     * @param traditional
      */
-    private void writeOneJson(ReviewItem item) {
+    public static void addReviewItem(Context context, String traditional) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String today = sdf.format(new Date());
 
+        SQLiteDatabase database = new SQLdm().openDataBase(context);
+        String sql = "insert into review values (\"" + traditional + "\", 1, 2.5, \"" + today + "\");";
+        database.execSQL(sql);
     }
 }
