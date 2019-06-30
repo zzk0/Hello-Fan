@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.test.fan">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -16,7 +17,6 @@
 
         <activity android:name=".LearnWritingActivity"/>
         <activity android:name=".LearnS2TActivity" />
-        <activity android:name=".ArticleActivity" />
         <activity android:name=".SearchActivity"
             android:theme="@style/translucent"/>
         <activity android:name=".ReadingsDisplayActivity"/>

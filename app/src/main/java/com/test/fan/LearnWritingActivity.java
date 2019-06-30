@@ -6,8 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Handler;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,13 +17,10 @@ import com.test.algorithm.Schedule;
 import com.test.algorithm.SuperMemo;
 import com.test.model.LearnItem;
 import com.test.model.ReviewItem;
-import com.test.model.Tuple;
 import com.test.util.SQLdm;
 import com.test.view.HanziView;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 

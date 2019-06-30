@@ -128,11 +128,11 @@
             android:background="#EEEEEE"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/readings_rv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-            </android.support.v7.widget.RecyclerView>
+            </androidx.recyclerview.widget.RecyclerView>
     <com.scwang.smartrefresh.layout.footer.ClassicsFooter
         android:background="#EEEEEE"
         android:layout_width="match_parent"
