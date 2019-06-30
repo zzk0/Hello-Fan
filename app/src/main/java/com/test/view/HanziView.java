@@ -4,7 +4,6 @@ import android.content.Context;
 import android.gesture.GestureOverlayView;
 import android.gesture.GesturePoint;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
@@ -18,43 +17,29 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
 
     private Hanzi hanzi;
     private int wrongTimes;
-    private int color;
-    private boolean loopAnimateStrokes;
-    private boolean animateStrokes;
-    private boolean haveOutterBackground;
-    private boolean haveInnerBackground;
     private boolean haveAddListener;
-    private boolean quizAnimate;
     private boolean clickToAnimate;
-    private int outterBackgroundColor;
-    private int innerBackgroundColor;
 
     public HanziView(Context context) {
         super(context);
-        init();
+        init(context);
     }
 
     public HanziView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        init();
+        init(context);
     }
 
     public HanziView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(context);
     }
 
-    private void init() {
+    private void init(Context context) {
+        hanzi = new Hanzi(context);
         wrongTimes = 0;
-        color = Color.GRAY;
-        loopAnimateStrokes = false;
-        animateStrokes = false;
-        haveOutterBackground = false;
-        haveInnerBackground = false;
-        setUncertainGestureColor(Color.TRANSPARENT);
-        setGestureColor(Color.TRANSPARENT);
-        outterBackgroundColor = 0x8A8A8AFF;
-        innerBackgroundColor = 0x8A8A8AFF;
+        haveAddListener = false;
+        clickToAnimate = false;
     }
 
     // 做测试
@@ -65,46 +50,55 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         }
     }
 
-    // 允许写下笔顺
-    public void setQuizAnimate() {
-        if (!haveAddListener) {
-            haveAddListener = true;
-            addOnGestureListener(this);
-        }
-        quizAnimate = true;
-    }
-
     // 设置汉字的颜色
     public void setCharacterColor(int color) {
-        this.color = color;
+        hanzi.color = color;
     }
 
-    public void setLoopAnimate(boolean loopAnimateStrokes) {
-        this.loopAnimateStrokes = loopAnimateStrokes;
+    // 设置为测试模式
+    public void setTestMode(boolean testMode) {
+        hanzi.testMode = testMode;
     }
 
-    public void setAnimate(boolean animateStrokes) {
-        this.animateStrokes = animateStrokes;
-    }
-
-    public void setHaveInnerBackground(boolean haveInnerBackground) {
-        this.haveInnerBackground = haveInnerBackground;
-    }
-
-    public void setHaveOutterBackground(boolean haveOutterBackground) {
-        this.haveOutterBackground = haveOutterBackground;
-    }
-
+    // 设置田字格外框颜色
     public void setInnerBackgroundColor(int innerBackgroundColor) {
-        this.innerBackgroundColor = innerBackgroundColor;
+        hanzi.innerBackgroundColor = innerBackgroundColor;
     }
 
-    public void setOutterBackgroundColor(int outterBackgroundColor) {
-        this.outterBackgroundColor = outterBackgroundColor;
+    // 设置田字格内部颜色
+    public void setOuterBackgroundColor(int outerBackgroundColor) {
+        hanzi.outerBackgroundColor = outerBackgroundColor;
     }
 
+    // 设置动画一次
+    public void setAnimate(boolean animateStrokes) {
+        hanzi.animateStrokesOnce = animateStrokes;
+        hanzi.animateStroke(this);
+    }
+
+    // 设置是否循环动画
+    public void setLoopAnimate(boolean loopAnimateStrokes) {
+        hanzi.animateStrokesLoop = loopAnimateStrokes;
+        hanzi.animateStroke(this);
+    }
+
+    // 设置田字格外框是否存在
+    public void setHaveInnerBackground(boolean haveInnerBackground) {
+        hanzi.haveInnerBackground = haveInnerBackground;
+    }
+
+    // 设置田字格内部是否存在
+    public void setHaveOuterBackground(boolean haveOuterBackground) {
+        hanzi.haveOuterBackground = haveOuterBackground;
+    }
+
+    // 设置是否可以点击使之动画
     public void setClickToAnimate(boolean clickToAnimate) {
         this.clickToAnimate = clickToAnimate;
+    }
+
+    public int getWrongTimes() {
+        return wrongTimes;
     }
 
     @Override
@@ -126,13 +120,6 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         if (hanzi == null) {
             hanzi = new Hanzi(getContext());
         }
-        hanzi.setColor(color);
-        hanzi.setHaveOutterBackground(haveOutterBackground);
-        hanzi.setHaveInnerBackground(haveInnerBackground);
-        hanzi.setInnerBackgroundColor(innerBackgroundColor);
-        hanzi.setOutterBackgroundColor(outterBackgroundColor);
-        hanzi.setAnimateStrokesLoop(loopAnimateStrokes);
-        hanzi.setAnimateStrokesOnce(animateStrokes);
         hanzi.setCharacter(this, word, mWidth);
     }
 
@@ -141,14 +128,12 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         this.invalidate();
     }
 
-    // 这个方法提供给手势事件调用
-    // 当用户写错了笔画的时候，给出一些提示（prompt）
+    // 这个方法提供给手势事件调用, 当用户写错了笔画的时候，给出一些提示（prompt）
     public void prompt() {
         hanzi.prompt(this);
     }
 
-    // 这个方法提供给手势事件调用
-    // 当用户写对了笔画的时候，将这个字涂黑
+    // 这个方法提供给手势事件调用, 当用户写对了笔画的时候，将这个字涂黑
     public void advance() {
         hanzi.finishOneStroke(this);
     }
@@ -166,15 +151,6 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         if (clickToAnimate && event.getAction() == MotionEvent.ACTION_UP) {
             hanzi.animateStroke(this);
         }
-//        if (!quizAnimate) return super.onTouchEvent(event);
-//        if (event.getAction() == MotionEvent.ACTION_UP) {
-//            hanzi.doWritingUpdateCurrentStroke();
-//        }
-//        else {
-//            float x = event.getX();
-//            float y = event.getY();
-//            hanzi.doWriting(x, y);
-//        }
         return super.onTouchEvent(event);
     }
 

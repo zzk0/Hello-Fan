@@ -1,17 +1,30 @@
 package com.test.fan;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
+import com.test.algorithm.Schedule;
+import com.test.algorithm.SuperMemo;
+import com.test.model.LearnItem;
+import com.test.model.ReviewItem;
 import com.test.model.Tuple;
+import com.test.util.SQLdm;
 import com.test.view.HanziView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class LearnWritingActivity extends AppCompatActivity {
@@ -20,9 +33,13 @@ public class LearnWritingActivity extends AppCompatActivity {
     HanziView simplifiedHanzi;
     HanziView traditionalHanzi;
 
-    List<Tuple<String, String, Integer>> words;
-    int currentWord = 0;
+    List<LearnItem> words;
+    int currentWord;
     private boolean firstFocusChange = true;
+
+    TextView pinyinTextView;
+    TextView phraseTextView;
+    Handler textViewHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +53,36 @@ public class LearnWritingActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        pinyinTextView = findViewById(R.id.pinyin_textview);
+        phraseTextView = findViewById(R.id.phrase_textview);
+        textViewHandler = new Handler();
+
+        // 根据是否有效时间内去判断currentWord为0，还是继续上一次
+        SharedPreferences sharedPreferences = getSharedPreferences("fan_data", 0);
+        String lastDay = sharedPreferences.getString("last_learn_date", "");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String today = sdf.format(new Date());
+//        if (!lastDay.equals(today)) {
+//            currentWord = sharedPreferences.getInt("current_word", 0);
+//        }
+//        else {
+            currentWord = 0;
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("last_learn_date", today);
+            editor.commit();
+//        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        Schedule schedule = new Schedule(this);
+        schedule.updateSharedPreference(words);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("fan_data", 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("current_word", currentWord);
+        editor.commit();
+        super.onDestroy();
     }
 
     @Override
@@ -53,15 +100,21 @@ public class LearnWritingActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    // 作用：获取今天的字的链表，暂且写成如此，做调试用
-    private List<Tuple<String, String, Integer>> getTodayWords() {
-        List<Tuple<String, String, Integer>> words = new ArrayList<>();
-        SharedPreferences sharedPreferences = getSharedPreferences("fan_data", 0);
-        String todayWords = sharedPreferences.getString("words", "");
-        for (int i = 0; i < todayWords.length(); i += 3) {
-            words.add(new Tuple<>("" + todayWords.charAt(i), "" + todayWords.charAt(i + 1), Integer.valueOf("" + todayWords.charAt(i + 2))));
-        }
-        return words;
+    private List<LearnItem> getTodayWords() {
+        final List<LearnItem> todayWords = new Schedule(this).getWords();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SuperMemo superMemo = new SuperMemo(getApplicationContext());
+                List<ReviewItem> items = superMemo.getReviewItems();
+                synchronized (this) {
+                    for (LearnItem item : items) {
+                        words.add(item);
+                    }
+                }
+            }
+        }).start();
+        return todayWords;
     }
 
     public void click(View view) {
@@ -70,73 +123,202 @@ public class LearnWritingActivity extends AppCompatActivity {
                 hanziView.resetHanzi();
                 break;
             case R.id.button_next:
-                currentWord = currentWord + 1;
+                updateHanziState();
                 setHanzi();
+//                if (!hanziView.hanziFinish()) {
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//                    builder.setTitle("提示");
+//                    builder.setMessage("请您写好这个字");
+//                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                        }
+//                    });
+//                    AlertDialog alertDialog = builder.create();
+//                    alertDialog.show();
+//                }
+//                else {
+//                    updateHanziState();
+//                    setHanzi();
+//                }
                 break;
         }
     }
 
-    private void setHanzi() {
-        Tuple<String, String, Integer> word = words.get(currentWord);
+    private synchronized void updateHanziState() {
+        if (currentWord >= words.size()) return;
+        final LearnItem item = words.get(currentWord);
+        currentWord = currentWord + 1;
+        if (item instanceof ReviewItem) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ((ReviewItem) item).updateDb(getApplicationContext(), hanziView.getWrongTimes());
+                }
+            }).start();
+        }
+        else if (currentWord < words.size() && hanziView.getWrongTimes() < 5) {
+            item.setLearnTimes(item.getLearnTimes() + 1);
+            // 加入复习
+            if (item.getLearnTimes() > 3) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        SuperMemo.addReviewItem(getApplicationContext(), item.getTraditional());
+                    }
+                }).start();
+            }
+        }
+    }
+
+    private synchronized void setHanzi() {
+        if (currentWord >= words.size()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("提示");
+            builder.setMessage("您已经学完今天的任务了！");
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    LearnWritingActivity.this.finish();
+                }
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+            return;
+        }
+        final LearnItem word = words.get(currentWord);
         traditionalHanzi.setOnClickListener(null);
 
-        switch (word.third) {
-            case 0:
-                getSupportActionBar().setTitle("学习模式");
+        // 更新拼音，词组信息
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // 更新拼音
+                final String pinyinText = updatePinyin(word);
+                textViewHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        pinyinTextView.setText(pinyinText);
+                    }
+                });
+
+                // 更新词组
+                final String phraseText = updatePhrase(word);
+                textViewHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        phraseTextView.setText(phraseText);
+                    }
+                });
+            }
+        }).start();
+
+        switch (word.getLearnTimes()) {
+            case 1:
                 studyMode(word);
                 break;
-            case 1:
-                getSupportActionBar().setTitle("再认模式");
+            case 2:
                 recognizeMode(word);
                 break;
-            case 2:
-                getSupportActionBar().setTitle("测试模式");
+            case 3:
                 testMode(word);
                 break;
+            case 4:
+                reviewMode(word);
             default:
                 break;
         }
     }
 
-    private void studyMode(Tuple<String, String, Integer> word) {
-        simplifiedHanzi.setHaveOutterBackground(true);
-        simplifiedHanzi.setCharacterColor(Color.BLACK);
-        simplifiedHanzi.setCharacter(word.second);
-        traditionalHanzi.setHaveOutterBackground(true);
-        traditionalHanzi.setLoopAnimate(true);
-        traditionalHanzi.setCharacter(word.first);
-        hanziView.setHaveOutterBackground(true);
-        hanziView.setHaveInnerBackground(true);
-        hanziView.setQuiz();
-        hanziView.setCharacter(word.first);
+    private String updatePinyin(LearnItem word) {
+        SQLiteDatabase database = new SQLdm().openDataBase(this);
+
+        // 查询拼音
+        Cursor cursor = database.rawQuery("select * from dict where words = '" + word.getTraditional() + "'", null);
+        StringBuilder pinyin = new StringBuilder();
+        while (cursor.moveToNext()) {
+            pinyin.append(cursor.getString(cursor.getColumnIndex("spell"))).append("  ");
+        }
+        cursor.close();
+        return getResources().getString(R.string.pinyin) +  ": " + pinyin.toString();
     }
 
-    private void recognizeMode(Tuple<String, String, Integer> word) {
-        simplifiedHanzi.setHaveOutterBackground(true);
+    private String updatePhrase(LearnItem word) {
+        SQLiteDatabase database = new SQLdm().openDataBase(this);
+
+        // 查询2~3个词组
+        String sql = "select * from dict where words like '%" + word.getTraditional() + "%' order by length(words)";
+        Cursor cursor = database.rawQuery(sql, null);
+        int count = 0;
+        StringBuilder phrase = new StringBuilder();
+        while (cursor.moveToNext() && count < 3) {
+            count = count + 1;
+            phrase.append(cursor.getString(cursor.getColumnIndex("words"))).append("  ");
+        }
+        cursor.close();
+        return getResources().getString(R.string.phrase) + ": " + phrase.toString();
+    }
+
+    private void studyMode(LearnItem word) {
+        getSupportActionBar().setTitle("学习模式");
+        simplifiedHanzi.setHaveOuterBackground(true);
         simplifiedHanzi.setCharacterColor(Color.BLACK);
-        simplifiedHanzi.setCharacter(word.second);
-        traditionalHanzi.setHaveOutterBackground(true);
+        simplifiedHanzi.setCharacter(word.getSimplified());
+        traditionalHanzi.setHaveOuterBackground(true);
+        traditionalHanzi.setLoopAnimate(true);
+        traditionalHanzi.setCharacter(word.getTraditional());
+        hanziView.setHaveOuterBackground(true);
+        hanziView.setHaveInnerBackground(true);
+        hanziView.setQuiz();
+        hanziView.setCharacterColor(Color.GRAY);
+        hanziView.setTestMode(false);
+        hanziView.setCharacter(word.getTraditional());
+    }
+
+    private void recognizeMode(LearnItem word) {
+        getSupportActionBar().setTitle("再认模式");
+        simplifiedHanzi.setHaveOuterBackground(true);
+        simplifiedHanzi.setCharacterColor(Color.BLACK);
+        simplifiedHanzi.setCharacter(word.getSimplified());
+        traditionalHanzi.setHaveOuterBackground(true);
         traditionalHanzi.setLoopAnimate(false);
         traditionalHanzi.setClickToAnimate(true);
-        traditionalHanzi.setCharacter(word.first);
-        hanziView.setHaveOutterBackground(true);
+        traditionalHanzi.setCharacter(word.getTraditional());
+        hanziView.setHaveOuterBackground(true);
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
-        hanziView.setCharacter(word.first);
+        hanziView.setCharacterColor(Color.GRAY);
+        hanziView.setTestMode(false);
+        hanziView.setCharacter(word.getTraditional());
     }
 
-    private void testMode(Tuple<String, String, Integer> word) {
-        simplifiedHanzi.setHaveOutterBackground(true);
+    private void testMode(LearnItem word) {
+        getSupportActionBar().setTitle("测试模式");
+        simplifiedHanzi.setHaveOuterBackground(true);
         simplifiedHanzi.setCharacterColor(Color.BLACK);
-        simplifiedHanzi.setCharacter(word.second);
-        traditionalHanzi.setHaveOutterBackground(false);
+        simplifiedHanzi.setCharacter(word.getSimplified());
+        traditionalHanzi.setHaveOuterBackground(false);
         traditionalHanzi.cleanCharacter();
-//        traditionalHanzi.setOnClickListener(listener);
-//        traditionalHanzi.setCharacter(word.first);
-        hanziView.setHaveOutterBackground(true);
+        hanziView.setHaveOuterBackground(true);
         hanziView.setHaveInnerBackground(true);
         hanziView.setQuiz();
         hanziView.setCharacterColor(Color.TRANSPARENT);
-        hanziView.setCharacter(word.first);
+        hanziView.setTestMode(true);
+        hanziView.setCharacter(word.getTraditional());
+    }
+
+    private void reviewMode(LearnItem word) {
+        getSupportActionBar().setTitle("复习模式");
+        simplifiedHanzi.setHaveOuterBackground(true);
+        simplifiedHanzi.setCharacterColor(Color.BLACK);
+        simplifiedHanzi.setCharacter(word.getSimplified());
+        traditionalHanzi.setHaveOuterBackground(false);
+        traditionalHanzi.cleanCharacter();
+        hanziView.setHaveOuterBackground(true);
+        hanziView.setHaveInnerBackground(true);
+        hanziView.setQuiz();
+        hanziView.setCharacterColor(Color.TRANSPARENT);
+        hanziView.setTestMode(true);
+        hanziView.setCharacter(word.getTraditional());
     }
 }

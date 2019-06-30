@@ -23,6 +23,7 @@ public class StrokeParser {
 
     public static List<Path> parse(String json) {
         List<Path> paths = new ArrayList<>();
+        if (json.equals("")) return paths;
         try {
             JSONObject jsonObject = new JSONObject(json);
             JSONArray strokes = jsonObject.getJSONArray("strokes");

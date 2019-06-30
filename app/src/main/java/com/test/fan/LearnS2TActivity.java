@@ -12,7 +12,6 @@ import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -23,14 +22,15 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.test.util.DBHelper;
 import com.test.util.S2T;
+import com.test.util.SQLdm;
 
 import java.util.ArrayList;
 
 public class LearnS2TActivity extends AppCompatActivity {
 
-    private DBHelper dbHelper;
+    //private DBHelper dbHelper;
+    private SQLdm sqLdm;
 
     SQLiteDatabase sqLiteDatabase = null;
 
@@ -44,11 +44,13 @@ public class LearnS2TActivity extends AppCompatActivity {
     private TextView E_textview;
     private TextView W_textview;
 
-
     private LinearLayout mBtnListLayout=null;
     private LinearLayout S_text_lin=null;
     private LinearLayout E_text_lin=null;
     private LinearLayout W_text_lin=null;
+
+    // 字号大小
+    private static final int FONT_SIZE = 24;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +60,8 @@ public class LearnS2TActivity extends AppCompatActivity {
         findAllView();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        dbHelper=new DBHelper(this);
+        //dbHelper=new DBHelper(this);
+        sqLdm=new SQLdm();
 
         setShare();
 
@@ -90,7 +93,8 @@ public class LearnS2TActivity extends AppCompatActivity {
 
         ArrayList<String> btnContentList=new ArrayList<String>();
 
-        sqLiteDatabase=dbHelper.getReadableDatabase();
+        //sqLiteDatabase=dbHelper.getReadableDatabase();
+        sqLiteDatabase=sqLdm.openDataBase(getApplicationContext());
 
         Cursor cursor = sqLiteDatabase.rawQuery("select * from s2taW", null);
 
@@ -154,12 +158,11 @@ public class LearnS2TActivity extends AppCompatActivity {
 
 
     }
-
+    //动态设置按钮
     private void setBtnAttribute(final Button codeBtn, final String btnContent, int id, int backGroundColor, int textColor, int textSize ){
         if( null == codeBtn ){
             return;
         }
-
         codeBtn.setBackgroundColor( ( backGroundColor >= 0 )?backGroundColor: Color.GRAY );
         codeBtn.setTextColor( ( textColor >= 0 )?textColor:Color.BLACK );
         codeBtn.setTextSize( ( textSize > 16 )?textSize:24 );
@@ -237,6 +240,7 @@ public class LearnS2TActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
+                        //设置sharepreferences
                         SharedPreferences userSettings = getSharedPreferences("setting", MODE_PRIVATE);
                         SharedPreferences.Editor editor = userSettings.edit();
                         editor.putInt("flag",flag1);
@@ -258,7 +262,7 @@ public class LearnS2TActivity extends AppCompatActivity {
 
         S_text_lin.removeAllViews();
         S_textview.setText(text);
-        S_textview.setTextSize(24);
+        S_textview.setTextSize(FONT_SIZE);
         S_text_lin.addView(S_textview);
     }
 
@@ -266,7 +270,7 @@ public class LearnS2TActivity extends AppCompatActivity {
     {
         E_text_lin.removeAllViews();
         E_textview.setText(text);
-        E_textview.setTextSize(24);
+        E_textview.setTextSize(FONT_SIZE);
         E_text_lin.addView(E_textview);
     }
 
@@ -274,7 +278,7 @@ public class LearnS2TActivity extends AppCompatActivity {
     {
         W_text_lin.removeAllViews();
         W_textview.setText(text);
-        W_textview.setTextSize(24);
+        W_textview.setTextSize(FONT_SIZE);
         W_text_lin.addView(W_textview);
     }
 
@@ -282,7 +286,8 @@ public class LearnS2TActivity extends AppCompatActivity {
     {
 
         String tr="",s="";
-        sqLiteDatabase = dbHelper.getReadableDatabase();
+        //sqLiteDatabase = dbHelper.getReadableDatabase();
+        sqLiteDatabase=sqLdm.openDataBase(getApplicationContext());
 
         Cursor cursor = sqLiteDatabase.rawQuery("select * from dict where words like '%" + Right_text + "%'", null);
         if (cursor.getCount()==0)

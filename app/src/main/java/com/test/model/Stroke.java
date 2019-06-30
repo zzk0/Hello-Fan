@@ -10,7 +10,7 @@ package com.test.model;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.content.Context;
+
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -30,9 +30,12 @@ public class Stroke {
     private Path mediansPath;
     private List<GPoint2D> median;
     private List<GPoint2D> resampleMedian;
+    private ObjectAnimator colorFade;
+
+    // 状态
     private int writingSpeed = 20; // 写字的速度
     private float strokeWidth = 50.0f; // 笔画的宽度
-    private GPoint2D lastPoint;
+    private int color;
 
     public Stroke() {
         paint = new Paint();
@@ -46,7 +49,6 @@ public class Stroke {
         strokePaint.setAntiAlias(true);
 
         mediansPath = new Path();
-        lastPoint = new GPoint2D(0.0f, 0.0f);
     }
 
     public void setPath(Path path) {
@@ -61,7 +63,6 @@ public class Stroke {
         this.median = median;
         int sampleNumber = (int) Geometry.lengthOfPoints(median) / writingSpeed;
         resampleMedian = Geometry.resample(median, sampleNumber);
-        lastPoint = resampleMedian.get(0);
     }
 
     public List<GPoint2D> getMedian() {
@@ -86,6 +87,7 @@ public class Stroke {
 
     // 设置颜色
     public void setColor(int color) {
+        this.color = color;
         paint.setColor(color);
     }
 
@@ -105,12 +107,15 @@ public class Stroke {
 
     // 闪烁当前笔画来提醒用户
     public void prompt(final View view) {
-        final ObjectAnimator colorFade = ObjectAnimator.ofObject(paint, "color", new ArgbEvaluator(), Color.GRAY, Color.RED, Color.GRAY);
+        if (colorFade != null) {
+            colorFade.cancel();
+        }
+        colorFade = ObjectAnimator.ofObject(paint, "color", new ArgbEvaluator(), Color.GRAY, Color.RED, Color.GRAY);
         colorFade.setDuration(1000);
         colorFade.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                view.invalidate();
+                view.postInvalidate();
             }
         });
         colorFade.start();
@@ -118,12 +123,15 @@ public class Stroke {
 
     // 渐变为黑色
     public void finish(final View view) {
-        final ObjectAnimator colorFade = ObjectAnimator.ofObject(paint, "color", new ArgbEvaluator(), Color.GRAY, Color.BLACK);
+        if (colorFade != null) {
+            colorFade.cancel();
+        }
+        colorFade = ObjectAnimator.ofObject(paint, "color", new ArgbEvaluator(), Color.GRAY, Color.BLACK);
         colorFade.setDuration(300);
         colorFade.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                view.invalidate();
+                view.postInvalidate();
             }
         });
         colorFade.start();
@@ -135,40 +143,22 @@ public class Stroke {
         for (int i = 0; i < resampleMedian.size(); i++) {
             GPoint2D center = resampleMedian.get(i);
             mediansPath.addCircle(center.x, center.y, strokeWidth, Path.Direction.CCW);
-            view.invalidate();
+            view.postInvalidate();
             try {
                 Thread.sleep(50);
             }
             catch (Exception e) {
                 e.printStackTrace();
+                return;
             }
         }
         mediansPath = path;
-        view.invalidate();
-    }
-
-    public void doWriting(float x, float y) {
-        GPoint2D current = new GPoint2D(x, y);
-        float dis = lastPoint.distanceTo(current);
-        if (dis < 50.0f) {
-            lastPoint = current;
-            mediansPath.addCircle(x, y, strokeWidth, Path.Direction.CCW);
-        }
-    }
-
-    public boolean finishWritingThisStroke() {
-        float dis = lastPoint.distanceTo(median.get(median.size() - 1));
-        if (dis < 50) {
-            mediansPath = path;
-            return true;
-        }
-        return false;
+        view.postInvalidate();
     }
 
     public void reset(final View view) {
-        paint.setColor(Color.GRAY);
+        paint.setColor(color);
         mediansPath = new Path();
-        lastPoint = resampleMedian.get(0);
-        view.invalidate();
+        view.postInvalidate();
     }
 }

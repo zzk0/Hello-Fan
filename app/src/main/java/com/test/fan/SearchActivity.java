@@ -9,18 +9,16 @@ import android.Manifest;
 
 import android.app.Activity;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,7 +28,9 @@ import com.arlib.floatingsearchview.suggestions.SearchSuggestionsAdapter;
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
 import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
-import com.test.fan.Bean.DictBean;
+import com.test.Bean.DictBean;
+import com.test.util.DBHelper;
+import com.test.util.SQLdm;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +52,24 @@ public class SearchActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+
+        //获得数据库
+
+        try {
+            SQLdm sqLdm=new SQLdm();
+            db= sqLdm.openDataBase(this);
+//            dbHelper=new DBHelper(this);
+//            db=dbHelper.getWritableDatabase();
+//            db.execSQL("create table if not exists DictHistory(" +
+//                    "ID integer primary key autoincrement" +
+//                    ",words  VARCHAR"+
+//                    ",spell TEXT"+
+//                    ",express VARCHAR"+
+//                    ")");
+//            db.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         searchView=(FloatingSearchView)findViewById(R.id.floating_search_view);
         searchView.setSearchFocusable(true);
@@ -86,20 +104,22 @@ public class SearchActivity extends Activity {
                                 "<font color=\"#787878\">" + searchView.getQuery() + "</font>");
                 textView.setText(Html.fromHtml(text));
 
-                //如果是展示搜索历史的话，左边添加一个人图标
-                if( itemPosition!=0 && isHistory ){
-                    leftIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
-                            R.drawable.ic_history_black_24dp, null));
-                    leftIcon.setAlpha(.36f);
-                }
+//                //如果是展示搜索历史的话，左边添加一个人图标
+//                if( itemPosition!=0 && isHistory ){
+//                    leftIcon.setImageDrawable(ResourcesCompat.getDrawable(getResources(),
+//                            R.drawable.ic_history_black_24dp, null));
+//                    leftIcon.setAlpha(.36f);
+//                }
                 if(isHistory && itemPosition==0) {
                     //为清除历史纪录按钮单独绑定事件
                     textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                     suggestionView.setOnClickListener(new View.OnClickListener(){
                         @Override
                         public void onClick(View v) {
-                            db=dbHelper.getWritableDatabase();
-                            db.execSQL("delete from DictHistory");
+                            SQLdm sqLdm=new SQLdm();
+                            db= sqLdm.openDataBase(SearchActivity.this);
+//                            db=dbHelper.getWritableDatabase();
+//                            db.execSQL("delete from DictHistory");
                             db.close();
                             searchView.swapSuggestions(new ArrayList());
                         }
@@ -157,6 +177,7 @@ public class SearchActivity extends Activity {
                 new FloatingSearchView.OnHomeActionClickListener() {
                     @Override
                     public void onHomeClicked() {
+                        //db.close();
                         finish();
 //                        Intent intent = new Intent(SearchActivity.this,MainActivity.class);
 //                        startActivity(intent);
@@ -189,7 +210,11 @@ public class SearchActivity extends Activity {
      */
     public void showSearchResult(String query,String dbname,String sort){
         list=new ArrayList<>();
-        db=dbHelper.getReadableDatabase();
+        SQLdm sqLdm=new SQLdm();
+        db= sqLdm.openDataBase(SearchActivity.this);
+        //db=dbHelper.getReadableDatabase();
+
+        String sql = "select * from "+dbname+" "+query+" order by "+sort;
 
         Cursor cursor=db.rawQuery(
                 "select * from "+dbname+" "+query+" order by "+sort, null);
@@ -214,7 +239,9 @@ public class SearchActivity extends Activity {
     *添加一条历史纪录
      */
     public void insertHistory(DictBean dictBean) {
-        db=dbHelper.getWritableDatabase();
+        SQLdm sqLdm=new SQLdm();
+        db= sqLdm.openDataBase(SearchActivity.this);
+        //db=dbHelper.getWritableDatabase();
                try{
             db.execSQL("delete from DictHistory where words='"+dictBean.getWords()+"'");
         }
@@ -278,5 +305,6 @@ public class SearchActivity extends Activity {
             }
         }
     }
+
 
 }

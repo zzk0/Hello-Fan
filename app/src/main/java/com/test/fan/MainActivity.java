@@ -1,11 +1,15 @@
 package com.test.fan;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Application;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -20,8 +24,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.test.model.Tuple;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,17 +34,14 @@ public class MainActivity extends AppCompatActivity
     private int prePos;
 
     // Constant
-    private static final String[] TAGS = {"home", "s2t", "t2s", "reading", "history", "setting"};
+    private static final String[] TAGS = {"home", "s2t", "reading", "history", "setting"};
     private static final String PRE = "PREPOS";
     private static final int HOME = 0;
     private static final int S2T = 1;
-    private static final int T2S = 2;
-    private static final int READING = 3;
-    private static final int HISTORY = 4;
-    private static final int SETTING = 5;
+    private static final int READING = 2;
+    private static final int HISTORY = 3;
+    private static final int SETTING = 4;
     private static final int READ_WRITE_PERM = 2333;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +62,7 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(this);
 
         if (!(ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) ||
@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity
                 fragments = new ArrayList<>();
                 fragments.add(new HomeFragment());
                 fragments.add(new S2TFragment());
-                fragments.add(new T2SFragment());
                 fragments.add(new ReadingFragment());
                 fragments.add(new HistoryFragment());
                 fragments.add(new SettingFragment());
@@ -88,15 +87,13 @@ public class MainActivity extends AppCompatActivity
             else {
                 prePos = savedInstanceState.getInt(PRE);
                 fragments = new ArrayList<>();
-                HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag(TAGS[0]);
-                S2TFragment s2TFragment = (S2TFragment) getSupportFragmentManager().findFragmentByTag(TAGS[1]);
-                T2SFragment t2SFragment = (T2SFragment) getSupportFragmentManager().findFragmentByTag(TAGS[2]);
-                ReadingFragment readingFragment = (ReadingFragment) getSupportFragmentManager().findFragmentByTag(TAGS[3]);
-                HistoryFragment historyFragment = (HistoryFragment) getSupportFragmentManager().findFragmentByTag(TAGS[4]);
-                SettingFragment settingFragment = (SettingFragment) getSupportFragmentManager().findFragmentByTag(TAGS[5]);
+                HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag(TAGS[HOME]);
+                S2TFragment s2TFragment = (S2TFragment) getSupportFragmentManager().findFragmentByTag(TAGS[S2T]);
+                ReadingFragment readingFragment = (ReadingFragment) getSupportFragmentManager().findFragmentByTag(TAGS[READING]);
+                HistoryFragment historyFragment = (HistoryFragment) getSupportFragmentManager().findFragmentByTag(TAGS[HISTORY]);
+                SettingFragment settingFragment = (SettingFragment) getSupportFragmentManager().findFragmentByTag(TAGS[SETTING]);
                 fragments.add(homeFragment);
                 fragments.add(s2TFragment);
-                fragments.add(t2SFragment);
                 fragments.add(readingFragment);
                 fragments.add(historyFragment);
                 fragments.add(settingFragment);
@@ -120,7 +117,6 @@ public class MainActivity extends AppCompatActivity
                 fragments = new ArrayList<>();
                 fragments.add(new HomeFragment());
                 fragments.add(new S2TFragment());
-                fragments.add(new T2SFragment());
                 fragments.add(new ReadingFragment());
                 fragments.add(new HistoryFragment());
                 fragments.add(new SettingFragment());
@@ -184,9 +180,6 @@ public class MainActivity extends AppCompatActivity
         }
         else if (id == R.id.nav_s2t) {
             switchFragment(S2T);
-        }
-        else if (id == R.id.nav_t2s) {
-            switchFragment(T2S);
         }
         else if (id == R.id.nav_reading) {
             switchFragment(READING);
