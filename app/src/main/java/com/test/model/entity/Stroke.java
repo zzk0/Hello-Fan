@@ -5,7 +5,7 @@
 多个笔画构成一个Hanzi模型。
 */
 
-package com.test.model;
+package com.test.model.entity;
 
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;

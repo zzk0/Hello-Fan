@@ -42,7 +42,10 @@ dependencies {
     //https://github.com/arimorty/floatingsearchview 第三方搜索控件
     implementation 'com.github.sd6352051:NiftyDialogEffects:v1.0.3'
     implementation 'com.github.arimorty:floatingsearchview:2.1.1'
-
+    //OkHttp
+    implementation("com.squareup.okhttp3:okhttp:4.0.0")
+    //fastJson
+    implementation 'com.alibaba:fastjson:1.2.58'
     // 日期
     implementation 'com.jakewharton.threetenabp:threetenabp:1.2.1'
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-alpha-2'

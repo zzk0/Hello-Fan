@@ -15,8 +15,8 @@ import android.widget.TextView;
 
 import com.test.algorithm.Schedule;
 import com.test.algorithm.SuperMemo;
-import com.test.model.LearnItem;
-import com.test.model.ReviewItem;
+import com.test.model.entity.LearnItem;
+import com.test.model.entity.ReviewItem;
 import com.test.util.SQLdm;
 import com.test.view.HanziView;
 
