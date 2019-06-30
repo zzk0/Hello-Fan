@@ -25,6 +25,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.test.model.LearnItem;
 import com.test.model.Tuple;
 import com.test.util.SQLdm;
 
@@ -43,10 +44,10 @@ public class Schedule {
 
     /**
      * 从sharedPreference中获取今天需要练的字，如果不够，从数据库中取
-     * @return words三元组列表，格式{繁体，简体，学习次数}
+     * @return List<LearnItem>
      */
-    public List<Tuple<String, String, Integer>> getWords() {
-        List<Tuple<String, String, Integer>> words = new ArrayList<>();
+    public List<LearnItem> getWords() {
+        List<LearnItem> words = new ArrayList<>();
         SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
         String todayWords = sharedPreferences.getString("today_words", "");
         if (todayWords.length() < 3 * 20) {
@@ -58,8 +59,8 @@ public class Schedule {
             String traditional = "" + todayWords.charAt(i);
             String simplified = "" + todayWords.charAt(i + 1);
             int learnTimes = todayWords.charAt(i + 2) - '0';
-            Tuple<String, String, Integer> tuple = new Tuple<>(traditional, simplified, learnTimes);
-            words.add(tuple);
+            LearnItem item = new LearnItem(traditional, simplified, learnTimes);
+            words.add(item);
         }
         return words;
     }
@@ -69,20 +70,20 @@ public class Schedule {
      * 如果学习次数超过了需要学习的次数，就删除掉这个字，并且删除对应的json
      * @param words
      */
-    public void updateSharedPreference(List<Tuple<String, String, Integer>> words) {
+    public void updateSharedPreference(List<LearnItem> words) {
         StringBuilder wordsList = new StringBuilder();
-        for (Tuple<String, String, Integer> word : words) {
-            if (word.third > 3) {
+        for (LearnItem word : words) {
+            if (word.getLearnTimes() > 3) {
                 SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.remove(word.first);
-                editor.remove(word.second);
+                editor.remove(word.getTraditional());
+                editor.remove(word.getSimplified());
                 editor.commit();
                 continue;
             }
-            wordsList.append(word.first);
-            wordsList.append(word.second);
-            wordsList.append(word.third.toString());
+            wordsList.append(word.getTraditional());
+            wordsList.append(word.getSimplified());
+            wordsList.append(word.getLearnTimes());
         }
         SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -108,16 +109,7 @@ public class Schedule {
                 int learnTimes = 1;
                 String traditional = cursor.getString(cursor.getColumnIndex("traditional"));
                 String simplified = cursor.getString(cursor.getColumnIndex("simplified"));
-                String tradJson = cursor.getString(cursor.getColumnIndex("tradJson"));
-                String simpJson = cursor.getString(cursor.getColumnIndex("simpJson"));
                 newWords.append(traditional).append(simplified).append(learnTimes);
-
-                // 存储json到本地
-                SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(traditional, tradJson);
-                editor.putString(simplified, simpJson);
-                editor.commit();
 
                 // 更新这个字的学习日期
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

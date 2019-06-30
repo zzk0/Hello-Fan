@@ -16,7 +16,15 @@ public class CharacterJsonReader {
 
     public static String query(Context context, String word)
     {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
-        return sharedPreferences.getString(word, "");
+        SQLiteDatabase database = new SQLdm().openDataBase(context);
+        String sql = "select * from wordsJson where word = \"" + word + "\"";
+        Cursor cursor = database.rawQuery(sql, null);
+        if (cursor.moveToNext()) {
+            String result = cursor.getString(cursor.getColumnIndex("json"));
+            cursor.close();
+            database.close();
+            return result;
+        }
+        return "";
     }
 }
