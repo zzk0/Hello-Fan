@@ -146,6 +146,7 @@ public class LearnWritingActivity extends AppCompatActivity {
     }
 
     private synchronized void updateHanziState() {
+        if (currentWord >= words.size()) return;
         final LearnItem item = words.get(currentWord);
         currentWord = currentWord + 1;
         if (item instanceof ReviewItem) {
