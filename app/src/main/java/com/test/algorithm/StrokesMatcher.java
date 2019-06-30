@@ -12,8 +12,8 @@
 
 package com.test.algorithm;
 
-import com.test.model.GPoint2D;
-import com.test.model.Vector2;
+import com.test.model.entity.GPoint2D;
+import com.test.model.entity.Vector2;
 
 import java.util.List;
 

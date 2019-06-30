@@ -22,7 +22,7 @@ import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.test.adapter.ReadingsRecycleAdapter;
-import com.test.model.Readings;
+import com.test.model.entity.Readings;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
