@@ -17,11 +17,12 @@ NextDate Date
 0 - <=18
 */
 
-package com.test.model;
+package com.test.model.entity;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.test.model.entity.LearnItem;
 import com.test.util.SQLdm;
 
 import java.text.SimpleDateFormat;
