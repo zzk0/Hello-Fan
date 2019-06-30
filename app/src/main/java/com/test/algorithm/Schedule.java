@@ -25,7 +25,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.test.model.Tuple;
+import com.test.model.entity.Tuple;
 import com.test.util.SQLdm;
 
 import java.text.SimpleDateFormat;

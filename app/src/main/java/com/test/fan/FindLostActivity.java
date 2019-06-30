@@ -27,17 +27,17 @@ import static com.test.util.Constant.PHONE_REGEX;
 import static com.test.util.Constant.SEVER_PORT;
 import static com.test.util.Constant.SERVER_URL;
 
-public class RegisterActivity extends AppCompatActivity {
+public class FindLostActivity extends AppCompatActivity {
     private Handler handler;
     private Button btn_send_code;
-    private EditText et_user_name, et_psw, et_psw_again, et_phone_num, et_verify_code;
-    private String userName, password, pswAgain, code;
+    private EditText  et_new_psw, et_new_psw_again, et_phone_num, et_verify_code;
+    private String newPsw, newPswAgain, code;
     private String phoneNum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(R.layout.activity_find_lost);
         //设置此界面为竖屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         init();
@@ -49,9 +49,8 @@ public class RegisterActivity extends AppCompatActivity {
     private void init() {
         boolean hasUser = true;
         final Button btn_register = (Button) findViewById(R.id.btn_register);
-        et_user_name = (EditText) findViewById(R.id.et_user_name);
-        et_psw = (EditText) findViewById(R.id.et_psw);
-        et_psw_again = (EditText) findViewById(R.id.et_psw_again);
+        et_new_psw = (EditText) findViewById(R.id.et_new_psw);
+        et_new_psw_again = (EditText) findViewById(R.id.et_new_psw_again);
         et_phone_num = (EditText) findViewById(R.id.et_phone_num);
         et_verify_code = (EditText) findViewById(R.id.et_verify_code);
         btn_send_code = (Button) findViewById(R.id.btn_send_code);
@@ -64,76 +63,69 @@ public class RegisterActivity extends AppCompatActivity {
                         @Override
                         public void handleMessage(Message msg) {
                             if (!msg.obj.equals("true")) {
-                                if(msg.obj.equals("phoneNumRepeat"))
+                                if(msg.obj.equals("phoneNumNotExist"))
                                 {
-                                    Toast.makeText(RegisterActivity.this, "该手机号已经存在", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(FindLostActivity.this, "该手机号未注册", Toast.LENGTH_LONG).show();
                                 }
-                                else
-                                Toast.makeText(RegisterActivity.this, "服务器错误,发送验证码失败", Toast.LENGTH_LONG).show();
+                                else {
+                                    Toast.makeText(FindLostActivity.this, "服务器错误,发送验证码失败", Toast.LENGTH_LONG).show();
+                                }
                             } else {
                                 startTimer();
-                                Toast.makeText(RegisterActivity.this, "发送验证码成功", Toast.LENGTH_LONG).show();
+                                Toast.makeText(FindLostActivity.this, "发送验证码成功", Toast.LENGTH_LONG).show();
                             }
                         }
                     };
                     genVerifyCode(phoneNum);
                 } else
-                    Toast.makeText(RegisterActivity.this, "手机号码输入有误", Toast.LENGTH_LONG).show();
+                    Toast.makeText(FindLostActivity.this, "手机号码输入有误", Toast.LENGTH_LONG).show();
             }
         });
         //注册按钮
         btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                userName = et_user_name.getText().toString().trim();
-                password = et_psw.getText().toString().trim();
-                pswAgain = et_psw_again.getText().toString().trim();
+                newPsw = et_new_psw.getText().toString().trim();
+                newPswAgain = et_new_psw_again.getText().toString().trim();
                 phoneNum = et_phone_num.getText().toString().trim();
                 code = et_verify_code.getText().toString().trim();
-                if (TextUtils.isEmpty(userName)) {
-                    Toast.makeText(RegisterActivity.this, "请输入用户名", Toast.LENGTH_LONG).show();
-                } else if (TextUtils.isEmpty(password)) {
-                    Toast.makeText(RegisterActivity.this, "请输入密码", Toast.LENGTH_LONG).show();
-                } else if (TextUtils.isEmpty(pswAgain)) {
-                    Toast.makeText(RegisterActivity.this, "请再次输入密码", Toast.LENGTH_LONG).show();
-                } else if (!password.equals(pswAgain)) {
-                    Toast.makeText(RegisterActivity.this, "输入两次的密码不一样", Toast.LENGTH_LONG).show();
+                if (TextUtils.isEmpty(newPsw)) {
+                    Toast.makeText(FindLostActivity.this, "请输入新密码", Toast.LENGTH_LONG).show();
+                } else if (TextUtils.isEmpty(newPswAgain)) {
+                    Toast.makeText(FindLostActivity.this, "请确认新密码", Toast.LENGTH_LONG).show();
+                } else if (!newPsw.equals(newPswAgain)) {
+                    Toast.makeText(FindLostActivity.this, "输入两次的密码不一样", Toast.LENGTH_LONG).show();
                 } else if (!Pattern.matches(PHONE_REGEX, phoneNum)) {
-                    Toast.makeText(RegisterActivity.this, "手机号码输入错误", Toast.LENGTH_LONG).show();
+                    Toast.makeText(FindLostActivity.this, "手机号码输入错误", Toast.LENGTH_LONG).show();
                 } else {
                     //验证用户名和用户手机号是否已经存在
                     User user=new User();
                     UserDTO userDTO=new UserDTO();
-                    user.setPassword(password);
+                    user.setPassword(newPsw);
                     user.setPhoneNum(phoneNum);
-                    user.setUserName(userName);
+                    user.setPassword(newPsw);
                     userDTO.setUser(user);
                     userDTO.setCode(code);
-                    saveUserInfo(userDTO);
                     handler = new Handler() {
                         @Override
                         public void handleMessage(Message msg) {
                             if(msg.obj==null) return;
-                            System.out.println(msg.obj.toString()+222222);
-                            if (msg.obj.toString().equals("userNameRepeat")) {
-                                Toast.makeText(RegisterActivity.this, "该用户名已存在", Toast.LENGTH_LONG).show();
-                            }  else if (msg.obj.toString().equals("codeError")) {
-                                Toast.makeText(RegisterActivity.this, "验证码有误", Toast.LENGTH_LONG).show();
-                            } else if (msg.obj.toString().equals("true")) {
-                                Toast.makeText(RegisterActivity.this, "注册成功", Toast.LENGTH_SHORT).show();
+                            if (msg.obj.equals("codeError")) {
+                                Toast.makeText(FindLostActivity.this, "验证码有误", Toast.LENGTH_LONG).show();
+                            } else if (msg.obj.equals("true")) {
+                                Toast.makeText(FindLostActivity.this, "更改密码成功", Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent();
-                                intent.putExtra("userName", userName);
+                                intent.putExtra("userName", "");
                                 setResult(RESULT_OK, intent);
                                 //RESULT_OK为Activity系统常量，状态码为-1，
                                 // 表示此页面下的内容操作成功将data返回到上一页面，如果是用back返回过去的则不存在用setResult传递data值
-                                RegisterActivity.this.finish();
-
+                                FindLostActivity.this.finish();
                             } else {
-                                Toast.makeText(RegisterActivity.this, "服务器错误,注册失败", Toast.LENGTH_LONG).show();
+                                Toast.makeText(FindLostActivity.this, "服务器错误,更改密码失败", Toast.LENGTH_LONG).show();
                             }
                         }
                     };
-
+                    updatePassword(userDTO);
                 }
             }
         });
@@ -178,7 +170,7 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void run() {
                 System.out.println("手机号为" + phoneNum);
-                String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/user/genCode?phoneNum=" + phoneNum+"&flag=register";
+                String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/user/genCode?phoneNum=" + phoneNum+"&flag=findlost";
                 System.out.println("请求Url" + requestUrl);
                 Message message = new Message();
                 try {
@@ -197,12 +189,12 @@ public class RegisterActivity extends AppCompatActivity {
     /**
      * 从后台中验证用户输入信息是否有误
      */
-    private void saveUserInfo(final UserDTO userDTO) {
+    private void updatePassword(final UserDTO userDTO) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 Message message = new Message();
-                String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/user/register";
+                String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/user/updatePassword";
                 String json=JSON.toJSONString(userDTO);
                 try {
                     message.obj = OkHttpRequest.post(requestUrl,json);

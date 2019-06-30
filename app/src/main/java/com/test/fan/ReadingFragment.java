@@ -1,7 +1,5 @@
 package com.test.fan;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -24,7 +22,7 @@ import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.test.adapter.ReadingsRecycleAdapter;
-import com.test.model.Readings;
+import com.test.model.entity.Readings;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

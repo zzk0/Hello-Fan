@@ -2,7 +2,7 @@
 手势二维点。
 */
 
-package com.test.model;
+package com.test.model.entity;
 
 public class GPoint2D {
     public float x;

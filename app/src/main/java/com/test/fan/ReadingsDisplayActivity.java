@@ -18,11 +18,10 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.test.model.Readings;
+import com.test.model.entity.Readings;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

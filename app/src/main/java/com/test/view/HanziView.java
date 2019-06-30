@@ -7,8 +7,8 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-import com.test.model.GPoint2D;
-import com.test.model.Hanzi;
+import com.test.model.entity.GPoint2D;
+import com.test.model.entity.Hanzi;
 
 import java.util.ArrayList;
 import java.util.List;

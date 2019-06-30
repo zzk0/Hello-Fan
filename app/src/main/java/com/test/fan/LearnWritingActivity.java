@@ -14,13 +14,11 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.test.algorithm.Schedule;
-import com.test.model.Tuple;
+import com.test.model.entity.Tuple;
 import com.test.util.SQLdm;
 import com.test.view.HanziView;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 

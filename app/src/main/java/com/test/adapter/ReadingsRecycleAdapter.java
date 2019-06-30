@@ -9,14 +9,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.test.fan.R;
 import com.test.fan.ReadingsDisplayActivity;
-import com.test.model.Readings;
+import com.test.model.entity.Readings;
 
 import java.util.HashSet;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.test.model;
+package com.test.model.entity;
 
 public class Tuple<A, B, C> {
 
