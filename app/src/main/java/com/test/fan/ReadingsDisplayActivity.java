@@ -1,34 +1,39 @@
 package com.test.fan;
 import android.app.Dialog;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.test.model.entity.Readings;
+import com.test.util.DBHelper;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.IOException;
 
 public class ReadingsDisplayActivity extends AppCompatActivity {
+    private Toolbar toolbar;
     private View toast_view;
     private Dialog mBottomDialog;
     private Handler handler;
@@ -38,23 +43,20 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
     private TextView content_tv;
     private TextView group_tv;
     private TextView date_tv;
-    private View view;
+    private View dialog_view;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_readingsdisplay);
         toast_view=View.inflate(this,R.layout.toast_view,null);
+        toolbar=(Toolbar)findViewById(R.id.toolbar);
         title_tv =(TextView)findViewById(R.id.title);
         content_tv =(TextView)findViewById(R.id.content);
         imageView=(ImageView)findViewById(R.id.imageView);
         group_tv=(TextView)findViewById(R.id.group);
         date_tv=(TextView)findViewById(R.id.date);
         readings =(Readings) getIntent().getSerializableExtra("readings");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        System.out.println(readings.getUrl());
         initDisplay();
-
     }
     private void setGetWordListener()
     {
@@ -67,7 +69,7 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
                 @Override
                 public void updateDrawState(TextPaint ds) {
                     super.updateDrawState(ds);
-                    ds.setColor(0xff000000);       //设置字体颜色
+                    ds.setColor(Color.BLACK);       //设置字体颜色
                     ds.setUnderlineText(false);      //设置下划线
                 }
             },i,i+1, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
@@ -84,14 +86,21 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
                 //若tv.getSelectionStart()-1,则输出点击的文字以及其上一个文字
                 //若tv.getSelectionEnd()+1,则输出点击的文字以及其下一个文字，如此类推
                 //通过标点判断还可截取一段文字中我们所点击的那句话
-                TextView tv = (TextView) v;
-                String s = tv
+                String s = content_tv
                         .getText()
-                        .subSequence(tv.getSelectionStart()-1,
-                                tv.getSelectionEnd()).toString();
+                        .subSequence(content_tv.getSelectionStart()-1,
+                                content_tv.getSelectionEnd()).toString();
+                String[] ss=getWordInfo(s);
+                if(s.replace((char)12288+"","").trim().equals("")||ss[1].equals(""))return;
                 if(mBottomDialog==null)
                     initBottomDialog();
-                updateDate(s);
+                TextView word_tv,express_tv,spell_tv;
+                word_tv=(TextView) dialog_view.findViewById(R.id.word);
+                express_tv=(TextView) dialog_view.findViewById(R.id.word_express);
+                spell_tv=(TextView)dialog_view.findViewById(R.id.spell);
+                word_tv.setText(s);
+                express_tv.setText((ss[0].equals("") ? s : ss[0]) + "  (" + ss[2] + ")");
+                spell_tv.setText("/\' " + ss[1] + " \'/");
                 if(!mBottomDialog.isShowing())
                     mBottomDialog.show();
             }
@@ -104,16 +113,19 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
             group_tv.setText(readings.getGroup()+"    ");
         date_tv.setText(readings.getDate());
         title_tv.setText(readings.getTitle());
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mBottomDialog!=null)
+                    mBottomDialog.dismiss();
+                finish();
+            }
+        });
         if(!readings.getImg_url().equals(""))
         {
             Glide.with(this).load(readings.getImg_url()).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into( imageView );
         }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                getReadingsContent(readings.getUrl());
-            }
-        }).start();
+        getReadingsContent(readings.getUrl());
         handler=new Handler() {
             public void handleMessage(Message msg) {
                 if (msg.what == 1) {
@@ -121,6 +133,82 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
                 }
             }
         };
+    }
+
+    private void getReadingsContent( final String content_url)
+    {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Document content = Jsoup.connect(content_url).get();
+                    String s=content.select("div.TRS_Editor>p[align=justify],div.TRS_Editor>div>p[align=justify]").text();
+                    if(s.equals(""))
+                        s=content.select("div.TRS_Editor>p,div.TRS_Editor>div>p").text();
+                    s=s.replace(" 　　","\n 　　");
+                    readings.setContent(s);
+                    Message msg=new Message();
+                    msg.what = 1;
+                    handler.sendMessage(msg);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+    }
+    /**
+     * 初始化分享弹出框
+     */
+    private void initBottomDialog() {
+        mBottomDialog = new Dialog(this, R.style.dialog_bottom_full);
+        mBottomDialog.setCanceledOnTouchOutside(false);
+        Window window = mBottomDialog.getWindow();
+        //设置Dialog外窗口可以点击
+        WindowManager.LayoutParams layoutParams = window.getAttributes();
+        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;//核心
+        window.setAttributes(layoutParams);
+        window.setDimAmount(0f);
+        window.setGravity(Gravity.BOTTOM);
+        window.setWindowAnimations(R.style.share_animation);
+        dialog_view = View.inflate(this, R.layout.dialog_fan, null);
+        dialog_view.findViewById(R.id.tv_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mBottomDialog != null && mBottomDialog.isShowing()) {
+                    mBottomDialog.dismiss();
+                }
+            }
+        });
+        final Context context=this;
+        dialog_view.findViewById(R.id.collect_tv).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showToast("已成功收藏");
+            }
+        });
+        window.setContentView(dialog_view);
+        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);//设置横向全屏
+    }
+    private String[] getWordInfo(String s)
+    {
+        DBHelper dbHelper=new DBHelper(this);
+        SQLiteDatabase sqLiteDatabase=dbHelper.getReadableDatabase();
+        Cursor words_cursor = sqLiteDatabase.rawQuery("select simplified from words where traditional=\'"+s+"\'",null);
+        Cursor dict_cursor=sqLiteDatabase.rawQuery("select spell,express from dict where words=\'"+s+"\'",null);
+        String traditional="";
+        String spell="";
+        String express="";
+        while (words_cursor.moveToNext()) {
+            traditional = words_cursor.getString(words_cursor.getColumnIndex("simplified"));
+        }
+        while (dict_cursor.moveToNext()) {
+            spell = dict_cursor.getString(dict_cursor.getColumnIndex("spell"));
+            express = dict_cursor.getString(dict_cursor.getColumnIndex("express"));
+        }
+        System.out.println(traditional);
+        return new String[]{traditional,spell,express};
+
     }
     private void showToast(String s)
     {
@@ -131,68 +219,5 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
         toast.setGravity(Gravity.BOTTOM,0,75);
         toast.show();
     }
-    private void getReadingsContent( String content_url)
-    {
 
-                Document content= null;
-                try {
-                    content = Jsoup.connect(content_url).get();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                String s=content.select("div.TRS_Editor>p[align=justify],div.TRS_Editor>div>p[align=justify]").text();
-                if(s.equals(""))
-                    s=content.select("div.TRS_Editor>p,div.TRS_Editor>div>p").text();
-                s=s.replace(" 　　","\n 　　");
-                readings.setContent(s);
-                Message msg=new Message();
-                msg.what = 1;
-                handler.sendMessage(msg);
-    }
-    /**
-     * 显示分享弹出框
-     */
-    private void updateDate(String s)
-    {
-        TextView word_tv=(TextView)view.findViewById(R.id.word);
-        TextView info_tv=(TextView)view.findViewById(R.id.word_info);
-        word_tv.setText(s);
-        info_tv.setText(s);
-    }
-    /**
-     * 初始化分享弹出框
-     */
-
-    private void initBottomDialog() {
-        mBottomDialog = new Dialog(this, R.style.dialog_bottom_full);
-        mBottomDialog.setCanceledOnTouchOutside(false);
-        Window window = mBottomDialog.getWindow();
-        window.setGravity(Gravity.BOTTOM);
-        window.setWindowAnimations(R.style.share_animation);
-        view = View.inflate(this, R.layout.dialog_fan, null);
-        view.findViewById(R.id.tv_cancel).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mBottomDialog != null && mBottomDialog.isShowing()) {
-                    mBottomDialog.dismiss();
-                }
-            }
-        });
-        final Context context=this;
-        view.findViewById(R.id.collect_tv).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showToast("已成功收藏");
-            }
-        });
-        window.setContentView(view);
-        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);//设置横向全屏
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        finish();
-        return super.onOptionsItemSelected(item);
-    }
 }
