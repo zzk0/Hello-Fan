@@ -1,8 +1,7 @@
 package com.test.algorithm;
 
-import com.test.model.GPoint2D;
+import com.test.model.entity.GPoint2D;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class EuclideanShapeMatcher extends ShapeMatcher {

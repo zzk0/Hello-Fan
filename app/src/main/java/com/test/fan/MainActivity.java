@@ -1,51 +1,64 @@
 package com.test.fan;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Application;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Shader;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
+import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
+
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
     private List<Fragment> fragments;
     private int prePos;
 
     // Constant
-    private static final String[] TAGS = {"home", "s2t", "reading", "history", "setting"};
+    private static final String[] TAGS = {"home", "s2t", "reading", "history"};
     private static final String PRE = "PREPOS";
     private static final int HOME = 0;
     private static final int S2T = 1;
     private static final int READING = 2;
     private static final int HISTORY = 3;
-    private static final int SETTING = 4;
     private static final int READ_WRITE_PERM = 2333;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        //判断是否已经登录过
+        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
+        boolean isSignedIn = sp.getBoolean("isSignedIn", false);
+        if(!isSignedIn)
+        {
+            goToLoginActivity();
+            return;
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -82,7 +95,6 @@ public class MainActivity extends AppCompatActivity
                 fragments.add(new S2TFragment());
                 fragments.add(new ReadingFragment());
                 fragments.add(new HistoryFragment());
-                fragments.add(new SettingFragment());
             }
             else {
                 prePos = savedInstanceState.getInt(PRE);
@@ -91,15 +103,19 @@ public class MainActivity extends AppCompatActivity
                 S2TFragment s2TFragment = (S2TFragment) getSupportFragmentManager().findFragmentByTag(TAGS[S2T]);
                 ReadingFragment readingFragment = (ReadingFragment) getSupportFragmentManager().findFragmentByTag(TAGS[READING]);
                 HistoryFragment historyFragment = (HistoryFragment) getSupportFragmentManager().findFragmentByTag(TAGS[HISTORY]);
-                SettingFragment settingFragment = (SettingFragment) getSupportFragmentManager().findFragmentByTag(TAGS[SETTING]);
                 fragments.add(homeFragment);
                 fragments.add(s2TFragment);
                 fragments.add(readingFragment);
                 fragments.add(historyFragment);
-                fragments.add(settingFragment);
             }
             setDefaultFragment(prePos);
         }
+        updateDrawerInfo();
+    }
+
+    private void goToLoginActivity() {
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
     }
 
     @Override
@@ -112,14 +128,12 @@ public class MainActivity extends AppCompatActivity
                     break;
                 }
             }
-
             if (granted) {
                 fragments = new ArrayList<>();
                 fragments.add(new HomeFragment());
                 fragments.add(new S2TFragment());
                 fragments.add(new ReadingFragment());
                 fragments.add(new HistoryFragment());
-                fragments.add(new SettingFragment());
                 setDefaultFragment(HOME);
             }
             else {
@@ -188,7 +202,8 @@ public class MainActivity extends AppCompatActivity
             switchFragment(HISTORY);
         }
         else if (id == R.id.nav_setting) {
-            switchFragment(SETTING);
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -223,5 +238,49 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction().add(R.id.frameLayout, currentFragment, TAGS[pos]).commit();
         }
         prePos = pos;
+    }
+
+    private void updateDrawerInfo() {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        View headerView = navigationView.getHeaderView(0);
+        ImageView iconImageView = headerView.findViewById(R.id.iconImageView);
+        TextView nicknameTextView = headerView.findViewById(R.id.nicknameTextView);
+        Picasso.get().load("https://avatars3.githubusercontent.com/u/30856589?s=460&v=4").transform(new CircleTransform()).into(iconImageView);
+        nicknameTextView.setText("你好繁");
+    }
+
+    public class CircleTransform implements Transformation {
+        @Override
+        public Bitmap transform(Bitmap source) {
+            int size = Math.min(source.getWidth(), source.getHeight());
+
+            int x = (source.getWidth() - size) / 2;
+            int y = (source.getHeight() - size) / 2;
+
+            Bitmap squaredBitmap = Bitmap.createBitmap(source, x, y, size, size);
+            if (squaredBitmap != source) {
+                source.recycle();
+            }
+
+            Bitmap bitmap = Bitmap.createBitmap(size, size, source.getConfig());
+
+            Canvas canvas = new Canvas(bitmap);
+            Paint paint = new Paint();
+            BitmapShader shader = new BitmapShader(squaredBitmap,
+                    Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+            paint.setShader(shader);
+            paint.setAntiAlias(true);
+
+            float r = size / 2f;
+            canvas.drawCircle(r, r, r, paint);
+
+            squaredBitmap.recycle();
+            return bitmap;
+        }
+
+        @Override
+        public String key() {
+            return "circle";
+        }
     }
 }

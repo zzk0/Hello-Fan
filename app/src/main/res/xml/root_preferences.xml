@@ -1,0 +1,53 @@
+<!--
+  ~ Copyright 2018 The app Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/info_header">
+
+        <Preference
+            app:key="userInfo"
+            app:title="个人信息"/>
+
+        <Preference
+            app:key="cleanDate"
+            app:title="清理所有数据!"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/study_header">
+
+        <EditTextPreference
+            app:key="wordsPerDay"
+            app:title="每日新词数目"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreferenceCompat
+            app:key="review"
+            app:title="开启繁体字复习"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/sync_header">
+
+        <Preference
+            app:key="sync"
+            app:title="立即同步"
+            app:summary="同步繁体字学习进度，同步一简对多繁学习进度"/>
+
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

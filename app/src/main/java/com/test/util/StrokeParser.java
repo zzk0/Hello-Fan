@@ -9,7 +9,7 @@ package com.test.util;
 
 import android.graphics.Path;
 
-import com.test.model.GPoint2D;
+import com.test.model.entity.GPoint2D;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
