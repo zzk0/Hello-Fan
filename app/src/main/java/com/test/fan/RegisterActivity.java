@@ -34,6 +34,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText et_user_name, et_psw, et_psw_again, et_phone_num, et_verify_code;
     private String userName, password, pswAgain, code;
     private String phoneNum;
+    private Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,16 @@ public class RegisterActivity extends AppCompatActivity {
         //设置此界面为竖屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         init();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+        }
     }
 
     /**
@@ -154,7 +165,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         };
         //设置计时120s
-        Timer timer = new Timer();
+        timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             int time = 60;
 

@@ -34,6 +34,7 @@ public class FindLostActivity extends AppCompatActivity {
     private EditText  et_new_psw, et_new_psw_again, et_phone_num, et_verify_code;
     private String newPsw, newPswAgain, code;
     private String phoneNum;
+    private Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,16 @@ public class FindLostActivity extends AppCompatActivity {
         //设置此界面为竖屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         init();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+        }
     }
 
     /**
@@ -146,7 +157,7 @@ public class FindLostActivity extends AppCompatActivity {
             }
         };
         //设置计时120s
-        Timer timer = new Timer();
+        timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             int time = 60;
 
