@@ -35,6 +35,12 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
         init(context);
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        cleanCharacter();
+        super.onDetachedFromWindow();
+    }
+
     private void init(Context context) {
         hanzi = new Hanzi(context.getApplicationContext());
         wrongTimes = 0;
@@ -118,7 +124,7 @@ public class HanziView extends GestureOverlayView implements GestureOverlayView.
     public void setCharacter(String word) {
         int mWidth = this.getMeasuredWidth();
         if (hanzi == null) {
-            hanzi = new Hanzi(getContext());
+            hanzi = new Hanzi(getContext().getApplicationContext());
         }
         hanzi.setCharacter(this, word, mWidth);
     }
