@@ -13,7 +13,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.test.model.ReviewItem;
+import com.test.model.entity.ReviewItem;
 import com.test.util.SQLdm;
 
 import java.text.SimpleDateFormat;
