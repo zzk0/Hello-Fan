@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/text_white"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/rank"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_centerVertical="true"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
@@ -23,7 +23,7 @@
     <TextView
         android:id="@+id/tv_date"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_centerVertical="true"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
@@ -33,11 +33,12 @@
         app:layout_constraintStart_toEndOf="@+id/rank"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ListView
+    <com.test.view.NestListView
         android:id="@+id/lv_today_study"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_marginTop="8dp"
+        android:focusable="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_date" />
