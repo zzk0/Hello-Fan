@@ -42,7 +42,9 @@ public class SearchActivity extends Activity {
     //控件：搜索栏、搜索结果
     FloatingSearchView searchView;
     boolean isHistory=true;
+
     //数据库
+    private DBHelper dbHelper;
     private SQLiteDatabase db;
     //存放查询结果的list
     List<DictBean> list;
@@ -52,15 +54,26 @@ public class SearchActivity extends Activity {
         setContentView(R.layout.activity_search);
 
         //获得数据库
+
         try {
-            SQLdm sqLdm = new SQLdm();
-            db = sqLdm.openDataBase(getApplicationContext());
+            SQLdm sqLdm=new SQLdm();
+            db= sqLdm.openDataBase(this);
+//            dbHelper=new DBHelper(this);
+//            db=dbHelper.getWritableDatabase();
+//            db.execSQL("create table if not exists DictHistory(" +
+//                    "ID integer primary key autoincrement" +
+//                    ",words  VARCHAR"+
+//                    ",spell TEXT"+
+//                    ",express VARCHAR"+
+//                    ")");
+//            db.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        searchView = (FloatingSearchView) findViewById(R.id.floating_search_view);
+        searchView=(FloatingSearchView)findViewById(R.id.floating_search_view);
         searchView.setSearchFocusable(true);
+        dbHelper=new DBHelper(this);
 
         //第一次聚焦到搜索框的时候，显示搜索历史
         setOnFocusChangeListener();
@@ -74,17 +87,6 @@ public class SearchActivity extends Activity {
         //搜索结果
         setOnBindSuggestionCallback();
 
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (db != null) {
-            db.close();
-            db = null;
-        }
     }
 
     /*
@@ -114,6 +116,11 @@ public class SearchActivity extends Activity {
                     suggestionView.setOnClickListener(new View.OnClickListener(){
                         @Override
                         public void onClick(View v) {
+                            SQLdm sqLdm=new SQLdm();
+                            db= sqLdm.openDataBase(SearchActivity.this);
+//                            db=dbHelper.getWritableDatabase();
+//                            db.execSQL("delete from DictHistory");
+                            db.close();
                             searchView.swapSuggestions(new ArrayList());
                         }
                     });
@@ -170,7 +177,10 @@ public class SearchActivity extends Activity {
                 new FloatingSearchView.OnHomeActionClickListener() {
                     @Override
                     public void onHomeClicked() {
+                        //db.close();
                         finish();
+//                        Intent intent = new Intent(SearchActivity.this,MainActivity.class);
+//                        startActivity(intent);
                     }
                 });
     }
@@ -188,18 +198,7 @@ public class SearchActivity extends Activity {
                 }
                 else {
                     isHistory=false;
-
-                    // 如果输入的字是简体字，那么根据简体字去查找繁体字。
-                    Cursor cursor = db.rawQuery("select * from words where simplified = '" + newQuery + "'", null);
-                    if (cursor.moveToFirst()) {
-                        String traditional = cursor.getString(cursor.getColumnIndex("traditional"));
-                        cursor.close();
-                        showSearchResult("where words like '"+newQuery+"%' or words like '"+ traditional +"%' ","dict","length(words)");
-                    }
-                    else {
-                        showSearchResult("where words like '"+newQuery+"%' ","dict","length(words)");
-                    }
-
+                    showSearchResult("where words like '"+newQuery+"%' ","dict","length(words)");
                 }
             }
         });
@@ -211,6 +210,11 @@ public class SearchActivity extends Activity {
      */
     public void showSearchResult(String query,String dbname,String sort){
         list=new ArrayList<>();
+        SQLdm sqLdm=new SQLdm();
+        db= sqLdm.openDataBase(SearchActivity.this);
+        //db=dbHelper.getReadableDatabase();
+
+        String sql = "select * from "+dbname+" "+query+" order by "+sort;
 
         Cursor cursor=db.rawQuery(
                 "select * from "+dbname+" "+query+" order by "+sort, null);
@@ -227,6 +231,7 @@ public class SearchActivity extends Activity {
         list.add(new DictBean("点击清除历史",null,null));
         //关闭查询
         cursor.close();
+        db.close();
         searchView.swapSuggestions(list);
     }
 
@@ -234,19 +239,22 @@ public class SearchActivity extends Activity {
     *添加一条历史纪录
      */
     public void insertHistory(DictBean dictBean) {
-       try{
-           db.execSQL("delete from DictHistory where words='"+dictBean.getWords()+"'");
-       }
-       catch(Exception e){
+        SQLdm sqLdm=new SQLdm();
+        db= sqLdm.openDataBase(SearchActivity.this);
+        //db=dbHelper.getWritableDatabase();
+               try{
+            db.execSQL("delete from DictHistory where words='"+dictBean.getWords()+"'");
+        }
+        catch(Exception e){
 
-       }
-       finally {
+        }finally {
             ContentValues contentValues=new ContentValues();
             contentValues.put("words",dictBean.getWords());
             contentValues.put("spell",dictBean.getSpell());
             contentValues.put("express",dictBean.getExpress());
             long id=db.insert("DictHistory",null,contentValues);
-       }
+            db.close();
+        }
     }
     /*
     *第一次点击搜索框的，显示搜索历史
@@ -262,5 +270,41 @@ public class SearchActivity extends Activity {
             public void onFocusCleared() { }
         });
     }
+
+    /*
+    *下面两个都是申请文件读写权限的，应该用不上了
+     */
+    public void requestPower() {
+        //判断是否已经赋予权限
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PERMISSION_GRANTED) {
+            //如果应用之前请求过此权限但用户拒绝了请求，此方法将返回 true。
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {//这里可以写个对话框之类的项向用户解释为什么要申请权限，并在对话框的确认键后续再次申请权限.它在用户选择"不再询问"的情况下返回false
+            } else {
+                //申请权限，字符串数组内是一个或多个要申请的权限，1是申请权限结果的返回参数，在onRequestPermissionsResult可以得知申请结果
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,}, 1);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 1) {
+            for (int i = 0; i < permissions.length; i++) {
+                if (grantResults[i] == PERMISSION_GRANTED) {
+                    Toast.makeText(this, "" + "权限" + permissions[i] + "申请成功", Toast.LENGTH_SHORT).show();
+
+                } else {
+                    Toast.makeText(this, "" + "权限" + permissions[i] + "申请失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
 
 }
