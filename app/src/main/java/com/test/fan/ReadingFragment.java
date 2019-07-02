@@ -72,6 +72,8 @@ public class ReadingFragment extends Fragment {
         setRecyclerViewRefreshListener();
         setRecyclerViewLoadMoreListener();
         adapter = new ReadingsRecycleAdapter(getContext(), readingsList);
+        loading.setVisibility(View.VISIBLE);
+        loading.setText("加载中...");
         handler=new Handler() {
             public void handleMessage(Message msg) {
                 if (msg.what == 1) {
@@ -121,6 +123,8 @@ public class ReadingFragment extends Fragment {
                     index=0;
                     currentUrl=map.get(tv);
                     final List<Readings> newReadingsList=new ArrayList<>();
+                    loading.setVisibility(View.VISIBLE);
+                    loading.setText("加载中...");
                     handler=new Handler() {
                         public void handleMessage(Message msg) {
                             if (msg.what == 1) {
@@ -161,16 +165,6 @@ public class ReadingFragment extends Fragment {
                             refreshlayout.finishRefresh();
                             loading.setVisibility(View.INVISIBLE);
                             showToast("已为你推荐了10条更新");
-
-                        }
-                        if(msg.what==2)
-                        {
-                            loading.setText("网络连接超时(；′⌒`)");
-                        }
-                        if(msg.what==3)
-                        {
-
-                            loading.setText("加载失败(；′⌒`)");
                         }
                         msg.what=0;
                     }
@@ -194,14 +188,6 @@ public class ReadingFragment extends Fragment {
                             loading.setVisibility(View.INVISIBLE);
                             refreshlayout.finishLoadmore();
                         }
-                        if(msg.what==2)
-                        {
-                            loading.setText("网络连接超时(；′⌒`)");
-                        }
-                        if(msg.what==3)
-                        {
-                            loading.setText("加载失败(；′⌒`)");
-                        }
                         msg.what=0;
                     }
                 };
@@ -219,8 +205,6 @@ public class ReadingFragment extends Fragment {
         toast.show();
     }
     private void getReadingsInfoToList(final List<Readings> readingsList){
-        loading.setVisibility(View.VISIBLE);
-        loading.setText("加载中...");
         new Thread(new Runnable() {
             @Override
             public void run() {
