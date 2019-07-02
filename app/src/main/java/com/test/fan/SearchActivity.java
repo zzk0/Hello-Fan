@@ -57,7 +57,6 @@ public class SearchActivity extends Activity {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        list = new ArrayList<>();
         searchView=(FloatingSearchView)findViewById(R.id.floating_search_view);
         searchView.setSearchFocusable(true);
 
@@ -197,6 +196,7 @@ public class SearchActivity extends Activity {
     * @Param query 查询条件
      */
     public void showSearchResult(String query,String dbname,String sort){
+        list = new ArrayList<>();
         String sql = "select * from "+dbname+" "+query+" order by "+sort;
 
         Cursor cursor=db.rawQuery(

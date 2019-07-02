@@ -12,7 +12,7 @@
 - [ ] 各个UI的美化
 - [ ] 写后端。加入用户管理。涉及的最主要问题在于数据同步。学习进度的同步，设置选项的同步，历史收藏的同步。主要难点在数据格式的设计。由此，还多了诸如登录注册功能。注销重新登录等诸多功能。新闻的收藏，又涉及服务器要保存新闻，客户端要展示用户收藏的内容。
 - [ ] 同时支持用户名/手机号登录。使用过程中，忘记了用户名，根本没法登录了呀。
-- [ ] 想办法解决学习数据同步的问题。
+- [ ] 想办法解决学习数据同步的问题，主要问题在于如何设计数据格式，如何让前端生成这个格式，后端解析这个格式。
 
 文档：
 - [ ] 项目文档，包括公共的工具类的使用方法
@@ -42,6 +42,26 @@ bug：
 
 举个例子：公共的SQLdm这个类，就使用getApplication()，因为不涉及UI。构建AlertDialog，就使用this来获取context。
 
+# 关于SQLiteDatabase.close()方法
+
+文档中对方法的说明，简单理解就是，调用这个方法释放资源。
+Releases a reference to the object, closing the object if the last reference was released. Calling this method is equivalent to calling releaseReference().
+
+调用的时机，以下博文建议是在onDestroy中。
+http://blog.sina.com.cn/s/blog_5de73d0b0102w0g0.html
+
+# 关于测试
+
+测试的目的主要是项目代码质量的把控。
+
+1. 测试界面。主要测试是否因为耗时操作造成界面的卡顿，是否存在闪退。
+2. 算法测试。测试算法是否满足项目的需求。
+3. 其他。比如内存泄漏的问题。
+
+https://blog.csdn.net/lmj623565791/article/details/79623159
+https://juejin.im/post/5b57e3fbf265da0f47352618
+https://developer.android.com/studio/test?hl=zh-CN
+
 # 数据库说明
 
 获取一个SQLiteDatabase的对象，具体看这个文件
@@ -68,3 +88,22 @@ https://github.com/zhouzekai/Hello-Fan/blob/master/app/src/main/java/com/test/ut
 ## s2taW表
 
 ![](img/db_s2aw.png)
+
+# 关于SharedPreferences的使用
+
+安卓开发中使用SharedPreferences来做少量的数据存储。
+
+!! 切记，请不要存储大量数据到SharePreferences中。
+
+为了避免使用过程中引起冲突，下面统一说明SharedPreferences的使用。
+
+## fan_data
+
+键名 | 样例 | 说明
+---- | --- | ---
+last_learn_date | 2019-6-30 | 存储上一次学习的时间，作用是判断是否需要开始安排新的一天
+current_word | 10 | 存储currentWord。在同一天，如果在LearnWritingActivity退出，再重新点进来，应该继续上一次的学习进度
+today_words | 優优3償偿3儲储3... | 今天的学习任务。如果凑不到指定的数目，就从数据库中取。每次结束学习的时候，会根据学习情况更新这个键值。
+
+## setting
+flag | 不详 | 不详
