@@ -50,14 +50,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //判断是否已经登录过
-        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
-        boolean isSignedIn = sp.getBoolean("isSignedIn", false);
-        if(!isSignedIn)
-        {
-            goToLoginActivity();
-            return;
-        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // 设置ToolBar
@@ -109,6 +101,13 @@ public class MainActivity extends AppCompatActivity
             setDefaultFragment(prePos);
         }
         updateDrawerInfo();
+        //判断是否已经登录过
+        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
+        boolean isSignedIn = sp.getBoolean("isSignedIn", false);
+        if(!isSignedIn)
+        {
+            goToLoginActivity();
+        }
     }
 
     private void goToLoginActivity() {

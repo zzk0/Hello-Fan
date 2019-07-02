@@ -19,7 +19,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -28,12 +27,12 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.test.model.entity.Readings;
 import com.test.util.DBHelper;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 
 public class ReadingsDisplayActivity extends AppCompatActivity {
-    private Toolbar toolbar;
     private View toast_view;
     private Dialog mBottomDialog;
     private Handler handler;
@@ -49,7 +48,6 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_readingsdisplay);
         toast_view=View.inflate(this,R.layout.toast_view,null);
-        toolbar=(Toolbar)findViewById(R.id.toolbar);
         title_tv =(TextView)findViewById(R.id.title);
         content_tv =(TextView)findViewById(R.id.content);
         imageView=(ImageView)findViewById(R.id.imageView);
@@ -113,19 +111,10 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
             group_tv.setText(readings.getGroup()+"    ");
         date_tv.setText(readings.getDate());
         title_tv.setText(readings.getTitle());
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(mBottomDialog!=null)
-                    mBottomDialog.dismiss();
-                finish();
-            }
-        });
         if(!readings.getImg_url().equals(""))
         {
             Glide.with(this).load(readings.getImg_url()).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into( imageView );
         }
-        getReadingsContent(readings.getUrl());
         handler=new Handler() {
             public void handleMessage(Message msg) {
                 if (msg.what == 1) {
@@ -133,6 +122,7 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
                 }
             }
         };
+        getReadingsContent(readings.getUrl());
     }
 
     private void getReadingsContent( final String content_url)
@@ -141,7 +131,9 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    Document content = Jsoup.connect(content_url).get();
+                    Connection conn = Jsoup.connect(content_url);
+                    conn.userAgent("Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50");
+                    Document content = conn.get();
                     String s=content.select("div.TRS_Editor>p[align=justify],div.TRS_Editor>div>p[align=justify]").text();
                     if(s.equals(""))
                         s=content.select("div.TRS_Editor>p,div.TRS_Editor>div>p").text();
