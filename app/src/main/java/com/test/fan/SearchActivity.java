@@ -42,7 +42,6 @@ public class SearchActivity extends Activity {
     boolean isHistory=true;
 
     //数据库
-    private DBHelper dbHelper;
     private SQLiteDatabase db;
     //存放查询结果的list
     List<DictBean> list;
@@ -54,23 +53,12 @@ public class SearchActivity extends Activity {
         //获得数据库
 
         try {
-            db=new SQLdm().openDataBase(this);
-//            dbHelper=new DBHelper(this);
-//            db=dbHelper.getWritableDatabase();
-//            db.execSQL("create table if not exists DictHistory(" +
-//                    "ID integer primary key autoincrement" +
-//                    ",words  VARCHAR"+
-//                    ",spell TEXT"+
-//                    ",express VARCHAR"+
-//                    ")");
-//            db.close();
+            db = new SQLdm().openDataBase(getApplicationContext());
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         searchView=(FloatingSearchView)findViewById(R.id.floating_search_view);
         searchView.setSearchFocusable(true);
-        dbHelper=new DBHelper(this);
 
         //第一次聚焦到搜索框的时候，显示搜索历史
         setOnFocusChangeListener();
@@ -84,6 +72,16 @@ public class SearchActivity extends Activity {
         //搜索结果
         setOnBindSuggestionCallback();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (db != null) {
+            db.close();
+            db = null;
+        }
     }
 
     /*
@@ -113,10 +111,6 @@ public class SearchActivity extends Activity {
                     suggestionView.setOnClickListener(new View.OnClickListener(){
                         @Override
                         public void onClick(View v) {
-                            db=new SQLdm().openDataBase(SearchActivity.this);
-//                            db=dbHelper.getWritableDatabase();
-//                            db.execSQL("delete from DictHistory");
-                            db.close();
                             searchView.swapSuggestions(new ArrayList());
                         }
                     });
@@ -173,10 +167,7 @@ public class SearchActivity extends Activity {
                 new FloatingSearchView.OnHomeActionClickListener() {
                     @Override
                     public void onHomeClicked() {
-                        //db.close();
                         finish();
-//                        Intent intent = new Intent(SearchActivity.this,MainActivity.class);
-//                        startActivity(intent);
                     }
                 });
     }
@@ -205,10 +196,7 @@ public class SearchActivity extends Activity {
     * @Param query 查询条件
      */
     public void showSearchResult(String query,String dbname,String sort){
-        list=new ArrayList<>();
-        db=new SQLdm().openDataBase(SearchActivity.this);
-        //db=dbHelper.getReadableDatabase();
-
+        list = new ArrayList<>();
         String sql = "select * from "+dbname+" "+query+" order by "+sort;
 
         Cursor cursor=db.rawQuery(
@@ -226,7 +214,6 @@ public class SearchActivity extends Activity {
         list.add(new DictBean("点击清除历史",null,null));
         //关闭查询
         cursor.close();
-        db.close();
         searchView.swapSuggestions(list);
     }
 
@@ -234,9 +221,7 @@ public class SearchActivity extends Activity {
     *添加一条历史纪录
      */
     public void insertHistory(DictBean dictBean) {
-        db=new SQLdm().openDataBase(SearchActivity.this);
-
-               try{
+        try{
             db.execSQL("delete from DictHistory where words='"+dictBean.getWords()+"'");
         }
         catch(Exception e){
@@ -247,7 +232,6 @@ public class SearchActivity extends Activity {
             contentValues.put("spell",dictBean.getSpell());
             contentValues.put("express",dictBean.getExpress());
             long id=db.insert("DictHistory",null,contentValues);
-            db.close();
         }
     }
     /*
@@ -272,7 +256,6 @@ public class SearchActivity extends Activity {
      * @return
      */
     private String transToTrad(String simp) {
-        db=new SQLdm().openDataBase(SearchActivity.this);
         String sql = "select traditional from words where simplified=?";
         String traditional=new String();
         for(int i=0;i<simp.length();i++){
@@ -280,15 +263,14 @@ public class SearchActivity extends Activity {
                     sql, new String[]{simp.charAt(i)+""});
             if (cursor.moveToNext()) {
                 String now= cursor.getString(cursor.getColumnIndex("traditional"));
-                System.out.println("搜索变繁体：cursor.now"+now);
-                    traditional+=now;
+                // System.out.println("搜索变繁体：cursor.now"+now);
+                traditional+=now;
             }
             else
                 traditional+=simp.charAt(i);
             cursor.close();
         }
-        db.close();
-        System.out.println("搜索变繁体："+traditional);
+        // System.out.println("搜索变繁体："+traditional);
         return traditional;
     }
 
