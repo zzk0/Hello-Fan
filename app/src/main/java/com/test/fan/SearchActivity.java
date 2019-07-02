@@ -13,8 +13,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
@@ -56,8 +54,7 @@ public class SearchActivity extends Activity {
         //获得数据库
 
         try {
-            SQLdm sqLdm=new SQLdm();
-            db= sqLdm.openDataBase(this);
+            db=new SQLdm().openDataBase(this);
 //            dbHelper=new DBHelper(this);
 //            db=dbHelper.getWritableDatabase();
 //            db.execSQL("create table if not exists DictHistory(" +
@@ -116,8 +113,7 @@ public class SearchActivity extends Activity {
                     suggestionView.setOnClickListener(new View.OnClickListener(){
                         @Override
                         public void onClick(View v) {
-                            SQLdm sqLdm=new SQLdm();
-                            db= sqLdm.openDataBase(SearchActivity.this);
+                            db=new SQLdm().openDataBase(SearchActivity.this);
 //                            db=dbHelper.getWritableDatabase();
 //                            db.execSQL("delete from DictHistory");
                             db.close();
@@ -198,7 +194,7 @@ public class SearchActivity extends Activity {
                 }
                 else {
                     isHistory=false;
-                    showSearchResult("where words like '"+newQuery+"%' ","dict","length(words)");
+                    showSearchResult("where words like '"+transToTrad(newQuery)+"%' ","dict","length(words)");
                 }
             }
         });
@@ -210,14 +206,13 @@ public class SearchActivity extends Activity {
      */
     public void showSearchResult(String query,String dbname,String sort){
         list=new ArrayList<>();
-        SQLdm sqLdm=new SQLdm();
-        db= sqLdm.openDataBase(SearchActivity.this);
+        db=new SQLdm().openDataBase(SearchActivity.this);
         //db=dbHelper.getReadableDatabase();
 
         String sql = "select * from "+dbname+" "+query+" order by "+sort;
 
         Cursor cursor=db.rawQuery(
-                "select * from "+dbname+" "+query+" order by "+sort, null);
+                sql, null);
         //搜索结果对象化为DictBean，存入list
         while (cursor.moveToNext()) {
             DictBean dictBean=new DictBean(
@@ -239,9 +234,8 @@ public class SearchActivity extends Activity {
     *添加一条历史纪录
      */
     public void insertHistory(DictBean dictBean) {
-        SQLdm sqLdm=new SQLdm();
-        db= sqLdm.openDataBase(SearchActivity.this);
-        //db=dbHelper.getWritableDatabase();
+        db=new SQLdm().openDataBase(SearchActivity.this);
+
                try{
             db.execSQL("delete from DictHistory where words='"+dictBean.getWords()+"'");
         }
@@ -271,40 +265,31 @@ public class SearchActivity extends Activity {
         });
     }
 
-    /*
-    *下面两个都是申请文件读写权限的，应该用不上了
+
+    /**
+     * 将一个字符串（不管里面是繁体字，简体字还是繁体简体混杂一起的，全部转为繁体）
+     * @param simp
+     * @return
      */
-    public void requestPower() {
-        //判断是否已经赋予权限
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PERMISSION_GRANTED) {
-            //如果应用之前请求过此权限但用户拒绝了请求，此方法将返回 true。
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {//这里可以写个对话框之类的项向用户解释为什么要申请权限，并在对话框的确认键后续再次申请权限.它在用户选择"不再询问"的情况下返回false
-            } else {
-                //申请权限，字符串数组内是一个或多个要申请的权限，1是申请权限结果的返回参数，在onRequestPermissionsResult可以得知申请结果
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,}, 1);
+    private String transToTrad(String simp) {
+        db=new SQLdm().openDataBase(SearchActivity.this);
+        String sql = "select traditional from words where simplified=?";
+        String traditional=new String();
+        for(int i=0;i<simp.length();i++){
+            Cursor cursor=db.rawQuery(
+                    sql, new String[]{simp.charAt(i)+""});
+            if (cursor.moveToNext()) {
+                String now= cursor.getString(cursor.getColumnIndex("traditional"));
+                System.out.println("搜索变繁体：cursor.now"+now);
+                    traditional+=now;
             }
+            else
+                traditional+=simp.charAt(i);
+            cursor.close();
         }
+        db.close();
+        System.out.println("搜索变繁体："+traditional);
+        return traditional;
     }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == 1) {
-            for (int i = 0; i < permissions.length; i++) {
-                if (grantResults[i] == PERMISSION_GRANTED) {
-                    Toast.makeText(this, "" + "权限" + permissions[i] + "申请成功", Toast.LENGTH_SHORT).show();
-
-                } else {
-                    Toast.makeText(this, "" + "权限" + permissions[i] + "申请失败", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    }
-
 
 }

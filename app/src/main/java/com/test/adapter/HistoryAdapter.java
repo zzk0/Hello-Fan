@@ -25,13 +25,16 @@ public class HistoryAdapter extends BaseAdapter {
 
     List<String> date;
 
-    SQLdm sqLdm;
     SQLiteDatabase sqLiteDatabase;
 
     //显示日期的textview
     TextView textView_date;
-    ListView listView;
+    ListView ListView;
 
+    /**
+     * @param context  context
+     * @param date 一个储存所有非null日期的list,之后listview的每一个item根据对应的list.get(i)获取这个日期下所有学习纪录
+     */
     public HistoryAdapter(Context context, List<String> date) {
         this.context = context;
         this.date=date;
@@ -56,12 +59,12 @@ public class HistoryAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View view=View.inflate(context, R.layout.item_history,null);
         textView_date=(TextView)view.findViewById(R.id.tv_date);
+        //先显示日期，下面的listview再显示详细当天学习纪录
         textView_date.setText(date.get(position));
 
-        sqLdm=new SQLdm();
-        sqLiteDatabase=sqLdm.openDataBase(context);
+        sqLiteDatabase=new SQLdm().openDataBase(context);
 
-        Cursor cursor=sqLiteDatabase.rawQuery("select * from words where traditional= ?",new String[]{date.get(position)});
+        Cursor cursor=sqLiteDatabase.rawQuery("select * from words where learndate= ?",new String[]{date.get(position)});
         List<WordBean> list=new ArrayList<>();
         //搜索结果对象化为WordBean，存入list
         while (cursor.moveToNext()) {
@@ -73,8 +76,8 @@ public class HistoryAdapter extends BaseAdapter {
 
         HistoryItemAdapter historyItemAdapter=new HistoryItemAdapter(context,list);
 
-        listView=(ListView)view.findViewById(R.id.lv_today_study);
-        listView.setAdapter(historyItemAdapter);
+        ListView=(ListView)view.findViewById(R.id.lv_today_study);
+        ListView.setAdapter(historyItemAdapter);
 
         return view;
     }
