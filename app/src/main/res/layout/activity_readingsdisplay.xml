@@ -25,11 +25,11 @@
                 android:layout_weight="1"
                 android:lineSpacingExtra="5dp"
                 android:paddingLeft="15dp"
-                android:paddingTop="20dp"
+                android:paddingTop="10dp"
                 android:paddingRight="15dp"
                 android:textColor="@android:color/background_dark"
                 android:textIsSelectable="true"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
             <LinearLayout
                 android:layout_width="match_parent"
@@ -65,7 +65,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/text_white"
-                android:paddingTop="20dp"
+                android:paddingTop="10dp"
                 app:srcCompat="@color/whitesmoke" />
 
             <TextView
@@ -74,12 +74,13 @@
                 android:layout_height="wrap_content"
                 android:letterSpacing="0.1"
                 android:lineSpacingExtra="10dp"
-                android:paddingLeft="15dp"
+                android:paddingLeft="10dp"
                 android:paddingTop="20dp"
-                android:paddingRight="15dp"
+                android:paddingRight="10dp"
+                android:paddingBottom="30dp"
                 android:textColor="@android:color/black"
                 android:textIsSelectable="true"
-                android:textSize="16sp" />
+                android:textSize="18sp" />
         </LinearLayout>
     </RelativeLayout>
 </ScrollView>

@@ -12,7 +12,7 @@ public class Readings implements Serializable {
     private String content;//内容
     private String img_url;//图片链接
     private String date;
-    public Readings(String title, String url, String group, String digest,String content, String img_url,String date) {
+    public Readings(String title, String url, String group, String digest, String img_url,String date) {
         this.title = title;
         this.url = url;
         this.group = group;

@@ -29,7 +29,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -51,17 +50,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //判断是否已经登录过
-        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
-        boolean isSignedIn = sp.getBoolean("isSignedIn", false);
-        if(!isSignedIn)
-        {
-            goToLoginActivity();
-            return;
-        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         // 设置ToolBar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -111,6 +101,13 @@ public class MainActivity extends AppCompatActivity
             setDefaultFragment(prePos);
         }
         updateDrawerInfo();
+        //判断是否已经登录过
+        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
+        boolean isSignedIn = sp.getBoolean("isSignedIn", false);
+        if(!isSignedIn)
+        {
+            goToLoginActivity();
+        }
     }
 
     private void goToLoginActivity() {

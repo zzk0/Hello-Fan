@@ -1,6 +1,5 @@
 package com.test.util;
 
-import java.security.PublicKey;
 
 public class Constant {
     public static final String SERVER_URL="http://111.231.237.23";
