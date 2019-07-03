@@ -5,8 +5,6 @@
 
 package com.test.fan;
 
-import android.Manifest;
-
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -28,13 +26,10 @@ import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 import com.gitonway.lee.niftymodaldialogeffects.lib.Effectstype;
 import com.gitonway.lee.niftymodaldialogeffects.lib.NiftyDialogBuilder;
 import com.test.Bean.DictBean;
-import com.test.util.DBHelper;
 import com.test.util.SQLdm;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public class SearchActivity extends Activity {
 
