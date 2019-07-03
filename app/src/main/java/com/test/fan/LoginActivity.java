@@ -87,8 +87,13 @@ public class LoginActivity extends AppCompatActivity {
                                 editor.apply();
                                 //登录成功后关闭此页面进入主页
                                 LoginActivity.this.finish();
-                            } else {
+                            } else if(msg.obj.equals("false")){
+
                                 Toast.makeText(LoginActivity.this, "用户名或者密码有误", Toast.LENGTH_SHORT).show();
+                            }
+                            else
+                            {
+                                Toast.makeText(LoginActivity.this, "请确认网络是否已连接", Toast.LENGTH_SHORT).show();
                             }
                         }
                     };
@@ -113,9 +118,8 @@ public class LoginActivity extends AppCompatActivity {
                 String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/user/login";
                 try {
                     message.obj = OkHttpRequest.post(requestUrl, json);
-                    System.out.println(message.obj.toString()+555);
                 } catch (IOException e) {
-                    message.obj = "false";
+                    message.obj = "exception";
                 }
                 handler.sendMessage(message);
             }

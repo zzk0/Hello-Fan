@@ -37,7 +37,7 @@
                 android:paddingBottom="10dp"
                 android:text="TextView"
                 android:textColor="@color/colorPrimary"
-                android:textSize="18dp" />
+                android:textSize="20dp" />
 
             <TextView
                 android:id="@+id/spell"
@@ -57,7 +57,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="14dp"
+            android:textSize="16dp"
             android:textColor="@color/cardview_dark_background"
             android:text="TextView" />
         <View

@@ -26,6 +26,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.test.model.entity.Readings;
 import com.test.util.DBHelper;
+import com.test.util.SQLdm;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -184,8 +185,7 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
     }
     private String[] getWordInfo(String s)
     {
-        DBHelper dbHelper=new DBHelper(this);
-        SQLiteDatabase sqLiteDatabase=dbHelper.getReadableDatabase();
+        SQLiteDatabase sqLiteDatabase= new SQLdm().openDataBase(ReadingsDisplayActivity.this);
         Cursor words_cursor = sqLiteDatabase.rawQuery("select simplified from words where traditional=\'"+s+"\'",null);
         Cursor dict_cursor=sqLiteDatabase.rawQuery("select spell,express from dict where words=\'"+s+"\'",null);
         String traditional="";
@@ -198,7 +198,6 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
             spell = dict_cursor.getString(dict_cursor.getColumnIndex("spell"));
             express = dict_cursor.getString(dict_cursor.getColumnIndex("express"));
         }
-        System.out.println(traditional);
         return new String[]{traditional,spell,express};
 
     }

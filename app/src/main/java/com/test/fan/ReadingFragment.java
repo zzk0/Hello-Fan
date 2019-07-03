@@ -37,8 +37,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
+import static com.test.util.Constant.BUWEI;
+import static com.test.util.Constant.DIFANG;
+import static com.test.util.Constant.JINGMAO;
+import static com.test.util.Constant.LIANGAN;
+import static com.test.util.Constant.LILUN;
+import static com.test.util.Constant.LVYOU;
+import static com.test.util.Constant.PINGLUN;
+import static com.test.util.Constant.SHISHI;
+import static com.test.util.Constant.TAISHANG;
+import static com.test.util.Constant.TAIWAN;
+import static com.test.util.Constant.THIRTY_ONE;
+import static com.test.util.Constant.WENHUA;
+import static com.test.util.Constant.ZUIXIN;
+
 public class ReadingFragment extends Fragment {
-    private String currentUrl="http://big5.taiwan.cn/taiwan/jsxw/index";
+    private String currentUrl=ZUIXIN;
     private  TextView loading;
     private View toast_view;
     private Context context;
@@ -96,19 +110,19 @@ public class ReadingFragment extends Fragment {
     private void setTextViewListener()
     {
         final Map<TextView,String> map=new HashMap<>();
-        map.put((TextView)view.findViewById(R.id.zuixin),"http://big5.taiwan.cn/taiwan/jsxw/index");
-        map.put((TextView)view.findViewById(R.id.taiwan),"http://big5.taiwan.cn/taiwan/index");
-        map.put((TextView)view.findViewById(R.id.pinglun),"http://big5.taiwan.cn/plzhx/index");
-        map.put((TextView)view.findViewById(R.id.lilun),"http://big5.taiwan.cn/lilunpindao/index");
-        map.put((TextView)view.findViewById(R.id.liangan),"http://big5.taiwan.cn/xwzx/la/index");
-        map.put((TextView)view.findViewById(R.id.thirty_one),"http://big5.taiwan.cn/31t/index");
-        map.put((TextView)view.findViewById(R.id.shishi),"http://big5.taiwan.cn/xwzx/index");
-        map.put((TextView)view.findViewById(R.id.jingmao),"http://big5.taiwan.cn/gate/big5/econ.taiwan.cn/index");
-        map.put((TextView)view.findViewById(R.id.taishang),"http://big5.taiwan.cn/gate/big5/taishang.taiwan.cn/index");
-        map.put((TextView)view.findViewById(R.id.wenhua),"http://big5.taiwan.cn/gate/big5/culture.taiwan.cn/index");
-        map.put((TextView)view.findViewById(R.id.lvyou),"http://big5.taiwan.cn/gate/big5/travel.taiwan.cn/index");
-        map.put((TextView)view.findViewById(R.id.difang),"http://big5.taiwan.cn/local/index");
-        map.put((TextView)view.findViewById(R.id.buwei),"http://big5.taiwan.cn/gate/big5/depts.taiwan.cn/index");
+        map.put((TextView)view.findViewById(R.id.zuixin),ZUIXIN);
+        map.put((TextView)view.findViewById(R.id.taiwan),TAIWAN);
+        map.put((TextView)view.findViewById(R.id.pinglun),PINGLUN);
+        map.put((TextView)view.findViewById(R.id.lilun),LILUN);
+        map.put((TextView)view.findViewById(R.id.liangan),LIANGAN);
+        map.put((TextView)view.findViewById(R.id.thirty_one),THIRTY_ONE);
+        map.put((TextView)view.findViewById(R.id.shishi),SHISHI);
+        map.put((TextView)view.findViewById(R.id.jingmao),JINGMAO);
+        map.put((TextView)view.findViewById(R.id.taishang),TAISHANG);
+        map.put((TextView)view.findViewById(R.id.wenhua),WENHUA);
+        map.put((TextView)view.findViewById(R.id.lvyou),LVYOU);
+        map.put((TextView)view.findViewById(R.id.difang),DIFANG);
+        map.put((TextView)view.findViewById(R.id.buwei),BUWEI);
         for(final TextView tv:map.keySet())
         {
             tv.setOnClickListener(new View.OnClickListener() {
