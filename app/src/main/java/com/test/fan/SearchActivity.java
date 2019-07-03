@@ -9,6 +9,7 @@ import android.Manifest;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -120,7 +121,7 @@ public class SearchActivity extends Activity {
                     suggestionView.setOnClickListener(new View.OnClickListener(){
                         @Override
                         public void onClick(View v) {
-                            DictBean now=list.get(itemPosition);
+                            final DictBean now=list.get(itemPosition);
                             insertHistory(now);
                             String text = "<font size=\"18\"   color=\"#000000\">" + now.getWords() + "</font><br />"+
                                     "<i><font size=\"12\" color=\"#F08080\">" + now.getSpell() + "</font></i><br />"+
@@ -132,13 +133,16 @@ public class SearchActivity extends Activity {
                                     .withMessage(Html.fromHtml(text))                                 //def  | withMessageColor(int resid)
                                     .withDialogColor("#FFFFFF")
                                     .withEffect(Effectstype.RotateBottom)
-                                    .withButton1Text("OK")
+                                    .withButton1Text("练字")
                                     .withButton2Text("Cancel")
                                     .setButton1Click(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
                                             dialogBuilder.dismiss();
-                                            Toast.makeText(v.getContext(), "i'm btn1", Toast.LENGTH_SHORT).show();
+                                            // Toast.makeText(v.getContext(), "i'm btn1", Toast.LENGTH_SHORT).show();
+                                            Intent intent = new Intent(SearchActivity.this, LearnOneWordActivity.class);
+                                            intent.putExtra("phrase", now.getWords());
+                                            startActivity(intent);
                                         }
                                     })
                                     .setButton2Click(new View.OnClickListener() {

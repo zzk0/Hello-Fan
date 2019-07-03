@@ -13,6 +13,7 @@ import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -47,6 +48,7 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_readingsdisplay);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toast_view=View.inflate(this,R.layout.toast_view,null);
         title_tv =(TextView)findViewById(R.id.title);
         content_tv =(TextView)findViewById(R.id.content);
@@ -56,6 +58,13 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
         readings =(Readings) getIntent().getSerializableExtra("readings");
         initDisplay();
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return super.onOptionsItemSelected(item);
+    }
+
     private void setGetWordListener()
     {
         SpannableStringBuilder s = new SpannableStringBuilder(readings.getContent());
