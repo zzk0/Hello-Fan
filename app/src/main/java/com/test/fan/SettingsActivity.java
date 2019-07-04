@@ -18,10 +18,6 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.test.util.SQLdm;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-
 public class SettingsActivity extends AppCompatActivity {
 
     private SettingsFragment fragment;
