@@ -37,8 +37,14 @@ public class Schedule {
 
     private Context context;
 
+    private static int wordsPerDay = -1;
+
     public Schedule(Context context) {
         this.context = context;
+        if (wordsPerDay == -1) {
+            SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
+            wordsPerDay = sharedPreferences.getInt("wordsPerDay", 20);
+        }
     }
 
     /**
@@ -49,8 +55,8 @@ public class Schedule {
         List<LearnItem> words = new ArrayList<>();
         SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
         String todayWords = sharedPreferences.getString("today_words", "");
-        if (todayWords.length() < 3 * 20) {
-            int wordsNeedToQuery = 20 - todayWords.length() / 3;
+        if (todayWords.length() < 3 * wordsPerDay) {
+            int wordsNeedToQuery = wordsPerDay - todayWords.length() / 3;
             String newWords = getNewWords(wordsNeedToQuery);
             todayWords = todayWords + newWords;
         }
