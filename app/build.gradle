@@ -44,5 +44,5 @@ dependencies {
     implementation 'com.github.arimorty:floatingsearchview:2.1.1'
     implementation 'com.squareup.okhttp3:okhttp:4.0.0'
     implementation 'com.alibaba:fastjson:1.2.58'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-alpha-2'
+//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-alpha-2'
 }
