@@ -102,12 +102,12 @@ public class MainActivity extends AppCompatActivity
         }
         updateDrawerInfo();
         //判断是否已经登录过
-        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
-        boolean isSignedIn = sp.getBoolean("isSignedIn", false);
-        if(!isSignedIn)
-        {
-            goToLoginActivity();
-        }
+//        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
+//        boolean isSignedIn = sp.getBoolean("isSignedIn", false);
+//        if(!isSignedIn)
+//        {
+//            goToLoginActivity();
+//        }
     }
 
     private void goToLoginActivity() {
