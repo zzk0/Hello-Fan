@@ -1,6 +1,7 @@
 package com.test.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +10,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.test.Bean.WordBean;
+import com.test.fan.LearnOneWordActivity;
 import com.test.fan.R;
+import com.test.fan.SearchActivity;
 
 import java.util.List;
 /*
@@ -43,7 +46,7 @@ public class HistoryItemAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         View view=View.inflate(context, R.layout.item_history_date,null);
         //下面一堆负责显示
         TextView textView=(TextView)view.findViewById(R.id.tv_tradiction);
@@ -72,7 +75,9 @@ public class HistoryItemAdapter extends BaseAdapter {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(context, LearnOneWordActivity.class);
+                intent.putExtra("phrase", list.get(position).getTraditional());
+                context.startActivity(intent);
             }
         });
 
