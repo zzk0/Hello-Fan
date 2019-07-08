@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -17,6 +18,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import com.test.util.SQLdm;
+import com.test.util.SyncHelper;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -115,8 +117,19 @@ public class SettingsActivity extends AppCompatActivity {
                     return false;
                 }
             });
+
+            final Preference syncData = findPreference("sync_data");
+            syncData.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    SyncHelper syncHelper = new SyncHelper(getActivity().getApplicationContext());
+                    syncHelper.sync();
+                    return false;
+                }
+            });
         }
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -22,6 +22,7 @@ public class HomeFragment extends Fragment {
 
     //private TextView textViewSlogan;
     private Button buttonStart;
+    private Button buttonS2TStart;
     SignView mSignView;
     SignLinesView mSignLinesView;
     private String words;
@@ -34,6 +35,7 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, null);
 
         buttonStart = view.findViewById(R.id.buttonStart);
+        buttonS2TStart = view.findViewById(R.id.buttonS2TStart);
 
         mSignView = (SignView)view.findViewById(R.id.signView);
         mSignLinesView=(SignLinesView)view.findViewById(R.id.signLineView);
@@ -49,6 +51,13 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), LearnWritingActivity.class);
+                startActivity(intent);
+            }
+        });
+        buttonS2TStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), LearnS2TActivity.class);
                 startActivity(intent);
             }
         });
