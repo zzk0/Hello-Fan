@@ -62,11 +62,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 userName = et_user_name.getText().toString().trim();
                 password = et_psw.getText().toString().trim();
-//              对当前用户输入的密码进行MD5加密再进行比对判断, MD5Utils.md5( ); password 进行加密判断是否一致
-//              String md5Psw = MD5Utils.md5(password);
-//              md5Psw ; spPsw 为 根据从SharedPreferences中用户名读取密码
-//              定义方法 readPsw为了读取用户名，得到密码
-//              spPsw = readPsw(userName);
                 if (TextUtils.isEmpty(userName)) {
                     Toast.makeText(LoginActivity.this, "请输入用户名", Toast.LENGTH_SHORT).show();
                 } else if (TextUtils.isEmpty(password)) {
@@ -76,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
                     handler = new Handler() {
                         @Override
                         public void handleMessage(Message msg) {
-                            if(msg.obj==null)return;
+                            if (msg.obj == null) return;
                             if (msg.obj.equals("true")) {
                                 Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
                                 //在本地保存登录信息
@@ -87,12 +82,9 @@ public class LoginActivity extends AppCompatActivity {
                                 editor.apply();
                                 //登录成功后关闭此页面进入主页
                                 LoginActivity.this.finish();
-                            } else if(msg.obj.equals("false")){
-
+                            } else if (msg.obj.equals("false")) {
                                 Toast.makeText(LoginActivity.this, "用户名或者密码有误", Toast.LENGTH_SHORT).show();
-                            }
-                            else
-                            {
+                            } else {
                                 Toast.makeText(LoginActivity.this, "请确认网络是否已连接", Toast.LENGTH_SHORT).show();
                             }
                         }

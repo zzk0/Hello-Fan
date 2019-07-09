@@ -250,7 +250,6 @@ public class ReadingFragment extends Fragment {
                     message.what = 1;
                     handler.sendMessage(message);
                 }catch (Exception e){
-                    loading.setVisibility(View.VISIBLE);
                     if(e instanceof TimeoutException)
                     {
                         message.what=2;
