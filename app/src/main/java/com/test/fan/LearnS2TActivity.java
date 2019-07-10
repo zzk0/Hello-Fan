@@ -184,7 +184,6 @@ public class LearnS2TActivity extends AppCompatActivity {
 //
 //        System.out.println(screenWidth);
 //        System.out.println(screenHeight);
-
         codeBtn.setHeight(mBtnListLayout.getLayoutParams().height/5);
 
         codeBtn.setText( String.valueOf(id+1)+"."+btnContent );
@@ -208,7 +207,7 @@ public class LearnS2TActivity extends AppCompatActivity {
 
         RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams( LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT );
         rlp.addRule( RelativeLayout.CENTER_HORIZONTAL );
-
+        rlp.setMargins(10,30,10,0);
         codeBtn.setLayoutParams( rlp );
     }
 
