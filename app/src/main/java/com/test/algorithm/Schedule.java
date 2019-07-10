@@ -119,7 +119,10 @@ public class Schedule {
                 // 更新这个字的学习日期
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 String today = sdf.format(new Date());
-                String sql = "update words set learnTimes = 1, learnDate = \"" + today + "\" where traditional = \"" + traditional + "\"";
+                String sql = "update words set learnTimes = 1," +
+                        " learnDate = \"" + today + "\", " +
+                        "lastTime = \"" + new Date() + "\" " +
+                        " where traditional = \"" + traditional + "\"";
                 database.execSQL(sql);
             } while (i < wordsNeedToQuery && cursor.moveToNext());
         }

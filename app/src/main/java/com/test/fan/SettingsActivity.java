@@ -1,6 +1,7 @@
 package com.test.fan;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,8 +18,15 @@ import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.test.util.ActivityCollectorUtil;
+import com.test.util.OkHttpRequest;
 import com.test.util.SQLdm;
 import com.test.util.SyncHelper;
+
+import java.io.IOException;
+
+import static com.test.util.Constant.SERVER_URL;
+import static com.test.util.Constant.SEVER_PORT;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -38,6 +46,14 @@ public class SettingsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        ActivityCollectorUtil.addActivity(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ActivityCollectorUtil.removeActivity(this);
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
@@ -105,6 +121,43 @@ public class SettingsActivity extends AppCompatActivity {
                             SQLdm.renewDatabase(context);
                             SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
                             sharedPreferences.edit().clear().apply();
+                            String username = sharedPreferences.getString("username", "");
+                            String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/studyPlan/deleteAll";
+                            requestUrl = requestUrl + "?userName=" + username;
+                            try {
+                                OkHttpRequest.get(requestUrl);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {}
+                    });
+
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                    return false;
+                }
+            });
+
+            // 清除所有数据
+            Preference exitLogin = findPreference("exitLogin");
+            exitLogin.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("警告");
+                    builder.setMessage("确定退出?");
+                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            SharedPreferences sp = getActivity().getSharedPreferences("loginInfo", MODE_PRIVATE);
+                            sp.edit().putBoolean("isSignedIn", false).apply();
+                            ActivityCollectorUtil.finishAllActivity();
+                            Intent intent = new Intent(getActivity(), LoginActivity.class);
+                            startActivity(intent);
                         }
                     });
                     builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {

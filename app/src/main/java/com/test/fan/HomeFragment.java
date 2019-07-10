@@ -1,5 +1,6 @@
 package com.test.fan;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
 import com.test.util.SQLdm;
 import com.test.view.SignLinesView;
@@ -39,6 +41,10 @@ public class HomeFragment extends Fragment {
 
         mSignView = (SignView)view.findViewById(R.id.signView);
         mSignLinesView=(SignLinesView)view.findViewById(R.id.signLineView);
+
+
+//        ProgressBar progressBar = view.findViewById(R.id.progressbar);
+//        progressBar.setVisibility(View.VISIBLE);
 
         //根据数据库中日期进行签到标签的修改
         SQLiteDatabase sqLiteDatabase = new SQLdm().openDataBase(getContext());
