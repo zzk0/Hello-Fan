@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity
             }
             setDefaultFragment(prePos);
         }
-//        updateDrawerInfo();
+        updateDrawerInfo();
         //判断是否已经登录过
 //        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
 //        boolean isSignedIn = sp.getBoolean("isSignedIn", false);

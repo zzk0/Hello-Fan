@@ -1,6 +1,8 @@
 package com.test.util;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.alibaba.fastjson.JSON;
 import com.test.model.dto.StudyPlan;
@@ -39,18 +41,21 @@ public class SyncHelper {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                SQLiteDatabase database = new SQLdm().openDataBase(context);
+                String sql = "select * from words where lastTime <= updateTime " +
+                        "or lastTime is not null and updateTime is null";
+                Cursor cursor = database.rawQuery(sql, null);
                 List<StudyPlan> plans = new ArrayList<>();
-                for (int i = 0; i < 1; i++) {
+                while (cursor.moveToNext()) {
                     StudyPlan plan = new StudyPlan();
-                    plan.setTradictional("你");
-                    plan.setLearnTimes(new Date());
-                    plan.setUserName("zzk");
-                    plan.setNextDate(new Date());
-                    plan.setEfactor(2.333);
-                    plan.setUpdateTime(new Date());
-                    plan.setRepeatTimes(3);
-                    plan.setLearnDate(new SimpleDateFormat("YYYY-mm-dd").format(new Date()));
-                    plan.setValue("");
+                    plan.setTradictional(cursor.getString(cursor.getColumnIndex("traditional")));
+//                    plan.setLearnTimes(cursor.getString(cursor.getColumnIndex("traditional")));
+                    plan.setUserName(cursor.getString(cursor.getColumnIndex("traditional")));
+//                    plan.setNextDate(cursor.getString(cursor.getColumnIndex("traditional")));
+                    plan.setEfactor(cursor.getDouble(cursor.getColumnIndex("traditional")));
+//                    plan.setUpdateTime(cursor.getString(cursor.getColumnIndex("traditional")));
+                    plan.setRepeatTimes(cursor.getInt(cursor.getColumnIndex("traditional")));
+                    plan.setLearnDate(cursor.getString(cursor.getColumnIndex("traditional")));
                     plans.add(plan);
                 }
 

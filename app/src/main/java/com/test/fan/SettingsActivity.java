@@ -122,13 +122,18 @@ public class SettingsActivity extends AppCompatActivity {
                             SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
                             sharedPreferences.edit().clear().apply();
                             String username = sharedPreferences.getString("username", "");
-                            String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/studyPlan/deleteAll";
-                            requestUrl = requestUrl + "?userName=" + username;
-                            try {
-                                OkHttpRequest.get(requestUrl);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                            final String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/studyPlan/deleteAll" + "?userName=" + username;
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        OkHttpRequest.get(requestUrl);
+                                    }
+                                    catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }).start();
                         }
                     });
                     builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {

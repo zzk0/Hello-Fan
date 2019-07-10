@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class StudyPlan {
     private String tradictional;
-    private Date learnTimes;
+    private int learnTimes;
     private String value;
     private double efactor;
     private Date nextDate;
@@ -64,11 +64,11 @@ public class StudyPlan {
         this.efactor = efactor;
     }
 
-    public Date getLearnTimes() {
+    public int getLearnTimes() {
         return learnTimes;
     }
 
-    public void setLearnTimes(Date learnTimes) {
+    public void setLearnTimes(int learnTimes) {
         this.learnTimes = learnTimes;
     }
 
