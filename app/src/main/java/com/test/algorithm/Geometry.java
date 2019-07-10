@@ -4,8 +4,8 @@
 
 package com.test.algorithm;
 
-import com.test.model.GPoint2D;
-import com.test.model.Vector2;
+import com.test.model.entity.GPoint2D;
+import com.test.model.entity.Vector2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,67 @@ public class Geometry {
         return newPoints;
     }
 
+    /**
+     * 余弦相似度，暂未实现
+     * @param a
+     * @param b
+     * @return
+     */
     public static float cosineSimilarity(Vector2 a, Vector2 b) {
-        return 0.0f;
+        float atb = a.x * b.x + a.y * b.y;
+        float aa = a.length();
+        float bb = b.length();
+        return atb / (aa * bb);
+    }
+
+    /**
+     * 将点归一化到[-1, 1]x[-1, 1]这个范围
+     * @param points
+     */
+    public static void scaleToCanonical(List<GPoint2D> points) {
+        float minX = Float.MAX_VALUE;
+        float maxX = Float.MIN_VALUE;
+        float minY = Float.MAX_VALUE;
+        float maxY = Float.MIN_VALUE;
+        for (GPoint2D point : points) {
+            if (minX > point.x) minX = point.x;
+            if (maxX < point.x) maxX = point.x;
+            if (minY > point.y) minY = point.y;
+            if (maxY < point.y) maxY = point.y;
+        }
+        float width = maxX - minX;
+        float height = maxY - minY;
+        for (GPoint2D point : points) {
+            point.x = point.x * (1 / width);
+            point.y = point.y * (1 / height);
+        }
+    }
+
+    /**
+     * 计算两个手势之间的欧几里得距离
+     * @param candidate
+     * @param sample
+     * @return
+     */
+    public static float euclideanDistance(List<GPoint2D> candidate, List<GPoint2D> sample) {
+        float sum = 0.0f;
+        for (int i = 0; i < candidate.size(); i++) {
+            sum = sum + candidate.get(i).distanceTo(sample.get(i));
+        }
+        return sum / candidate.size();
+    }
+
+    /**
+     * 计算平方欧几里得距离，不做开方运算的目的是减少运算量
+     * @param candidate
+     * @param sample
+     * @return
+     */
+    public static float squareEuclideanDistance(List<GPoint2D> candidate, List<GPoint2D> sample) {
+        float sum = 0.0f;
+        for (int i = 0; i < candidate.size(); i++) {
+            sum = sum + candidate.get(i).squareDistanceTo(sample.get(i));
+        }
+        return sum / candidate.size();
     }
 }

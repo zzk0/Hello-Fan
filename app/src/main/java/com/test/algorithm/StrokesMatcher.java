@@ -12,8 +12,8 @@
 
 package com.test.algorithm;
 
-import com.test.model.GPoint2D;
-import com.test.model.Vector2;
+import com.test.model.entity.GPoint2D;
+import com.test.model.entity.Vector2;
 
 import java.util.List;
 
@@ -25,21 +25,43 @@ public class StrokesMatcher {
     private float shapeThreshold;
 
     private ShapeMatcher shapeMatcher;
+    private static final int WIDTH = 1024;
+
+    private static final float START_AND_END_THRESHOLD = 6849.0f;
+    private static final float DIRECTION_THRESHOLD = 1.25f;
+    private static final float LENGTH_THRESHOLD = 205.0f;
+    private static final float SHAPE_THRESHOLD = 50.0f;
 
     public StrokesMatcher() {
-        startAndEndThreshold = 5000.0f;
-        directionThreshold = 0.5f;
-        lengthThreshold = 150.0f;
-        shapeThreshold = 0.8f;
+        startAndEndThreshold = START_AND_END_THRESHOLD;
+        directionThreshold = DIRECTION_THRESHOLD;
+        lengthThreshold = LENGTH_THRESHOLD;
+        shapeThreshold = SHAPE_THRESHOLD;
         shapeMatcher = new EuclideanShapeMatcher(shapeThreshold);
+    }
+
+    public void setThreshold(int width, boolean isQuiz) {
+        float factor = (float) width / WIDTH;
+        startAndEndThreshold = factor * START_AND_END_THRESHOLD;
+        directionThreshold = factor * DIRECTION_THRESHOLD;
+        lengthThreshold = factor * LENGTH_THRESHOLD;
+        shapeThreshold = factor * SHAPE_THRESHOLD;
+
+        if (isQuiz) {
+            startAndEndThreshold = startAndEndThreshold * 1.5f;
+            directionThreshold = directionThreshold * 1.5f;
+            lengthThreshold = lengthThreshold * 1.5f;
+            shapeThreshold = shapeThreshold * 1.5f;
+        }
+        shapeMatcher.setThreshold(shapeThreshold);
     }
 
     public boolean match(List<GPoint2D> userStroke, List<GPoint2D> template) {
         boolean startAndEnd = startAndEndMatch(userStroke.get(0), userStroke.get(userStroke.size() - 1), template.get(0), template.get(template.size() - 1));
         boolean direction = directionMatch(userStroke, template);
         boolean length = lengthMatch(userStroke, template);
-        boolean shape = shapeMatch(userStroke, template);
-        return startAndEnd && direction && length && shape;
+//        boolean shape = shapeMatch(userStroke, template);
+        return (startAndEnd && direction && length);
     }
 
     // 两个笔画的起点、终点之间的平方距离小于一定范围就Match
@@ -65,7 +87,7 @@ public class StrokesMatcher {
             sum += Geometry.cosineSimilarity(a, b);
         }
         sum = sum / template.size();
-        if (sum < directionThreshold) {
+        if (sum < directionThreshold && sum > 0) {
             return true;
         }
         else {

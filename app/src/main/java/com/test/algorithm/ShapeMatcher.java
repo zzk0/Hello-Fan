@@ -1,6 +1,6 @@
 package com.test.algorithm;
 
-import com.test.model.GPoint2D;
+import com.test.model.entity.GPoint2D;
 
 import java.util.List;
 
@@ -9,6 +9,10 @@ public abstract class ShapeMatcher {
     protected float threshold;
 
     public ShapeMatcher(float threshold) {
+        this.threshold = threshold;
+    }
+
+    public void setThreshold(float threshold) {
         this.threshold = threshold;
     }
 

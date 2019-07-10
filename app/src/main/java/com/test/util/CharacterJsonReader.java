@@ -7,42 +7,24 @@
 package com.test.util;
 
 import android.content.Context;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class CharacterJsonReader {
-
     private CharacterJsonReader() { }
 
-    // 根据汉字去查询这个汉字的笔画信息Json
-    public static String query(Context context, String word) {
-        StringBuilder fileContent = new StringBuilder("");
-        BufferedReader reader = null;
-        try {
-            InputStreamReader is = new InputStreamReader(context.getAssets().open("graphics.txt"), "UTF-8");
-            reader = new BufferedReader(is);
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                if(line.indexOf(word)!=-1)
-                {
-                    fileContent.append(line);
-                    break;
-                }
-            }
-            reader.close();
-        } catch (Exception e) {
-            throw new RuntimeException("IOException occurred. ", e);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+    public static String query(Context context, String word)
+    {
+        SQLiteDatabase database = new SQLdm().openDataBase(context);
+        String sql = "select * from wordsJson where word = \"" + word + "\"";
+        Cursor cursor = database.rawQuery(sql, null);
+        if (cursor.moveToNext()) {
+            String result = cursor.getString(cursor.getColumnIndex("json"));
+            cursor.close();
+            database.close();
+            return result;
         }
-        return fileContent.toString();
+        return "";
     }
 }
