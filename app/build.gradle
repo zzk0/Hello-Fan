@@ -40,6 +40,7 @@ dependencies {
     implementation 'com.github.arimorty:floatingsearchview:2.1.1'
     implementation 'com.squareup.okhttp3:okhttp:4.0.0'
     implementation 'com.alibaba:fastjson:1.2.58'
+    implementation 'com.roger.catloadinglibrary:catloadinglibrary:1.0.4'
 
     // test
     testImplementation 'junit:junit:4.12'

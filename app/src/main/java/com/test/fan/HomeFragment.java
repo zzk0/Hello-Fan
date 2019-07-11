@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.ProgressBar;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.roger.catloadinglibrary.CatLoadingView;
 import com.test.model.dto.StudyPlan;
 import com.test.util.OkHttpRequest;
 import com.test.util.SQLdm;
@@ -55,16 +57,25 @@ public class HomeFragment extends Fragment {
         mSignView = (SignView)view.findViewById(R.id.signView);
         mSignLinesView=(SignLinesView)view.findViewById(R.id.signLineView);
 
+        // LoadingView
+        final CatLoadingView catLoadingView = new CatLoadingView();
+        catLoadingView.show(getActivity().getSupportFragmentManager(), "");
+        catLoadingView.setCancelable(false);
 
-//        ProgressBar progressBar = view.findViewById(R.id.progressbar);
-//        progressBar.setVisibility(View.VISIBLE);
-
-        //根据数据库中日期进行签到标签的修改
-        SQLiteDatabase sqLiteDatabase = new SQLdm().openDataBase(getContext());
-        String table = "words";
-        Cursor cursor=sqLiteDatabase.query(true,table,new String[]{"learnDate"},"learnDate is not null",null,null,null,null,null);
-        mSignLinesView.setSignDays(cursor.getCount());
-        //Toast.makeText(getContext(),"提示:"+cursor.getCount(),Toast.LENGTH_LONG).show();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //根据数据库中日期进行签到标签的修改
+                SQLiteDatabase sqLiteDatabase = new SQLdm().openDataBase(getContext());
+                String table = "words";
+                Cursor cursor=sqLiteDatabase.query(true,table,new String[]{"learnDate"},"learnDate is not null",null,null,null,null,null);
+                mSignLinesView.setSignDays(cursor.getCount());
+                //Toast.makeText(getContext(),"提示:"+cursor.getCount(),Toast.LENGTH_LONG).show();
+                pullData();
+                catLoadingView.setCancelable(true);
+                catLoadingView.dismiss();
+            }
+        }).start();
 
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,8 +91,6 @@ public class HomeFragment extends Fragment {
                 startActivity(intent);
             }
         });
-
-        pullData();
 
         return view;
     }

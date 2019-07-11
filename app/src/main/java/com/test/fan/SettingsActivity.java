@@ -18,6 +18,7 @@ import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.alibaba.fastjson.JSONObject;
 import com.test.util.ActivityCollectorUtil;
 import com.test.util.OkHttpRequest;
 import com.test.util.SQLdm;
@@ -120,14 +121,30 @@ public class SettingsActivity extends AppCompatActivity {
                             Context context = getActivity().getApplicationContext();
                             SQLdm.renewDatabase(context);
                             SharedPreferences sharedPreferences = context.getSharedPreferences("loginInfo", 0);
-                            String username = sharedPreferences.getString("userName", "");
+                            final String username = sharedPreferences.getString("userName", "");
                             sharedPreferences.edit().clear().apply();
-                            final String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/studyPlan/deleteAll" + "?userName=" + username;
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
                                     try {
+                                        String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/studyPlan/deleteAll" + "?userName=" + username;
                                         OkHttpRequest.get(requestUrl);
+                                    }
+                                    catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    JSONObject jsonObject = new JSONObject();
+                                    jsonObject.put("username", username);
+                                    jsonObject.put("lastLearnDate", null);
+                                    jsonObject.put("currentWord", 0);
+                                    jsonObject.put("todayWords", null);
+                                    jsonObject.put("wordsPerDay", 0);
+
+                                    String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/user/updateSharedPreferences";
+                                    try {
+                                        String result = OkHttpRequest.post(requestUrl, jsonObject.toJSONString());
+                                        System.out.println(result);
                                     }
                                     catch (Exception e) {
                                         e.printStackTrace();

@@ -106,9 +106,10 @@ public class LearnWritingActivity extends AppCompatActivity {
                 SuperMemo superMemo = new SuperMemo(getApplicationContext());
                 List<ReviewItem> items = superMemo.getReviewItems();
                 synchronized (this) {
-                    for (LearnItem item : items) {
-                        words.add(item);
-                    }
+                    words.addAll(items);
+//                    for (LearnItem item : items) {
+//                        words.add(item);
+//                    }
                 }
             }
         }).start();
@@ -121,8 +122,6 @@ public class LearnWritingActivity extends AppCompatActivity {
                 hanziView.resetHanzi();
                 break;
             case R.id.button_next:
-                updateHanziState();
-                setHanzi();
                 if (!hanziView.hanziFinish()) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("提示");
