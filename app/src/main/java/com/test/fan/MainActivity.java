@@ -33,6 +33,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private List<Fragment> fragments;
     private int prePos;
-
+    private long exitTime=0;
     // Constant
     private static final String[] TAGS = {"home", "reading", "history"};
     private static final String PRE = "PREPOS";
@@ -52,6 +53,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //判断是否已经登录过
+        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
+        boolean loginStatus = sp.getBoolean("loginStatus", false);
+        if(!loginStatus)
+        {
+            ActivityCollectorUtil.addActivity(this);
+            goToLoginActivity();
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -101,14 +110,6 @@ public class MainActivity extends AppCompatActivity
             setDefaultFragment(prePos);
         }
         updateDrawerInfo();
-        //判断是否已经登录过
-//        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
-//        boolean isSignedIn = sp.getBoolean("isSignedIn", false);
-//        if(!isSignedIn)
-//        {
-//            goToLoginActivity();
-//        }
-        ActivityCollectorUtil.addActivity(this);
     }
 
     @Override
@@ -162,7 +163,15 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+
+            if(System.currentTimeMillis()-exitTime>2000) {
+                Toast.makeText(getApplicationContext(), "再按一次退出你好繁",Toast.LENGTH_SHORT).show();
+                exitTime = System.currentTimeMillis();
+            }
+            else
+            {
+                super.onBackPressed();
+            }
         }
     }
 
@@ -202,7 +211,7 @@ public class MainActivity extends AppCompatActivity
             switchFragment(HISTORY);
         }
         else if (id == R.id.nav_setting) {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            Intent intent = new Intent(MainActivity.this, UserInfoActivity.class);
             startActivity(intent);
         }
 

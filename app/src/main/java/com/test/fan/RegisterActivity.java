@@ -114,7 +114,7 @@ public class RegisterActivity extends AppCompatActivity {
                     Toast.makeText(RegisterActivity.this, "手机号码输入错误", Toast.LENGTH_LONG).show();
                 } else {
                     //验证用户名和用户手机号是否已经存在
-                    User user=new User();
+                    User user =new User();
                     UserDTO userDTO=new UserDTO();
                     user.setPassword(password);
                     user.setPhoneNum(phoneNum);

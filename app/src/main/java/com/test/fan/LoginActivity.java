@@ -23,6 +23,7 @@ import com.test.util.OkHttpRequest;
 
 import java.io.IOException;
 
+import static com.test.util.ActivityCollectorUtil.finishAllActivity;
 import static com.test.util.Constant.SEVER_PORT;
 import static com.test.util.Constant.SERVER_URL;
 
@@ -34,28 +35,20 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
-        boolean isSignedIn = sp.getBoolean("isSignedIn", false);
-        if(isSignedIn)
-        {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(intent);
-        }
-
         setContentView(R.layout.activity_login);
         //设置此界面为竖屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         init();
-
-        ActivityCollectorUtil.addActivity(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ActivityCollectorUtil.removeActivity(this);
+        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
+        if(!sp.getBoolean("loginStatus",false))
+        {
+            finishAllActivity();
+        }
     }
 
     private void init() {
@@ -82,11 +75,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 userName = et_user_name.getText().toString().trim();
                 password = et_psw.getText().toString().trim();
-//              对当前用户输入的密码进行MD5加密再进行比对判断, MD5Utils.md5( ); password 进行加密判断是否一致
-//              String md5Psw = MD5Utils.md5(password);
-//              md5Psw ; spPsw 为 根据从SharedPreferences中用户名读取密码
-//              定义方法 readPsw为了读取用户名，得到密码
-//              spPsw = readPsw(userName);
                 if (TextUtils.isEmpty(userName)) {
                     Toast.makeText(LoginActivity.this, "请输入用户名", Toast.LENGTH_SHORT).show();
                 } else if (TextUtils.isEmpty(password)) {
@@ -96,21 +84,23 @@ public class LoginActivity extends AppCompatActivity {
                     handler = new Handler() {
                         @Override
                         public void handleMessage(Message msg) {
-                            if(msg.obj==null)return;
-                            if (msg.obj.equals("true")) {
+                            if (msg.obj == null) return;
+                            if (msg.obj.equals(userName)) {
                                 Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
                                 //在本地保存登录信息
                                 SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sp.edit();
-                                editor.putBoolean("isSignedIn", true);
-                                editor.putString("localUserName", userName);
+                                editor.putBoolean("loginStatus", true);
+                                editor.putString("userName", userName);
                                 editor.apply();
                                 //登录成功后关闭此页面进入主页
-                                LoginActivity.this.finish();
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 startActivity(intent);
-                            } else {
+                                LoginActivity.this.finish();
+                            } else if (msg.obj.equals("false")) {
                                 Toast.makeText(LoginActivity.this, "用户名或者密码有误", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(LoginActivity.this, "请确认网络是否已连接", Toast.LENGTH_SHORT).show();
                             }
                         }
                     };
@@ -136,14 +126,8 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     message.obj = OkHttpRequest.post(requestUrl, json);
                 } catch (IOException e) {
-                    message.obj = "false";
+                    message.obj = "exception";
                 }
-                String response = (String) message.obj;
-                JSONObject responseJson = JSON.parseObject(response);
-                String result = responseJson.getString("loginStatus");
-                message.obj = result;
-                SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("fan_data", 0);
-                sharedPreferences.edit().putString("username", userName).apply();
                 handler.sendMessage(message);
             }
         }).start();

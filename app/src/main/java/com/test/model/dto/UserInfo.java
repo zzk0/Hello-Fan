@@ -1,11 +1,9 @@
-package com.test.model.entity;
+package com.test.model.dto;
 
 import java.io.Serializable;
 
-public class User implements Serializable {
+public class UserInfo implements Serializable {
     private String userName;
-    private String password;
-    private String phoneNum;
     private String nickName;
     private String sex;
     private String school;
@@ -13,12 +11,12 @@ public class User implements Serializable {
     private String avatarUrl;
     private String studyDays;
 
-    public String getStudyDays() {
-        return studyDays;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setStudyDays(String studyDays) {
-        this.studyDays = studyDays;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getNickName() {
@@ -61,27 +59,11 @@ public class User implements Serializable {
         this.avatarUrl = avatarUrl;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getStudyDays() {
+        return studyDays;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getPhoneNum() {
-        return phoneNum;
-    }
-
-    public void setPhoneNum(String phoneNum) {
-        this.phoneNum = phoneNum;
+    public void setStudyDays(String studyDays) {
+        this.studyDays = studyDays;
     }
 }

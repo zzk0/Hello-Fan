@@ -3,8 +3,8 @@ package com.test.model.dto;
 import com.test.model.entity.User;
 
 public class UserDTO {
-    public User user;
-    public String code;
+    private User user;
+    private String code;
 
 
     public User getUser() {

@@ -26,7 +26,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.test.model.entity.Readings;
+import com.test.util.ACache;
 import com.test.util.DBHelper;
+import com.test.util.SQLdm;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -44,6 +46,7 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
     private TextView group_tv;
     private TextView date_tv;
     private View dialog_view;
+    private ACache aCache;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +59,7 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
         group_tv=(TextView)findViewById(R.id.group);
         date_tv=(TextView)findViewById(R.id.date);
         readings =(Readings) getIntent().getSerializableExtra("readings");
+        aCache=ACache.get(this);
         initDisplay();
     }
 
@@ -124,14 +128,22 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
         {
             Glide.with(this).load(readings.getImg_url()).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into( imageView );
         }
-        handler=new Handler() {
-            public void handleMessage(Message msg) {
-                if (msg.what == 1) {
-                    setGetWordListener();
+        String content= aCache.getAsString(readings.getUrl());
+        if(content!=null)
+        {
+            readings.setContent(content);
+            setGetWordListener();
+        }
+        else {
+            handler = new Handler() {
+                public void handleMessage(Message msg) {
+                    if (msg.what == 1) {
+                        setGetWordListener();
+                    }
                 }
-            }
-        };
-        getReadingsContent(readings.getUrl());
+            };
+            getReadingsContent(readings.getUrl());
+        }
     }
 
     private void getReadingsContent( final String content_url)
@@ -148,6 +160,7 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
                         s=content.select("div.TRS_Editor>p,div.TRS_Editor>div>p").text();
                     s=s.replace(" 　　","\n 　　");
                     readings.setContent(s);
+                    aCache.put(content_url,s,43200);
                     Message msg=new Message();
                     msg.what = 1;
                     handler.sendMessage(msg);
@@ -193,8 +206,7 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
     }
     private String[] getWordInfo(String s)
     {
-        DBHelper dbHelper=new DBHelper(this);
-        SQLiteDatabase sqLiteDatabase=dbHelper.getReadableDatabase();
+        SQLiteDatabase sqLiteDatabase= new SQLdm().openDataBase(ReadingsDisplayActivity.this);
         Cursor words_cursor = sqLiteDatabase.rawQuery("select simplified from words where traditional=\'"+s+"\'",null);
         Cursor dict_cursor=sqLiteDatabase.rawQuery("select spell,express from dict where words=\'"+s+"\'",null);
         String traditional="";
@@ -207,7 +219,6 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
             spell = dict_cursor.getString(dict_cursor.getColumnIndex("spell"));
             express = dict_cursor.getString(dict_cursor.getColumnIndex("express"));
         }
-        System.out.println(traditional);
         return new String[]{traditional,spell,express};
 
     }
