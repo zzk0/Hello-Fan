@@ -179,7 +179,7 @@ public class SettingsActivity extends AppCompatActivity {
                             sp.edit().putBoolean("isSignedIn", false).apply();
                             // 删库跑路，删SharedPreferences
                             Context context = getActivity().getApplicationContext();
-                            SQLdm.renewDatabase(context);
+                            SQLdm.deleteDatabase(context);
                             SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
                             sharedPreferences.edit().clear().apply();
 

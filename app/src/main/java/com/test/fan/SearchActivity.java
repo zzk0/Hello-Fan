@@ -129,7 +129,7 @@ public class SearchActivity extends Activity {
                                     .withDialogColor("#FFFFFF")
                                     .withEffect(Effectstype.RotateBottom)
                                     .withButton1Text("练字")
-                                    .withButton2Text("Cancel")
+                                    .withButton2Text("确定")
                                     .setButton1Click(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {

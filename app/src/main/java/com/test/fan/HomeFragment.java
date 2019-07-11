@@ -129,7 +129,7 @@ public class HomeFragment extends Fragment {
                     String json = OkHttpRequest.get(requestUrl);
                     JSONObject obj = JSONObject.parseObject(json);
                     int currentWord = obj.getInteger("currentWord");
-                    int wordsPerDay = obj.getInteger("wordsPerDay");
+                    int wordsPerDay = obj.getInteger("wordsPerday");
                     String lastLearnDate = obj.getString("lastLearnDate");
                     String todayWords = obj.getString("todayWords");
                     SharedPreferences fanData = getActivity().getSharedPreferences("fan_data", 0);

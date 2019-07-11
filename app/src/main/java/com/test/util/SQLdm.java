@@ -42,6 +42,13 @@ public class SQLdm {
         copyDatabase(context);
     }
 
+    public static void deleteDatabase(Context context) {
+        File file = new File(FILE_PATH);
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
     public static void copyDatabase(Context context) {
         File newfile=new File(path);
         if (newfile.mkdir()) {
