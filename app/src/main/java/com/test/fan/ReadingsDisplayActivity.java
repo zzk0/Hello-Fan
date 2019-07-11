@@ -27,7 +27,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.test.model.entity.Readings;
 import com.test.util.ACache;
-import com.test.util.DBHelper;
 import com.test.util.SQLdm;
 
 import org.jsoup.Connection;
@@ -186,7 +185,7 @@ public class ReadingsDisplayActivity extends AppCompatActivity {
         window.setGravity(Gravity.BOTTOM);
         window.setWindowAnimations(R.style.share_animation);
         dialog_view = View.inflate(this, R.layout.dialog_fan, null);
-        dialog_view.findViewById(R.id.tv_cancel).setOnClickListener(new View.OnClickListener() {
+        dialog_view.findViewById(R.id.cancel_tv).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mBottomDialog != null && mBottomDialog.isShowing()) {

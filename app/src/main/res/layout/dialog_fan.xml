@@ -8,7 +8,7 @@
 
 
     <TextView
-        android:id="@+id/tv_cancel"
+        android:id="@+id/cancel_tv"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:background="@mipmap/cancel"

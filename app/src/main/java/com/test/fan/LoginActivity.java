@@ -16,9 +16,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.test.model.entity.User;
-import com.test.util.ActivityCollectorUtil;
 import com.test.util.OkHttpRequest;
 
 import java.io.IOException;
@@ -42,15 +40,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void onBackPressed()
+    {
         SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
         if(!sp.getBoolean("loginStatus",false))
         {
             finishAllActivity();
         }
+        this.finish();
     }
-
     private void init() {
         TextView tv_register = (TextView) findViewById(R.id.tv_register);
         TextView tv_find_psw = (TextView) findViewById(R.id.tv_find_psw);
@@ -93,9 +91,6 @@ public class LoginActivity extends AppCompatActivity {
                                 editor.putBoolean("loginStatus", true);
                                 editor.putString("userName", userName);
                                 editor.apply();
-                                //登录成功后关闭此页面进入主页
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                startActivity(intent);
                                 LoginActivity.this.finish();
                             } else if (msg.obj.equals("false")) {
                                 Toast.makeText(LoginActivity.this, "用户名或者密码有误", Toast.LENGTH_SHORT).show();
