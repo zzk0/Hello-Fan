@@ -7,8 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import com.alibaba.fastjson.JSON;
 import com.test.model.dto.StudyPlan;
 
-import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,17 +44,29 @@ public class SyncHelper {
                         "or lastTime is not null and updateTime is null";
                 Cursor cursor = database.rawQuery(sql, null);
                 List<StudyPlan> plans = new ArrayList<>();
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
                 while (cursor.moveToNext()) {
-                    StudyPlan plan = new StudyPlan();
-                    plan.setTradictional(cursor.getString(cursor.getColumnIndex("traditional")));
-//                    plan.setLearnTimes(cursor.getString(cursor.getColumnIndex("traditional")));
-                    plan.setUserName(cursor.getString(cursor.getColumnIndex("traditional")));
-//                    plan.setNextDate(cursor.getString(cursor.getColumnIndex("traditional")));
-                    plan.setEfactor(cursor.getDouble(cursor.getColumnIndex("traditional")));
-//                    plan.setUpdateTime(cursor.getString(cursor.getColumnIndex("traditional")));
-                    plan.setRepeatTimes(cursor.getInt(cursor.getColumnIndex("traditional")));
-                    plan.setLearnDate(cursor.getString(cursor.getColumnIndex("traditional")));
-                    plans.add(plan);
+                    try {
+                        StudyPlan plan = new StudyPlan();
+                        plan.setTradictional(cursor.getString(cursor.getColumnIndex("traditional")));
+                        plan.setLearnTimes(cursor.getInt(cursor.getColumnIndex("learnTimes")));
+                        plan.setUserName("zzk");
+                        plan.setNextDate(format.parse(cursor.getString(cursor.getColumnIndex("nextDate"))));
+                        plan.setEfactor(cursor.getDouble(cursor.getColumnIndex("eFactor")));
+                        plan.setUpdateTime(new Date());
+                        plan.setRepeatTimes(cursor.getInt(cursor.getColumnIndex("repeatTimes")));
+                        plan.setLearnDate(cursor.getString(cursor.getColumnIndex("learnDate")));
+                        plans.add(plan);
+
+                        sql = "update words set " +
+                            "updateTime = \"" + new Date() + "\" " +
+                            "where traditional = \"" + cursor.getString(cursor.getColumnIndex("traditional")) + "\"";
+                        database.execSQL(sql);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 String json = JSON.toJSONString(plans);

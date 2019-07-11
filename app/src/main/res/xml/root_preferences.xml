@@ -28,11 +28,6 @@
     <PreferenceCategory app:title="@string/sync_header">
 
         <Preference
-            app:key="sync_setting"
-            app:title="同步设置"
-            app:summary="同步用户设置"/>
-
-        <Preference
             app:key="sync_data"
             app:title="同步数据"
             app:summary="同步学习进度"/>
@@ -43,7 +38,7 @@
 
         <Preference
             app:key="cleanData"
-            app:title="清理所有数据!"/>
+            app:title="清理所有数据"/>
 
         <Preference
             app:key="exitLogin"
