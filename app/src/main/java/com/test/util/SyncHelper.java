@@ -1,10 +1,12 @@
 package com.test.util;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.test.model.dto.StudyPlan;
 
 import java.text.SimpleDateFormat;
@@ -39,9 +41,33 @@ public class SyncHelper {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                // 上传SharedPreferences
+                SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
+                String lastLearnDate = sharedPreferences.getString("last_learn_date", "");
+                int currentWord = sharedPreferences.getInt("current_word", 0);
+                String todayWords = sharedPreferences.getString("today_words", "");
+                int wordsPerDay = sharedPreferences.getInt("wordsPerDay", 0);
+                String username = sharedPreferences.getString("username", "");
+
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("username", username);
+                jsonObject.put("lastLearnDate", lastLearnDate);
+                jsonObject.put("currentWord", currentWord);
+                jsonObject.put("todayWords", todayWords);
+                jsonObject.put("wordsPerDay", wordsPerDay);
+
+                String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/user/updateSharedPreferences";
+                try {
+                    String result = OkHttpRequest.post(requestUrl, jsonObject.toJSONString());
+                    System.out.println(result);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 SQLiteDatabase database = new SQLdm().openDataBase(context);
-                String sql = "select * from words where lastTime <= updateTime " +
-                        "or lastTime is not null and updateTime is null";
+                String sql = "select * from words where lastTime > updateTime " +
+                        "or (lastTime is not null and updateTime is null)";
                 Cursor cursor = database.rawQuery(sql, null);
                 List<StudyPlan> plans = new ArrayList<>();
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -51,8 +77,11 @@ public class SyncHelper {
                         StudyPlan plan = new StudyPlan();
                         plan.setTradictional(cursor.getString(cursor.getColumnIndex("traditional")));
                         plan.setLearnTimes(cursor.getInt(cursor.getColumnIndex("learnTimes")));
-                        plan.setUserName("zzk");
-                        plan.setNextDate(format.parse(cursor.getString(cursor.getColumnIndex("nextDate"))));
+                        plan.setUserName(username);
+                        String nextDate = cursor.getString(cursor.getColumnIndex("nextDate"));
+                        if (nextDate != null) {
+                            plan.setNextDate(format.parse(nextDate));
+                        }
                         plan.setEfactor(cursor.getDouble(cursor.getColumnIndex("eFactor")));
                         plan.setUpdateTime(new Date());
                         plan.setRepeatTimes(cursor.getInt(cursor.getColumnIndex("repeatTimes")));
@@ -69,8 +98,9 @@ public class SyncHelper {
                     }
                 }
 
+                // 上传数据库
                 String json = JSON.toJSONString(plans);
-                String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/studyPlan/updateAllPlan";
+                requestUrl = SERVER_URL + ":" + SEVER_PORT + "/studyPlan/updateAllPlan";
                 try {
                     Object result = OkHttpRequest.post(requestUrl, json);
                     System.out.println("");

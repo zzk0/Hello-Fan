@@ -67,6 +67,13 @@ public class HomeFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
+        // 更新数据库内容
+        pullData();
+
         return view;
+    }
+
+    private void pullData() {
     }
 }

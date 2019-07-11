@@ -120,8 +120,8 @@ public class SettingsActivity extends AppCompatActivity {
                             Context context = getActivity().getApplicationContext();
                             SQLdm.renewDatabase(context);
                             SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
-                            sharedPreferences.edit().clear().apply();
                             String username = sharedPreferences.getString("username", "");
+                            sharedPreferences.edit().clear().apply();
                             final String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/studyPlan/deleteAll" + "?userName=" + username;
                             new Thread(new Runnable() {
                                 @Override
@@ -160,6 +160,12 @@ public class SettingsActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             SharedPreferences sp = getActivity().getSharedPreferences("loginInfo", MODE_PRIVATE);
                             sp.edit().putBoolean("isSignedIn", false).apply();
+                            // 删库跑路，删SharedPreferences
+                            Context context = getActivity().getApplicationContext();
+                            SQLdm.renewDatabase(context);
+                            SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
+                            sharedPreferences.edit().clear().apply();
+
                             ActivityCollectorUtil.finishAllActivity();
                             Intent intent = new Intent(getActivity(), LoginActivity.class);
                             startActivity(intent);

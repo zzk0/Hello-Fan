@@ -40,6 +40,7 @@ public class LoginActivity extends AppCompatActivity {
         if(isSignedIn)
         {
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(intent);
         }
 
@@ -142,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
                 String result = responseJson.getString("loginStatus");
                 message.obj = result;
                 SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("fan_data", 0);
-                sharedPreferences.edit().putString("username", responseJson.getString(userName)).apply();
+                sharedPreferences.edit().putString("username", userName).apply();
                 handler.sendMessage(message);
             }
         }).start();
