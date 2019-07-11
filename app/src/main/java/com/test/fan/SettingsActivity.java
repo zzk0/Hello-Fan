@@ -184,7 +184,7 @@ public class SettingsActivity extends AppCompatActivity {
                             sharedPreferences.edit().clear().apply();
 
                             ActivityCollectorUtil.finishAllActivity();
-                            Intent intent = new Intent(getActivity(), LoginActivity.class);
+                            Intent intent = new Intent(getActivity(), MainActivity.class);
                             startActivity(intent);
                         }
                     });

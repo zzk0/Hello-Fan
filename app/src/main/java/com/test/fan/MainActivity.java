@@ -388,9 +388,9 @@ public class MainActivity extends AppCompatActivity
             }
             editor.putString("last_learn_date", lastLearnDate);
             editor.putString("today_words", todayWords);
-            SimpleDateFormat sdf = new SimpleDateFormat("YYYY-mm-dd hh:mm:ss");
-            String updateTime = sdf.format(new Date());
-            editor.putString("updateTime", updateTime);
+//            SimpleDateFormat sdf = new SimpleDateFormat("YYYY-mm-dd hh:mm:ss");
+//            String updateTime = sdf.format(new Date());
+//            editor.putString("updateTime", updateTime);
             editor.apply();
         }
         catch (Exception e) {
