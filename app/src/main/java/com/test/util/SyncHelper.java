@@ -85,7 +85,7 @@ public class SyncHelper {
                         plan.setLearnTimes(cursor.getInt(cursor.getColumnIndex("learnTimes")));
                         plan.setUserName(username);
                         String nextDate = cursor.getString(cursor.getColumnIndex("nextDate"));
-                        if (nextDate != null) {
+                        if (nextDate != null && !nextDate.equals("null")) {
                             plan.setNextDate(format.parse(nextDate));
                         }
                         plan.setEfactor(cursor.getDouble(cursor.getColumnIndex("eFactor")));
