@@ -72,15 +72,17 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void handleMessage(Message msg) {
                             if (msg.obj == null) return;
-                            if (msg.obj.equals("true")) {
+                            if (msg.obj.equals(userName)) {
                                 Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
                                 //在本地保存登录信息
                                 SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sp.edit();
-                                editor.putBoolean("isSignedIn", true);
-                                editor.putString("localUserName", userName);
+                                editor.putBoolean("loginStatus", true);
+                                editor.putString("userName", userName);
                                 editor.apply();
                                 //登录成功后关闭此页面进入主页
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
                                 LoginActivity.this.finish();
                             } else if (msg.obj.equals("false")) {
                                 Toast.makeText(LoginActivity.this, "用户名或者密码有误", Toast.LENGTH_SHORT).show();
@@ -146,5 +148,10 @@ public class LoginActivity extends AppCompatActivity {
                 et_user_name.setSelection(userName.length());
             }
         }
+    }
+    @Override
+    public void onBackPressed()
+    {
+
     }
 }

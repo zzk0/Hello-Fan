@@ -16,37 +16,30 @@
 
 <androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="@string/info_header">
-
-        <Preference
-            app:key="userInfo"
-            app:title="个人信息"/>
-
-        <Preference
-            app:key="cleanDate"
-            app:title="清理所有数据!"/>
-
-    </PreferenceCategory>
-
     <PreferenceCategory app:title="@string/study_header">
 
-        <EditTextPreference
+        <Preference
             app:key="wordsPerDay"
             app:title="每日新词数目"
             app:useSimpleSummaryProvider="true" />
-
-        <SwitchPreferenceCompat
-            app:key="review"
-            app:title="开启繁体字复习"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/sync_header">
 
         <Preference
-            app:key="sync"
-            app:title="立即同步"
-            app:summary="同步繁体字学习进度，同步一简对多繁学习进度"/>
+            app:key="sync_setting"
+            app:title="同步设置"
+            app:summary="同步用户设置"/>
+
+        <Preference
+            app:key="sync_data"
+            app:title="同步数据"
+            app:summary="同步学习进度"/>
+
+        <Preference
+            app:key="cleanData"
+            app:title="清理所有数据!"/>
 
     </PreferenceCategory>
 

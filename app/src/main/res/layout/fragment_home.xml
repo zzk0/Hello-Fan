@@ -17,15 +17,31 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"/>
 
-
-    <Button
-        android:id="@+id/buttonStart"
-        style="@style/ButtonStyle"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-        android:layout_marginVertical="@dimen/activity_vertical_margin"
-        android:layout_marginTop="24dp"
-        android:text="Start Your Engine!" />
+        android:layout_marginVertical="@dimen/activity_vertical_margin">
+
+        <Button
+            android:id="@+id/buttonStart"
+            style="@style/ButtonStyle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="学写繁体字" />
+
+        <Button
+            android:id="@+id/buttonS2TStart"
+            style="@style/ButtonStyle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="学习一简对多繁" />
+
+    </LinearLayout>
+
+
 
 </LinearLayout>

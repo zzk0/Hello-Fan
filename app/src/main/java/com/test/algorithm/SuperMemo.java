@@ -70,7 +70,15 @@ public class SuperMemo {
         String today = sdf.format(new Date());
 
         SQLiteDatabase database = new SQLdm().openDataBase(context);
-        String sql = "insert into review values (\"" + traditional + "\", 1, 2.5, \"" + today + "\");";
-        database.execSQL(sql);
+        try {
+            String sql = "insert into review values (\"" + traditional + "\", 1, 2.5, \"" + today + "\");";
+            database.execSQL(sql);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            database.close();
+        }
     }
 }

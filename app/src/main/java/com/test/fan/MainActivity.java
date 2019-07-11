@@ -41,20 +41,19 @@ public class MainActivity extends AppCompatActivity
     private int prePos;
     private long exitTime=0;
     // Constant
-    private static final String[] TAGS = {"home", "s2t", "reading", "history"};
+    private static final String[] TAGS = {"home", "reading", "history"};
     private static final String PRE = "PREPOS";
     private static final int HOME = 0;
-    private static final int S2T = 1;
-    private static final int READING = 2;
-    private static final int HISTORY = 3;
+    private static final int READING = 1;
+    private static final int HISTORY = 2;
     private static final int READ_WRITE_PERM = 2333;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //判断是否已经登录过
         SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
-        boolean isSignedIn = sp.getBoolean("isSignedIn", false);
-        if(!isSignedIn)
+        boolean loginStatus = sp.getBoolean("loginStatus", false);
+        if(!loginStatus)
         {
             goToLoginActivity();
         }
@@ -90,7 +89,6 @@ public class MainActivity extends AppCompatActivity
                 prePos = 0;
                 fragments = new ArrayList<>();
                 fragments.add(new HomeFragment());
-                fragments.add(new S2TFragment());
                 fragments.add(new ReadingFragment());
                 fragments.add(new HistoryFragment());
             }
@@ -98,18 +96,15 @@ public class MainActivity extends AppCompatActivity
                 prePos = savedInstanceState.getInt(PRE);
                 fragments = new ArrayList<>();
                 HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag(TAGS[HOME]);
-                S2TFragment s2TFragment = (S2TFragment) getSupportFragmentManager().findFragmentByTag(TAGS[S2T]);
                 ReadingFragment readingFragment = (ReadingFragment) getSupportFragmentManager().findFragmentByTag(TAGS[READING]);
                 HistoryFragment historyFragment = (HistoryFragment) getSupportFragmentManager().findFragmentByTag(TAGS[HISTORY]);
                 fragments.add(homeFragment);
-                fragments.add(s2TFragment);
                 fragments.add(readingFragment);
                 fragments.add(historyFragment);
             }
             setDefaultFragment(prePos);
         }
         updateDrawerInfo();
-
     }
 
     private void goToLoginActivity() {
@@ -130,7 +125,6 @@ public class MainActivity extends AppCompatActivity
             if (granted) {
                 fragments = new ArrayList<>();
                 fragments.add(new HomeFragment());
-                fragments.add(new S2TFragment());
                 fragments.add(new ReadingFragment());
                 fragments.add(new HistoryFragment());
                 setDefaultFragment(HOME);
@@ -199,9 +193,6 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_home) {
             switchFragment(HOME);
         }
-        else if (id == R.id.nav_s2t) {
-            switchFragment(S2T);
-        }
         else if (id == R.id.nav_reading) {
             switchFragment(READING);
         }
@@ -209,7 +200,7 @@ public class MainActivity extends AppCompatActivity
             switchFragment(HISTORY);
         }
         else if (id == R.id.nav_setting) {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            Intent intent = new Intent(MainActivity.this, UserInfoActivity.class);
             startActivity(intent);
         }
 
