@@ -7,14 +7,8 @@
     android:orientation="vertical">
 
 
-    <TextView
-        android:id="@+id/tv_cancel"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:background="@mipmap/cancel"
-        android:gravity="center"
-        />
     <LinearLayout
+        android:background="#C0C0C0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
@@ -23,6 +17,7 @@
 
 
         <LinearLayout
+            android:background="@color/text_white"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -30,10 +25,9 @@
 
             <TextView
                 android:id="@+id/album_tv"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingLeft="20dp"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="从相册中选择图片"
@@ -41,15 +35,26 @@
 
             <TextView
                 android:id="@+id/photograph_tv"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingLeft="20dp"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:text="从相册中选择图片"
+                android:text="拍照"
                 android:textSize="20dp" />
-        </LinearLayout>
 
+        </LinearLayout>
+        <TextView
+            android:background="@color/text_white"
+            android:id="@+id/cancel_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="20dp"
+            android:paddingBottom="10dp"
+            android:textSize="20dp"
+            android:text="取消" />
     </LinearLayout>
+
+
 </LinearLayout>

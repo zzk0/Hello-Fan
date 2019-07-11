@@ -16,6 +16,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity android:name=".LearnOneWordActivity"></activity>
+        <activity android:name=".EditUserInfoActivity"></activity>
         <activity android:name=".UserInfoActivity"></activity>
         <activity
             android:name=".SettingsActivity"
