@@ -59,15 +59,15 @@ public class LearnWritingActivity extends AppCompatActivity {
         String lastDay = sharedPreferences.getString("last_learn_date", "");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String today = sdf.format(new Date());
-//        if (!lastDay.equals(today)) {
-//            currentWord = sharedPreferences.getInt("current_word", 0);
-//        }
-//        else {
+        if (!lastDay.equals(today)) {
+            currentWord = sharedPreferences.getInt("current_word", 0);
+        }
+        else {
             currentWord = 0;
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("last_learn_date", today);
-            editor.commit();
-//        }
+            editor.apply();
+        }
     }
 
     @Override
@@ -78,7 +78,7 @@ public class LearnWritingActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("fan_data", 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("current_word", currentWord);
-        editor.commit();
+        editor.apply();
 
         super.onDestroy();
     }
@@ -106,9 +106,10 @@ public class LearnWritingActivity extends AppCompatActivity {
                 SuperMemo superMemo = new SuperMemo(getApplicationContext());
                 List<ReviewItem> items = superMemo.getReviewItems();
                 synchronized (this) {
-                    for (LearnItem item : items) {
-                        words.add(item);
-                    }
+                    words.addAll(items);
+//                    for (LearnItem item : items) {
+//                        words.add(item);
+//                    }
                 }
             }
         }).start();
@@ -121,24 +122,22 @@ public class LearnWritingActivity extends AppCompatActivity {
                 hanziView.resetHanzi();
                 break;
             case R.id.button_next:
-                updateHanziState();
-                setHanzi();
-//                if (!hanziView.hanziFinish()) {
-//                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//                    builder.setTitle("提示");
-//                    builder.setMessage("请您写好这个字");
-//                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                        }
-//                    });
-//                    AlertDialog alertDialog = builder.create();
-//                    alertDialog.show();
-//                }
-//                else {
-//                    updateHanziState();
-//                    setHanzi();
-//                }
+                if (!hanziView.hanziFinish()) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("提示");
+                    builder.setMessage("请您写好这个字");
+                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+                }
+                else {
+                    updateHanziState();
+                    setHanzi();
+                }
                 break;
         }
     }
@@ -146,7 +145,6 @@ public class LearnWritingActivity extends AppCompatActivity {
     private synchronized void updateHanziState() {
         if (currentWord >= words.size()) return;
         final LearnItem item = words.get(currentWord);
-        currentWord = currentWord + 1;
         if (item instanceof ReviewItem) {
             new Thread(new Runnable() {
                 @Override
@@ -155,7 +153,7 @@ public class LearnWritingActivity extends AppCompatActivity {
                 }
             }).start();
         }
-        else if (currentWord < words.size() && hanziView.getWrongTimes() < 5) {
+        else if (hanziView.getWrongTimes() < 5) {
             item.setLearnTimes(item.getLearnTimes() + 1);
             // 加入复习
             if (item.getLearnTimes() > 3) {
@@ -166,7 +164,23 @@ public class LearnWritingActivity extends AppCompatActivity {
                     }
                 }).start();
             }
+            else {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        SQLiteDatabase database = new SQLdm().openDataBase(getApplicationContext());
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        String today = sdf.format(new Date());
+                        String sql = "update words set learnTimes = 1," +
+                                " learnDate = \"" + today + "\", " +
+                                "lastTime = \"" + new Date() + "\" " +
+                                " where traditional = \"" + item.getTraditional() + "\"";
+                        database.execSQL(sql);
+                    }
+                }).start();
+            }
         }
+        currentWord = currentWord + 1;
     }
 
     private synchronized void setHanzi() {

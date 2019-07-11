@@ -27,7 +27,8 @@ public class StrokesMatcher {
     private ShapeMatcher shapeMatcher;
     private static final int WIDTH = 1024;
 
-    private static final float START_AND_END_THRESHOLD = 6849.0f;
+    // 手势开始点/结束点在模板开始点/结束点的半径为100以内的圆即可
+    private static final float START_AND_END_THRESHOLD = 10000.0f;
     private static final float DIRECTION_THRESHOLD = 1.25f;
     private static final float LENGTH_THRESHOLD = 205.0f;
     private static final float SHAPE_THRESHOLD = 50.0f;
@@ -84,10 +85,14 @@ public class StrokesMatcher {
         for (int i = 1; i < template.size(); i++) {
             Vector2 a = new Vector2(template.get(i - 1), template.get(i));
             Vector2 b = new Vector2(resampleUserStroke.get(i - 1), resampleUserStroke.get(i));
-            sum += Geometry.cosineSimilarity(a, b);
+            float similarity = Geometry.cosineSimilarity(a, b);
+            if (similarity < 0) {
+                sum += similarity;
+            }
         }
         sum = sum / template.size();
-        if (sum < directionThreshold && sum > 0) {
+        sum = Math.abs(sum);
+        if (sum < directionThreshold) {
             return true;
         }
         else {
