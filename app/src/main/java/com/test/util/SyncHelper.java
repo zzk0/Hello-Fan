@@ -47,7 +47,9 @@ public class SyncHelper {
                 int currentWord = sharedPreferences.getInt("current_word", 0);
                 String todayWords = sharedPreferences.getString("today_words", "");
                 int wordsPerDay = sharedPreferences.getInt("wordsPerDay", 0);
-                String username = sharedPreferences.getString("username", "");
+
+                SharedPreferences sp1 = context.getSharedPreferences("loginInfo", 0);
+                String username = sp1.getString("userName", "");
 
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("username", username);

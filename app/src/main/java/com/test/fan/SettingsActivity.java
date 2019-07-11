@@ -119,8 +119,8 @@ public class SettingsActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             Context context = getActivity().getApplicationContext();
                             SQLdm.renewDatabase(context);
-                            SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
-                            String username = sharedPreferences.getString("username", "");
+                            SharedPreferences sharedPreferences = context.getSharedPreferences("loginInfo", 0);
+                            String username = sharedPreferences.getString("userName", "");
                             sharedPreferences.edit().clear().apply();
                             final String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/studyPlan/deleteAll" + "?userName=" + username;
                             new Thread(new Runnable() {
