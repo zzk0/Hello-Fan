@@ -41,7 +41,7 @@ import static com.test.util.Constant.SEVER_PORT;
 
 public class UserInfoActivity extends AppCompatActivity {
     private Handler handler;
-    private TextView username_tv, nickname_tv, school_tv, sex_tv, brief_tv,studydays_tv;
+    private TextView username_tv, nickname_tv, school_tv, sex_tv, brief_tv, studydays_tv;
     private ImageView avatar_iv;
     //aCache缓存
     private ACache aCache;
@@ -58,16 +58,17 @@ public class UserInfoActivity extends AppCompatActivity {
         sex_tv = (TextView) findViewById(R.id.sex_tv);
         brief_tv = (TextView) findViewById(R.id.brief_tv);
         avatar_iv = (ImageView) findViewById(R.id.avatar_iv);
-        studydays_tv=(TextView)findViewById(R.id.studydays);
-        btn_edit=(Button)findViewById(R.id.btn_edit);
-        aCache=ACache.get(this);
+        studydays_tv = (TextView) findViewById(R.id.studydays);
+        btn_edit = (Button) findViewById(R.id.btn_edit);
+        aCache = ACache.get(this);
         init();
     }
-    private void goToEdit()
-    {
-        Intent intent=new Intent(this,EditUserInfoActivity.class);
-        startActivity(intent);
+
+    private void goToEdit() {
+        Intent intent = new Intent(this, EditUserInfoActivity.class);
+        startActivityForResult(intent,200);
     }
+
     private void init() {
 //        avatar_iv.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -83,12 +84,10 @@ public class UserInfoActivity extends AppCompatActivity {
             }
         });
         //先从缓存里面获取
-        UserInfo userInfo=(UserInfo)aCache.getAsObject("userInfo");
-        if(userInfo!=null)
-        {
+        UserInfo userInfo = (UserInfo) aCache.getAsObject("userInfo");
+        if (userInfo != null) {
             setUserInfo(userInfo);
-        }
-        else {
+        } else {
             handler = new Handler() {
                 @Override
                 public void handleMessage(Message msg) {
@@ -106,8 +105,7 @@ public class UserInfoActivity extends AppCompatActivity {
         }
     }
 
-    private  void setUserInfo(UserInfo userInfo)
-    {
+    private void setUserInfo(UserInfo userInfo) {
         Picasso.get().load("https://avatars3.githubusercontent.com/u/30856589?s=460&v=4").
                 transform(new CircleTransform()).into(avatar_iv);
         if (userInfo.getStudyDays() != null)
@@ -123,6 +121,7 @@ public class UserInfoActivity extends AppCompatActivity {
         if (userInfo.getBrief() != null)
             brief_tv.setText(userInfo.getBrief());
     }
+
     private void getUserInfo() {
         SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
         final String userName = sp.getString("userName", "");
@@ -130,8 +129,8 @@ public class UserInfoActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Message message = new Message();
-                if("".equals(userName))
-                    message.obj=null;
+                if ("".equals(userName))
+                    message.obj = null;
                 else {
                     String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/user/getUserInfo?userName=" + userName;
                     System.out.println("请求Url" + requestUrl);
@@ -147,6 +146,7 @@ public class UserInfoActivity extends AppCompatActivity {
             }
         }).start();
     }
+
     public class CircleTransform implements Transformation {
         @Override
         public Bitmap transform(Bitmap source) {
@@ -181,11 +181,21 @@ public class UserInfoActivity extends AppCompatActivity {
             return "circle";
         }
     }
+
     @Override
-    public void onBackPressed()
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        UserInfo userInfo = (UserInfo) aCache.getAsObject("userInfo");
+        if (userInfo != null) {
+            setUserInfo(userInfo);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
         this.finish();
     }
+
 //    @Override
 //    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 //        super.onActivityResult(requestCode, resultCode, data);

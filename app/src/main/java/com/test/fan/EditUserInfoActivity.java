@@ -1,6 +1,6 @@
 package com.test.fan;
 
-import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.alibaba.fastjson.JSON;
 import com.test.model.dto.UserInfo;
-import com.test.model.entity.User;
 import com.test.util.ACache;
 import com.test.util.OkHttpRequest;
 
@@ -69,6 +68,7 @@ public class EditUserInfoActivity extends AppCompatActivity {
                                     if(msg.obj.equals("success"))
                                     {
                                         aCache.put("userInfo", userInfo);
+                                        goBack();
                                     }
                                     else
                                     {
@@ -84,6 +84,10 @@ public class EditUserInfoActivity extends AppCompatActivity {
         );
     }
 
+    public void goBack()
+    {
+        this.finish();
+    }
     private void saveUserInfo(final UserInfo userInfo)
     {
         new Thread(new Runnable() {
