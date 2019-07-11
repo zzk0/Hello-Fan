@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity
         boolean loginStatus = sp.getBoolean("loginStatus", false);
         if(!loginStatus)
         {
-            ActivityCollectorUtil.addActivity(this);
             goToLoginActivity();
         }
         super.onCreate(savedInstanceState);
@@ -130,6 +129,7 @@ public class MainActivity extends AppCompatActivity
             setDefaultFragment(prePos);
         }
         updateDrawerInfo();
+        ActivityCollectorUtil.addActivity(this);
     }
 
     @Override
@@ -273,6 +273,13 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
         ImageView iconImageView = headerView.findViewById(R.id.iconImageView);
+        iconImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, UserInfoActivity.class);
+                startActivity(intent);
+            }
+        });
         TextView nicknameTextView = headerView.findViewById(R.id.nicknameTextView);
         Picasso.get().load("https://avatars3.githubusercontent.com/u/30856589?s=460&v=4").transform(new CircleTransform()).into(iconImageView);
         nicknameTextView.setText("你好繁");
