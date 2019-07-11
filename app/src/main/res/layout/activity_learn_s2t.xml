@@ -23,7 +23,7 @@
 
         <TextView
             android:id="@+id/show_s"
-            android:layout_width="274dp"
+            android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_marginTop="8dp"
             android:background="@drawable/textview_round_border"
