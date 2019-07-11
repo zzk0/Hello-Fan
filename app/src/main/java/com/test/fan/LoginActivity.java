@@ -16,11 +16,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.test.model.entity.User;
+import com.test.util.ActivityCollectorUtil;
 import com.test.util.OkHttpRequest;
 
 import java.io.IOException;
 
+import static com.test.util.ActivityCollectorUtil.finishAllActivity;
 import static com.test.util.Constant.SEVER_PORT;
 import static com.test.util.Constant.SERVER_URL;
 
@@ -36,6 +39,16 @@ public class LoginActivity extends AppCompatActivity {
         //设置此界面为竖屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         init();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
+        if(!sp.getBoolean("loginStatus",false))
+        {
+            finishAllActivity();
+        }
     }
 
     private void init() {
@@ -148,10 +161,5 @@ public class LoginActivity extends AppCompatActivity {
                 et_user_name.setSelection(userName.length());
             }
         }
-    }
-    @Override
-    public void onBackPressed()
-    {
-
     }
 }

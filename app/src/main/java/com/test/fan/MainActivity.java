@@ -2,6 +2,7 @@ package com.test.fan;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
+import com.test.util.ActivityCollectorUtil;
 
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -29,6 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,10 +58,12 @@ public class MainActivity extends AppCompatActivity
         boolean loginStatus = sp.getBoolean("loginStatus", false);
         if(!loginStatus)
         {
+            ActivityCollectorUtil.addActivity(this);
             goToLoginActivity();
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         // 设置ToolBar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -105,6 +110,12 @@ public class MainActivity extends AppCompatActivity
             setDefaultFragment(prePos);
         }
         updateDrawerInfo();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ActivityCollectorUtil.removeActivity(this);
     }
 
     private void goToLoginActivity() {

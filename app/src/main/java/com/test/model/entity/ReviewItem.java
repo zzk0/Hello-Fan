@@ -75,17 +75,16 @@ public class ReviewItem extends LearnItem {
             calendar.setTime(date);
             calendar.add(Calendar.DATE, nextDay);
             String nextLearnDate = sdf.format(calendar.getTime());
-            String sql = "update review set " +
+            String sql = "update words set " +
                     "nextDate = \"" + nextLearnDate + "\", " +
                     "repeatTimes = " + (repeatTimes + 1) + ", " +
-                    "eFactor = " + eFactor + " " +
+                    "eFactor = " + eFactor + ", " +
+                    "lastTime = \"" + date + "\" " +
                     "where traditional = \"" + traditional + "\"";
             database.execSQL(sql);
         }
         else {
-            String sql = "delete from review where traditonal = \"" + traditional + "\"";
-            database.execSQL(sql);
-            sql = "update words set learnTimes = 0 where traditonal = \"" + traditional + "\"";
+            String sql = "update words set learnTimes = 0 where traditonal = \"" + traditional + "\"";
             database.execSQL(sql);
         }
         database.close();
