@@ -139,7 +139,7 @@ public class SettingsActivity extends AppCompatActivity {
                                     jsonObject.put("lastLearnDate", null);
                                     jsonObject.put("currentWord", 0);
                                     jsonObject.put("todayWords", null);
-                                    jsonObject.put("wordsPerDay", 0);
+                                    jsonObject.put("wordsPerday", 0);
 
                                     String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/user/updateSharedPreferences";
                                     try {
@@ -176,7 +176,7 @@ public class SettingsActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             SharedPreferences sp = getActivity().getSharedPreferences("loginInfo", MODE_PRIVATE);
-                            sp.edit().putBoolean("isSignedIn", false).apply();
+                            sp.edit().putBoolean("loginStatus", false).apply();
                             // 删库跑路，删SharedPreferences
                             Context context = getActivity().getApplicationContext();
                             SQLdm.deleteDatabase(context);

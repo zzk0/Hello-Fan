@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
@@ -14,6 +15,7 @@ import android.graphics.Paint;
 import android.graphics.Shader;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
@@ -25,8 +27,10 @@ import com.google.android.material.navigation.NavigationView;
 import com.roger.catloadinglibrary.CatLoadingView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
+import com.test.model.dto.StudyPlan;
 import com.test.util.ActivityCollectorUtil;
 import com.test.util.OkHttpRequest;
+import com.test.util.SQLdm;
 
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -42,7 +46,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.test.util.Constant.SERVER_URL;
@@ -63,13 +69,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //判断是否已经登录过
-        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
-        boolean loginStatus = sp.getBoolean("loginStatus", false);
-        if(!loginStatus)
-        {
-            goToLoginActivity();
-        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -98,6 +97,14 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
+
+        //判断是否已经登录过
+        SharedPreferences sp = getSharedPreferences("loginInfo", MODE_PRIVATE);
+        boolean loginStatus = sp.getBoolean("loginStatus", false);
+        if(!loginStatus)
+        {
+            goToLoginActivity();
+        }
 
         if (!(ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) ||
                 !(ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
@@ -140,7 +147,23 @@ public class MainActivity extends AppCompatActivity
 
     private void goToLoginActivity() {
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        final CatLoadingView catLoadingView = new CatLoadingView();
+        catLoadingView.show(getSupportFragmentManager(), "");
+        catLoadingView.setCancelable(false);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                pullData();
+                catLoadingView.setCancelable(true);
+                catLoadingView.dismiss();
+            }
+        }).start();
     }
 
     @Override
@@ -319,4 +342,84 @@ public class MainActivity extends AppCompatActivity
             return "circle";
         }
     }
+
+    private void pullData() {
+        SharedPreferences sharedPreferences = getSharedPreferences("loginInfo", 0);
+        String username = sharedPreferences.getString("userName", "");
+        String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/studyPlan/getAllPlan?userName=" + username;
+        try {
+            String json = OkHttpRequest.get(requestUrl);
+            JSONArray array = JSON.parseArray(json);
+            SQLiteDatabase database = new SQLdm().openDataBase(this);
+            if (array != null) {
+                for (int i = 0; i < array.size(); i++) {
+                    StudyPlan plan = array.getObject(i, StudyPlan.class);
+                    String sql = "update words set " +
+                            "learnTimes = " + plan.getLearnTimes() + ", " +
+                            "learnDate = \"" + plan.getLearnDate() + "\", " +
+                            "repeatTimes = " + plan.getRepeatTimes() + ", " +
+                            "eFactor = " + plan.getEfactor() + ", " +
+                            "nextDate = \"" + plan.getNextDate() + "\" " +
+                            "where traditional = \"" + plan.getTradictional() + "\"";
+                    database.execSQL(sql);
+                }
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        requestUrl = SERVER_URL + ":" + SEVER_PORT + "/user/getSharedPreferences?userName=" + username;
+        try {
+            String json = OkHttpRequest.get(requestUrl);
+            JSONObject obj = JSONObject.parseObject(json);
+            int currentWord = obj.getInteger("currentWord");
+            int wordsPerDay = obj.getInteger("wordsPerday");
+            String lastLearnDate = obj.getString("lastLearnDate");
+            String todayWords = obj.getString("todayWords");
+            SharedPreferences fanData = getSharedPreferences("fan_data", 0);
+            SharedPreferences.Editor editor = fanData.edit();
+            editor.putInt("current_word", currentWord);
+            if (wordsPerDay != 0) {
+                editor.putInt("wordsPerDay", wordsPerDay);
+            }
+            else {
+                editor.putInt("wordsPerDay", 20);
+            }
+            editor.putString("last_learn_date", lastLearnDate);
+            editor.putString("today_words", todayWords);
+            SimpleDateFormat sdf = new SimpleDateFormat("YYYY-mm-dd hh:mm:ss");
+            String updateTime = sdf.format(new Date());
+            editor.putString("updateTime", updateTime);
+            editor.apply();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 }
+
+//                    SharedPreferences sharedPreferences = getSharedPreferences("fan_data", 0);
+//                    SimpleDateFormat sdf = new SimpleDateFormat("YYYY-mm-dd hh:mm:ss");
+//
+//                    SharedPreferences sp = getSharedPreferences("loginInfo", 0);
+//                    String username = sp.getString("userName", "");
+//                    String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/user/getUpdateTime?userName=" + username;
+//
+//                    boolean needUpdate = false;
+//                    try {
+//                        String response = OkHttpRequest.get(requestUrl);
+//                        Date updateTime = sdf.parse(response);
+//                        Date lastUpdateTime = sdf.parse(sharedPreferences.getString("updateTime", ""));
+//                        if (lastUpdateTime.before(updateTime)) {
+//                            needUpdate = true;
+//                        }
+//                    }
+//                    catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                    if (needUpdate) {
+//                        return;
+//                    }
+// LoadingView

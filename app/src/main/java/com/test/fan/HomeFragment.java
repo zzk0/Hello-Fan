@@ -27,6 +27,7 @@ import com.test.util.SQLdm;
 import com.test.view.SignLinesView;
 import com.test.view.SignView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -57,25 +58,12 @@ public class HomeFragment extends Fragment {
         mSignView = (SignView)view.findViewById(R.id.signView);
         mSignLinesView=(SignLinesView)view.findViewById(R.id.signLineView);
 
-        // LoadingView
-        final CatLoadingView catLoadingView = new CatLoadingView();
-        catLoadingView.show(getActivity().getSupportFragmentManager(), "");
-        catLoadingView.setCancelable(false);
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //根据数据库中日期进行签到标签的修改
-                SQLiteDatabase sqLiteDatabase = new SQLdm().openDataBase(getContext());
-                String table = "words";
-                Cursor cursor=sqLiteDatabase.query(true,table,new String[]{"learnDate"},"learnDate is not null",null,null,null,null,null);
-                mSignLinesView.setSignDays(cursor.getCount());
-                //Toast.makeText(getContext(),"提示:"+cursor.getCount(),Toast.LENGTH_LONG).show();
-                pullData();
-                catLoadingView.setCancelable(true);
-                catLoadingView.dismiss();
-            }
-        }).start();
+        //根据数据库中日期进行签到标签的修改
+        SQLiteDatabase sqLiteDatabase = new SQLdm().openDataBase(getContext());
+        String table = "words";
+        Cursor cursor=sqLiteDatabase.query(true,table,new String[]{"learnDate"},"learnDate is not null",null,null,null,null,null);
+        mSignLinesView.setSignDays(cursor.getCount());
+        //Toast.makeText(getContext(),"提示:"+cursor.getCount(),Toast.LENGTH_LONG).show();
 
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,63 +81,5 @@ public class HomeFragment extends Fragment {
         });
 
         return view;
-    }
-
-    private void pullData() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("loginInfo", 0);
-                String username = sharedPreferences.getString("userName", "");
-                String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/studyPlan/getAllPlan?userName=" + username;
-                try {
-                    String json = OkHttpRequest.get(requestUrl);
-                    JSONArray array = JSON.parseArray(json);
-                    SQLiteDatabase database = new SQLdm().openDataBase(getActivity());
-                    if (array != null) {
-                        for (int i = 0; i < array.size(); i++) {
-                            StudyPlan plan = array.getObject(i, StudyPlan.class);
-                            String sql = "update words set " +
-                                    "learnTimes = " + plan.getLearnTimes() + ", " +
-                                    "learnDate = \"" + plan.getLearnDate() + "\", " +
-                                    "repeatTimes = " + plan.getRepeatTimes() + ", " +
-                                    "eFactor = " + plan.getEfactor() + ", " +
-                                    "nextDate = \"" + plan.getNextDate() + "\" " +
-                                    "where traditional = \"" + plan.getTradictional() + "\"";
-                            database.execSQL(sql);
-                        }
-                    }
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                requestUrl = SERVER_URL + ":" + SEVER_PORT + "/user/getSharedPreferences?userName=" + username;
-                try {
-                    String json = OkHttpRequest.get(requestUrl);
-                    JSONObject obj = JSONObject.parseObject(json);
-                    int currentWord = obj.getInteger("currentWord");
-                    int wordsPerDay = obj.getInteger("wordsPerday");
-                    String lastLearnDate = obj.getString("lastLearnDate");
-                    String todayWords = obj.getString("todayWords");
-                    SharedPreferences fanData = getActivity().getSharedPreferences("fan_data", 0);
-                    SharedPreferences.Editor editor = fanData.edit();
-                    editor.putInt("current_word", currentWord);
-                    if (wordsPerDay != 0) {
-                        editor.putInt("wordsPerDay", wordsPerDay);
-                    }
-                    else {
-                        editor.putInt("wordsPerDay", 20);
-                    }
-                    editor.putString("last_learn_date", lastLearnDate);
-                    editor.putString("today_words", todayWords);
-                    editor.apply();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }).start();
     }
 }

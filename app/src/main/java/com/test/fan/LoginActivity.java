@@ -91,6 +91,8 @@ public class LoginActivity extends AppCompatActivity {
                                 editor.putBoolean("loginStatus", true);
                                 editor.putString("userName", userName);
                                 editor.apply();
+                                Intent intent = new Intent();
+                                setResult(1);
                                 LoginActivity.this.finish();
                             } else if (msg.obj.equals("false")) {
                                 Toast.makeText(LoginActivity.this, "用户名或者密码有误", Toast.LENGTH_SHORT).show();

@@ -43,6 +43,10 @@ public class SyncHelper {
             public void run() {
                 // 上传SharedPreferences
                 SharedPreferences sharedPreferences = context.getSharedPreferences("fan_data", 0);
+                SimpleDateFormat sdf = new SimpleDateFormat("YYYY-mm-dd hh:mm:ss");
+                String updateTime = sdf.format(new Date());
+                sharedPreferences.edit().putString("updateTime", updateTime).apply();
+
                 String lastLearnDate = sharedPreferences.getString("last_learn_date", "");
                 int currentWord = sharedPreferences.getInt("current_word", 0);
                 String todayWords = sharedPreferences.getString("today_words", "");
@@ -52,11 +56,11 @@ public class SyncHelper {
                 String username = sp1.getString("userName", "");
 
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("username", username);
+                jsonObject.put("userName", username);
                 jsonObject.put("lastLearnDate", lastLearnDate);
                 jsonObject.put("currentWord", currentWord);
                 jsonObject.put("todayWords", todayWords);
-                jsonObject.put("wordsPerDay", wordsPerDay);
+                jsonObject.put("wordsPerday", wordsPerDay);
 
                 String requestUrl = SERVER_URL + ":" + SEVER_PORT + "/user/updateSharedPreferences";
                 try {
