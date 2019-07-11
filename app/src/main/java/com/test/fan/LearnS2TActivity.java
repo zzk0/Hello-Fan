@@ -165,7 +165,7 @@ public class LearnS2TActivity extends AppCompatActivity {
         }
         codeBtn.setBackgroundColor( ( backGroundColor >= 0 )?backGroundColor: Color.GRAY );
         codeBtn.setTextColor( ( textColor >= 0 )?textColor:Color.BLACK );
-        codeBtn.setTextSize( ( textSize > 16 )?textSize:24 );
+        codeBtn.setTextSize( 20 );
         codeBtn.setId( id );
 
         codeBtn.setBackgroundResource(R.drawable.shape_button);
