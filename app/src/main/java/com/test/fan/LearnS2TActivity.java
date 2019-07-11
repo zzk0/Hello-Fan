@@ -167,15 +167,12 @@ public class LearnS2TActivity extends AppCompatActivity {
         codeBtn.setTextColor( ( textColor >= 0 )?textColor:Color.BLACK );
         codeBtn.setTextSize( 20 );
         codeBtn.setId( id );
-
         codeBtn.setBackgroundResource(R.drawable.shape_button);
-
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         codeBtn.setWidth(dm.widthPixels);
        // System.out.println(dm.widthPixels);
         //System.out.println(dm.heightPixels);
-
 //        float density = dm.density;         // 屏幕密度（0.75 / 1.0 / 1.5）
 //        int densityDpi = dm.densityDpi;     // 屏幕密度dpi（120 / 160 / 240）
 //        // 屏幕宽度算法:屏幕宽度（像素）/屏幕密度
@@ -185,11 +182,8 @@ public class LearnS2TActivity extends AppCompatActivity {
 //        System.out.println(screenWidth);
 //        System.out.println(screenHeight);
         codeBtn.setHeight(mBtnListLayout.getLayoutParams().height/5);
-
         codeBtn.setText( String.valueOf(id+1)+"."+btnContent );
-
         codeBtn.setGravity( Gravity.CENTER );
-
         codeBtn.setOnClickListener( new View.OnClickListener( ) {
             @Override
             public void onClick(View v) {
@@ -231,7 +225,6 @@ public class LearnS2TActivity extends AppCompatActivity {
 
     private void showRightDialog(){
         AlertDialog.Builder builder=new AlertDialog.Builder(this);
-
         builder.setTitle("提示");
         builder.setMessage("选择正确！");
         builder.setPositiveButton("我知道了",
@@ -253,7 +246,6 @@ public class LearnS2TActivity extends AppCompatActivity {
                 });
         AlertDialog dialog=builder.create();
         dialog.show();
-
     }
 
     private void setS_textview(String text)
@@ -287,13 +279,23 @@ public class LearnS2TActivity extends AppCompatActivity {
         String tr="",s="";
         //sqLiteDatabase = dbHelper.getReadableDatabase();
         sqLiteDatabase=sqLdm.openDataBase(getApplicationContext());
-
         Cursor cursor = sqLiteDatabase.rawQuery("select * from dict where words like '%" + Right_text + "%'", null);
         if (cursor.getCount()==0)
         {
             //System.out.println("空");
-            setW_textview("\""+Right_text+"\""+"在繁体中不存在组词");
-            setE_textview("请选择"+"\""+Right_text+"\"");
+            //设置sharepreferences
+            SharedPreferences userSettings = getSharedPreferences("setting", MODE_PRIVATE);
+            SharedPreferences.Editor editor = userSettings.edit();
+            editor.putInt("flag",flag1);
+            editor.commit();
+
+            ArrayList<String> T_List=getBtnContentList();
+            generateBtnList(T_List);
+            generateS_TextList(S_List);
+            search_words(T_List);
+
+//            setW_textview("\""+Right_text+"\""+"在繁体中不存在组词");
+//            setE_textview("请选择"+"\""+Right_text+"\"");
 
         }
         else{
